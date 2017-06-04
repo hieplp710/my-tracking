@@ -63,6 +63,20 @@
                 margin-bottom: 30px;
             }
         </style>
+        <!-- 1. Load libraries -->
+        <!-- Polyfill(s) for older browsers -->
+        <script src="lib/core-js/client/shim.min.js"></script>
+
+        <script src="lib/zone.js/dist/zone.js"></script>
+        <script src="lib/reflect-metadata/Reflect.js"></script>
+        <script src="lib/systemjs/dist/system.src.js"></script>
+
+        <!-- 2. Configure SystemJS -->
+        <script src="systemjs.config.js"></script>
+        <script>
+            System.import('app')
+                .then(null, console.error.bind(console));
+        </script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
@@ -89,6 +103,9 @@
                     <a href="https://forge.laravel.com">Forge</a>
                     <a href="https://github.com/laravel/laravel">GitHub</a>
                 </div>
+            </div>
+            <div class="content">
+                <app>Loading...</app>
             </div>
         </div>
     </body>

@@ -34,7 +34,7 @@ gulp.task("compile", ["tslint"], () => {
         .pipe(tsProject());
     return tsResult.js
         .pipe(sourcemaps.write(".", {sourceRoot: '/src'}))
-        .pipe(gulp.dest("build"));
+        .pipe(gulp.dest("public"));
 });
 
 /**
@@ -58,7 +58,7 @@ gulp.task("libs", () => {
             'zone.js/dist/**',
             '@angular/**/bundles/**'
         ], {cwd: "node_modules/**"}) /* Glob required here. */
-        .pipe(gulp.dest("build/lib"));
+        .pipe(gulp.dest("public/lib"));
 });
 
 /**

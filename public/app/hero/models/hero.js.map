@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/app/hero/models/hero.ts"],"names":[],"mappings":";;;;;;;YAAA;;eAEG;YACH;gBAAA;gBAIA,CAAC;gBAAD,WAAC;YAAD,CAJA,AAIC,IAAA;;QAAA,CAAC","file":"hero.js","sourcesContent":["/**\r\n * Created by Hiep Quach on 6/3/2017.\r\n */\r\nexport class Hero {\r\n    name: string;\r\n    id: number;\r\n    superPower: string;\r\n}"],"sourceRoot":"/src"}

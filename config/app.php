@@ -164,6 +164,8 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Backpack\Base\BaseServiceProvider::class,
         Backpack\CRUD\CrudServiceProvider::class,
+        Backpack\Settings\SettingsServiceProvider::class,
+        Backpack\PermissionManager\PermissionManagerServiceProvider::class,
         /*
          * Package Service Providers...
          */

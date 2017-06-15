@@ -26,5 +26,5 @@ Route::group([
 ], function() {
     // your CRUD resources and other admin routes here
     CRUD::resource('tracking_device', 'Tracking_deviceCrudController');
-    CRUD::resource('device-locations', 'DeviceLocationCrudController');
+    CRUD::resource('devicelocation', 'DeviceLocationCrudController');
 });

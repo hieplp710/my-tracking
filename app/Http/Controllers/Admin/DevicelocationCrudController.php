@@ -8,7 +8,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use App\Http\Requests\DevicelocationRequest as StoreRequest;
 use App\Http\Requests\DevicelocationRequest as UpdateRequest;
 
-class DevicelocationCrudController extends CrudController
+class DeviceLocationCrudController extends CrudController
 {
     public function setup()
     {
@@ -20,7 +20,7 @@ class DevicelocationCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Devicelocation');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/devicelocation');
-        $this->crud->setEntityNameStrings('devicelocation', 'devicelocations');
+        $this->crud->setEntityNameStrings('devicelocation', 'Device locations');
 
         /*
         |--------------------------------------------------------------------------
@@ -29,74 +29,38 @@ class DevicelocationCrudController extends CrudController
         */
 
         $this->crud->setFromDb();
+        /*
+        |--------------------------------------------------------------------------
+        | COLUMNS AND FIELDS
+        |--------------------------------------------------------------------------
+        */
 
-        // ------ CRUD FIELDS
-        // $this->crud->addField($options, 'update/create/both');
-        // $this->crud->addFields($array_of_arrays, 'update/create/both');
-        // $this->crud->removeField('name', 'update/create/both');
-        // $this->crud->removeFields($array_of_names, 'update/create/both');
+        // ------ CRUD COLUMNS for list
+//        $this->crud->addColumn('device_id')->label('Device Id')->type('string');
+//        $this->crud->addColumn('command')->label('Command');
+//        $this->crud->addColumn('status')->label('Status');
+//        $this->crud->addColumn('created_at')->label('Time')->type('datetime');
+//        $this->crud->addColumn('lat')->label('Latitude');
+//        $this->crud->addColumn('lng')->label('Longitude');
+//        $this->crud->addColumn('heading')->label('Direction');
+//        $this->crud->addColumn('current_state')->label('Description');
+//        $this->crud->addColumn('velocity')->label('Velocity');
+//        $this->crud->addColumn('reverser')->label('Reverser');
+//        $this->crud->addColumn('checksum')->label('Checksum');
+//        $this->crud->addColumn('is_deleted')->label('Deleted')->type('checkbox');
 
-        // ------ CRUD COLUMNS
-        // $this->crud->addColumn(); // add a single column, at the end of the stack
-        // $this->crud->addColumns(); // add multiple columns, at the end of the stack
-        // $this->crud->removeColumn('column_name'); // remove a column from the stack
-        // $this->crud->removeColumns(['column_name_1', 'column_name_2']); // remove an array of columns from the stack
-        // $this->crud->setColumnDetails('column_name', ['attribute' => 'value']); // adjusts the properties of the passed in column (by name)
-        // $this->crud->setColumnsDetails(['column_1', 'column_2'], ['attribute' => 'value']);
+        // ------ CRUD FIELDS for create/update
+//        $this->crud->addField('title')->label('Title')->type('text')->placeholder('Your title here');
+//        CRUD::addField('slug')->label('Slug (URL)')->type('text')->hint('Will be automatically generated from your title, if left empty');
+//        CRUD::addField('date')->label('Date')->type('date')->value(date('Y-m-d'))->showOnCreate(); // alternatives: showOnCreate(); showOnUpdate(); showOnBoth(); hideOnCreate(); hideOnUpdate();
+//        CRUD::addField('date')->label('Date')->type('date')->showOnUpdate();
+//        CRUD::addField('content')->label('Content')->type('ckeditor')->placeholder('Your textarea text here');
+//        CRUD::addField('image')->label('Image')->type('browse');
+//        CRUD::addField('category_id')->type('select2')->label('Category')->entity('category')->attribute('name')->model('App\Models\Category');
+//        CRUD::addField('tags')->type('select2_multiple')->label('Tags')->entity('tags')->attribute('name')->model('App\Models\Tag')->pivot(true);
+//        CRUD::addField('name')->label('Status')->type('enum');
+//        CRUD::addField('featured')->label('Featured item')->type('checkbox');
 
-        // ------ CRUD BUTTONS
-        // possible positions: 'beginning' and 'end'; defaults to 'beginning' for the 'line' stack, 'end' for the others;
-        // $this->crud->addButton($stack, $name, $type, $content, $position); // add a button; possible types are: view, model_function
-        // $this->crud->addButtonFromModelFunction($stack, $name, $model_function_name, $position); // add a button whose HTML is returned by a method in the CRUD model
-        // $this->crud->addButtonFromView($stack, $name, $view, $position); // add a button whose HTML is in a view placed at resources\views\vendor\backpack\crud\buttons
-        // $this->crud->removeButton($name);
-        // $this->crud->removeButtonFromStack($name, $stack);
-        // $this->crud->removeAllButtons();
-        // $this->crud->removeAllButtonsFromStack('line');
-
-        // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
-
-        // ------ CRUD REORDER
-        // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);
-        // NOTE: you also need to do allow access to the right users: $this->crud->allowAccess('reorder');
-
-        // ------ CRUD DETAILS ROW
-        // $this->crud->enableDetailsRow();
-        // NOTE: you also need to do allow access to the right users: $this->crud->allowAccess('details_row');
-        // NOTE: you also need to do overwrite the showDetailsRow($id) method in your EntityCrudController to show whatever you'd like in the details row OR overwrite the views/backpack/crud/details_row.blade.php
-
-        // ------ REVISIONS
-        // You also need to use \Venturecraft\Revisionable\RevisionableTrait;
-        // Please check out: https://laravel-backpack.readme.io/docs/crud#revisions
-        // $this->crud->allowAccess('revisions');
-
-        // ------ AJAX TABLE VIEW
-        // Please note the drawbacks of this though:
-        // - 1-n and n-n columns are not searchable
-        // - date and datetime columns won't be sortable anymore
-        // $this->crud->enableAjaxTable();
-
-        // ------ DATATABLE EXPORT BUTTONS
-        // Show export to PDF, CSV, XLS and Print buttons on the table view.
-        // Does not work well with AJAX datatables.
-        // $this->crud->enableExportButtons();
-
-        // ------ ADVANCED QUERIES
-        // $this->crud->addClause('active');
-        // $this->crud->addClause('type', 'car');
-        // $this->crud->addClause('where', 'name', '==', 'car');
-        // $this->crud->addClause('whereName', 'car');
-        // $this->crud->addClause('whereHas', 'posts', function($query) {
-        //     $query->activePosts();
-        // });
-        // $this->crud->addClause('withoutGlobalScopes');
-        // $this->crud->addClause('withoutGlobalScope', VisibleScope::class);
-        // $this->crud->with(); // eager load relationships
-        // $this->crud->orderBy();
-        // $this->crud->groupBy();
-        // $this->crud->limit();
     }
 
     public function store(StoreRequest $request)

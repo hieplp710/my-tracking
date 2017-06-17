@@ -12,7 +12,6 @@ class DeviceLocationCrudController extends CrudController
 {
     public function setup()
     {
-
         /*
         |--------------------------------------------------------------------------
         | BASIC CRUD INFORMATION

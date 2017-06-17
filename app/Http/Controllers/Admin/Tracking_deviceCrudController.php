@@ -20,7 +20,7 @@ class Tracking_deviceCrudController extends CrudController
         */
         $this->crud->setModel('App\Models\Tracking_device');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/tracking_device');
-        $this->crud->setEntityNameStrings('tracking_device', 'tracking_devices');
+        $this->crud->setEntityNameStrings('tracking_device', 'Devices');
 
         /*
         |--------------------------------------------------------------------------
@@ -28,7 +28,43 @@ class Tracking_deviceCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
+        //$this->crud->setFromDb();
+
+        $this->crud->addColumn([
+            'name' => 'device_number', // The db column name
+            'label' => "Device Number", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'setting', // The db column name
+            'label' => "Settings", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'sim_infor', // The db column name
+            'label' => "Sim Information", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'activated_at', // The db column name
+            'label' => "Activated At", // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'displayActivatedAt',
+        ]);
+        $this->crud->addColumn([
+            'name' => 'created_at', // The db column name
+            'label' => "Created At", // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'displayCreatedAt',
+        ]);
+        $this->crud->addColumn([
+            'name' => 'user_id', // The db column name
+            'label' => "Owner", // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getUserName',
+        ]);
+
+
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');

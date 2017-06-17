@@ -28,7 +28,7 @@ class DeviceLocationCrudController extends CrudController
         |--------------------------------------------------------------------------
         */
 
-        $this->crud->setFromDb();
+        //$this->crud->setFromDb();
         /*
         |--------------------------------------------------------------------------
         | COLUMNS AND FIELDS
@@ -48,6 +48,62 @@ class DeviceLocationCrudController extends CrudController
 //        $this->crud->addColumn('reverser')->label('Reverser');
 //        $this->crud->addColumn('checksum')->label('Checksum');
 //        $this->crud->addColumn('is_deleted')->label('Deleted')->type('checkbox');
+
+        $this->crud->addColumn([
+            'name' => 'device_id', // The db column name
+            'label' => "Device Id", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'command', // The db column name
+            'label' => "Command", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'status', // The db column name
+            'label' => "Status", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'created_at', // The db column name
+            'label' => "Time", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'lat', // The db column name
+            'label' => "Latitude", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'lng', // The db column name
+            'label' => "Longitude", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'heading', // The db column name
+            'label' => "Direction", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'current_state', // The db column name
+            'label' => "Description", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'velocity', // The db column name
+            'label' => "Velocity", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'reverser', // The db column name
+            'label' => "Reverser", // Table column heading
+            'type' => 'Text'
+        ]);
+        $this->crud->addColumn([
+            'name' => 'checksum', // The db column name
+            'label' => "Checksum", // Table column heading
+            'type' => 'check'
+        ]);
 
         // ------ CRUD FIELDS for create/update
 //        $this->crud->addField('title')->label('Title')->type('text')->placeholder('Your title here');

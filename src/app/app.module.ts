@@ -2,29 +2,22 @@ import {NgModule}      from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from "./app.component";
-import {TaskListComponent} from "./todo/components/task-list.component";
-import {AboutComponent} from "./about/components/about.component";
-import {TaskComponent} from "./todo/components/task.component";
-import {HeroComponent} from "./hero/components/hero.component";
-
-import {routing, appRoutingProviders} from './app.routing';
-import {FormsModule} from "@angular/forms";
+import { AgmCoreModule } from "@agm/core";
+import {MapComponent} from "./map/components/map.component";
 
 @NgModule({
     imports: [
         BrowserModule,
-        FormsModule,
-        routing
+        AgmCoreModule.forRoot({
+            apiKey: 'AIzaSyA0M4JqFrQj7j9WLtmyvYgn6f4O_zQX54c'
+        })
     ],
     declarations: [
         AppComponent,
-        TaskComponent,
-        TaskListComponent,
-        HeroComponent,
-        AboutComponent
+        MapComponent
     ],
     providers: [
-        appRoutingProviders
+        //appRoutingProviders
     ],
     bootstrap: [AppComponent]
 })

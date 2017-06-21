@@ -64,7 +64,97 @@ class Tracking_deviceCrudController extends CrudController
             'function_name' => 'getUserName',
         ]);
 
+        //add field
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'id', // DB column name (will also be the name of the input)
+            'label' => 'Device Id', // the human-readable label for the input
+            'type'  => 'number', // the field type (text, number, select, checkbox, etc)
 
+            // OPTIONAL + example values
+            'hint'       => 'device id', // helpful text, show up after input
+            'attributes' => [
+                'placeholder' => 'Device id',
+                'class' => 'form-control some-class'
+            ], // extra HTML attributes and values your input might need
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-12'
+            ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
+        ]);
+
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'device_number', // DB column name (will also be the name of the input)
+            'label' => 'Device Number', // the human-readable label for the input
+            'type'  => 'number', // the field type (text, number, select, checkbox, etc)
+
+            // OPTIONAL + example values
+            'hint'       => 'device number', // helpful text, show up after input
+            'attributes' => [
+                'placeholder' => 'Device Number',
+                'class' => 'form-control some-class'
+            ], // extra HTML attributes and values your input might need
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-12'
+            ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
+        ]);
+
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'sim_infor', // DB column name (will also be the name of the input)
+            'label' => 'Sim information', // the human-readable label for the input
+            'type'  => 'text', // the field type (text, number, select, checkbox, etc)
+
+            // OPTIONAL + example values
+            'hint'       => 'Sim information', // helpful text, show up after input
+            'attributes' => [
+                'default' => '{}',
+                'placeholder' => 'Device Number',
+                'class' => 'form-control some-class'
+            ], // extra HTML attributes and values your input might need
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-12'
+            ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
+        ]);
+
+
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'activated_at', // DB column name (will also be the name of the input)
+            'label' => 'Activated At', // the human-readable label for the input
+            'type'  => 'date_picker', // the field type (text, number, select, checkbox, etc)
+
+            // OPTIONAL + example values
+            'hint'       => 'Activated date', // helpful text, show up after input
+            'attributes' => [
+                'placeholder' => 'Device Number',
+                'class' => 'form-control some-class'
+            ], // extra HTML attributes and values your input might need
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-12'
+            ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
+        ]);
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'setting', // DB column name (will also be the name of the input)
+            'label' => 'Settings', // the human-readable label for the input
+            'type'  => 'text', // the field type (text, number, select, checkbox, etc)
+
+            // OPTIONAL + example values
+            'attributes' => [
+                'placeholder' => 'Setting...',
+                'class' => 'form-control some-class'
+            ], // extra HTML attributes and values your input might need
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-12'
+            ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
+        ]);
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'user_id', // DB column name (will also be the name of the input)
+            'label' => 'Owner', // the human-readable label for the input
+            'type'  => 'number', // the field type (text, number, select, checkbox, etc)
+        ]);
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');

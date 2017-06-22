@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Devicelocation;
+use App\Models\Tracking_device;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\Tracking_deviceRequest as StoreRequest;
 use App\Http\Requests\Tracking_deviceRequest as UpdateRequest;
+use Illuminate\Http\Request;
 
 class Tracking_deviceCrudController extends CrudController
 {
@@ -241,5 +244,15 @@ class Tracking_deviceCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+
+    public function location(Request $request){
+        if ($request->isMethod('post')){
+            $data = $request->all();
+            $location = new Tracking_device();
+            $result = $location->handleLocation($data);
+            return response()->json($result);
+        }
+        return response()->json(["status" => false, "error" => "Not support method"]);
     }
 }

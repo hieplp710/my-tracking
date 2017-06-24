@@ -5,7 +5,7 @@
 <agm-map [latitude]="lat" [longitude]="lng" [mapDraggable]="mapDraggable" (mapClick)="onClick($event)">
     <agm-marker *ngFor="let m of allMarkers"
                 (markerClick)="onClick(m)"
-                [latitude]="m.lat"
-                [longitude]="m.lng">
+                [latitude]="m.currentLocation.lat"
+                [longitude]="m.currentLocation.lng">
     </agm-marker>
 </agm-map>

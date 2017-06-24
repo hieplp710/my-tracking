@@ -1,8 +1,12 @@
 /**
  * Created by hiepl on 6/18/2017.
  */
+import { Location } from './Location';
+
 export class Marker {
-    lat: number;
-    lng: number;
-    name: string;
+    deviceId: number;
+    deviceNumber: string;
+    currentLocation: Location;
+    locations: Location[];
+
 }

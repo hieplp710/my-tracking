@@ -1,4 +1,4 @@
-System.register(["@angular/core", "@angular/platform-browser", "./app.component", "@agm/core", "./map/components/map.component"], function (exports_1, context_1) {
+System.register(["@angular/core", "@angular/platform-browser", "./app.component", "@agm/core", "./map/components/map.component", "./services/TrackingService", "@angular/http"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7,7 +7,7 @@ System.register(["@angular/core", "@angular/platform-browser", "./app.component"
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __moduleName = context_1 && context_1.id;
-    var core_1, platform_browser_1, app_component_1, core_2, map_component_1, AppModule;
+    var core_1, platform_browser_1, app_component_1, core_2, map_component_1, TrackingService_1, http_1, AppModule;
     return {
         setters: [
             function (core_1_1) {
@@ -24,6 +24,12 @@ System.register(["@angular/core", "@angular/platform-browser", "./app.component"
             },
             function (map_component_1_1) {
                 map_component_1 = map_component_1_1;
+            },
+            function (TrackingService_1_1) {
+                TrackingService_1 = TrackingService_1_1;
+            },
+            function (http_1_1) {
+                http_1 = http_1_1;
             }
         ],
         execute: function () {
@@ -36,6 +42,7 @@ System.register(["@angular/core", "@angular/platform-browser", "./app.component"
                 core_1.NgModule({
                     imports: [
                         platform_browser_1.BrowserModule,
+                        http_1.HttpModule,
                         core_2.AgmCoreModule.forRoot({
                             apiKey: 'AIzaSyA0M4JqFrQj7j9WLtmyvYgn6f4O_zQX54c'
                         })
@@ -44,7 +51,10 @@ System.register(["@angular/core", "@angular/platform-browser", "./app.component"
                         app_component_1.AppComponent,
                         map_component_1.MapComponent
                     ],
-                    providers: [],
+                    providers: [
+                        TrackingService_1.TrackingService,
+                        http_1.HttpModule,
+                    ],
                     bootstrap: [app_component_1.AppComponent]
                 })
             ], AppModule);

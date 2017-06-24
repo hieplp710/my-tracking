@@ -1,6 +1,4 @@
 import {Component, OnInit} from "@angular/core";
-import {HeroComponent} from "./hero/components/hero.component";
-
 @Component({
     selector: "app",
     templateUrl: "./app/app.html"

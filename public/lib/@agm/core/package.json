@@ -2,18 +2,18 @@
   "_args": [
     [
       {
-        "raw": "@agm/core",
+        "raw": "@agm/core@^1.0.0-beta.0",
         "scope": "@agm",
         "escapedName": "@agm%2fcore",
         "name": "@agm/core",
-        "rawSpec": "",
-        "spec": "latest",
-        "type": "tag"
+        "rawSpec": "^1.0.0-beta.0",
+        "spec": ">=1.0.0-beta.0 <2.0.0",
+        "type": "range"
       },
       "E:\\outsource\\my-tracking"
     ]
   ],
-  "_from": "@agm/core@latest",
+  "_from": "@agm/core@>=1.0.0-beta.0 <2.0.0",
   "_id": "@agm/core@1.0.0-beta.0",
   "_inCache": true,
   "_location": "/@agm/core",
@@ -29,22 +29,21 @@
   "_npmVersion": "4.2.0",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@agm/core",
+    "raw": "@agm/core@^1.0.0-beta.0",
     "scope": "@agm",
     "escapedName": "@agm%2fcore",
     "name": "@agm/core",
-    "rawSpec": "",
-    "spec": "latest",
-    "type": "tag"
+    "rawSpec": "^1.0.0-beta.0",
+    "spec": ">=1.0.0-beta.0 <2.0.0",
+    "type": "range"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/@agm/core/-/core-1.0.0-beta.0.tgz",
   "_shasum": "5ca53f0efa321e1e24c7ba3a6be72f96bccf82a4",
   "_shrinkwrap": null,
-  "_spec": "@agm/core",
+  "_spec": "@agm/core@^1.0.0-beta.0",
   "_where": "E:\\outsource\\my-tracking",
   "author": {
     "name": "Sebastian Müller",

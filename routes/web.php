@@ -29,4 +29,5 @@ Route::group([
     CRUD::resource('devicelocation', 'DeviceLocationCrudController');
 });
 
-Route::get('/admin/location', 'Admin/Controller@index')->name('home');
+Route::post('/tracking/location', 'Tracking\DeviceController@location')->name('location');
+Route::post('/tracking/get-locations', 'Tracking\DeviceController@getDeviceLocations')->name('get_location');

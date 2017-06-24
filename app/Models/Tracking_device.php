@@ -149,7 +149,7 @@ class Tracking_device extends Model
         if (empty($data[3])){
             return ["status" => false, "error" => "Empty time"];
         }
-        $locationDate = \DateTime::createFromFormat($data[3], 'Y-m-d H:i:s');
+        $locationDate = \DateTime::createFromFormat('Y-m-d H:i:s',$data[3]);
         if (!$locationDate){
             return ["status" => false, "error" => "Invalid time format"];
         }
@@ -189,14 +189,16 @@ class Tracking_device extends Model
         $location = new Devicelocation();
         $location->device_id = $device->id;
         $location->lat = $data['lat'];
-        $location->lng = $device['lng'];
-        $location->status = $device['status'];
-        $location->heading = $device['heading'];
-        $location->velocity = $device['velocity'];
-        $location->created_at = $device['time'];
-        $location->reverser = $device['reverser'];
-        $location->checksum = $device['checksum'];
+        $location->lng = $data['lng'];
+        $location->status = $data['status'];
+        $location->heading = $data['heading'];
+        $location->velocity = $data['velocity'];
+        $location->created_at = $data['time'];
+        $location->reverser = $data['reverser'];
+        $location->checksum = $data['checksum'];
         $location->updated_at = date('Y-m-d H:i:s');
+        $location->is_deleted = 0;
+
         return $location->save();
     }
     /**

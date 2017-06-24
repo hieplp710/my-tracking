@@ -245,14 +245,4 @@ class Tracking_deviceCrudController extends CrudController
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
     }
-
-    public function location(Request $request){
-        if ($request->isMethod('post')){
-            $data = $request->all();
-            $location = new Tracking_device();
-            $result = $location->handleLocation($data);
-            return response()->json($result);
-        }
-        return response()->json(["status" => false, "error" => "Not support method"]);
-    }
 }

@@ -32,7 +32,6 @@ try {
         $current = date('Y-m-d H:i:s');
         $query = "INSERT INTO `device_locations`(`device_id`,`command`,`lat`,`lng`,`status`,`heading`,`created_at`,`updated_at`,`current_state`,`velocity`,`reverser`,`checksum`)
 VALUES ('$device_id',$command,$lat,$lng,$status,$heading,'$time','$current','',$velocity,$reverser,$checksum);";
-
         if ($conn->query($query) === TRUE) {
             echo "Record updated successfully";
         } else {

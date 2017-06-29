@@ -3,10 +3,14 @@
  */
 import { Location } from './Location';
 
-export class Marker {
+export interface MyMarker {
     deviceId: number;
     deviceNumber: string;
-    currentLocation: Location;
+    currentLocation : Location;
     locations: Location[];
+}
 
+export interface LocationObj {
+    markers : MyMarker[];
+    lastPoint : Location;
 }

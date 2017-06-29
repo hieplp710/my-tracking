@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Tracking;
 use App\Models\Tracking_device;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Input;
 
 class DeviceController extends BaseController
 {
@@ -20,7 +21,9 @@ class DeviceController extends BaseController
 
     public function getDeviceLocations(Request $request, $user_id = 0){
         $this->middleware('auth');
-        $result = Tracking_device::getUserDeviceLocation($user_id);
+        $lastPoint = Input::get('lastPoint');
+        $options = !empty($lastPoint) ? ['last_point' => $lastPoint] : null;
+        $result = Tracking_device::getUserDeviceLocation($user_id, $options);
         return response()->json($result);
     }
 

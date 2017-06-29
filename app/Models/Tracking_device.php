@@ -5,6 +5,7 @@ namespace App\Models;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Devicelocation;
 
@@ -77,16 +78,22 @@ class Tracking_device extends Model
     public static function getUserDeviceLocation($user_id = 0, $options = []){
         $from = isset($options["from"]) ? \DateTime::createFromFormat('d-m-Y H:i:s', $options["from"]) : (new \DateTime())->sub(new \DateInterval("PT8M"));
         $from_format = $from->format('Y-m-d H:i:s');
+        $last_point = isset($options["last_point"]) ?  (" AND l.created_at > '" . $options["last_point"]['created_at'] . "'") : '';
+        //for test
+        $from_format = '2017-06-26 23:00:00';
+        $current_user = Auth::user()->getAuthIdentifier();
+        $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
+
         $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
-                left join device_locations as l on d.id = l.device_id
-                where d.is_deleted = 0
-                order by d.id, l.created_at";
-        $locations = DB::select($query, []);
+                inner join device_locations as l on d.id = l.device_id
+                where d.is_deleted = 0 and l.created_at >= ? $last_point $user_condition
+                order by d.id, l.created_at limit 50";
+        $locations = DB::select($query, [$from_format]);
         $location_devices = [];
 
-        $result = ["status" => false, "error" => "Unknown error"];
+        $result = ["status" => true, "error" => false, "data" => []];
         if ($locations){
             foreach($locations as $location_device){
                 if (!isset($location_devices[$location_device->device_id_main])){
@@ -100,8 +107,9 @@ class Tracking_device extends Model
                     $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                 }
             }
+            $last_point_item = $locations[count($locations) - 1];
             $location_devices = array_values($location_devices);
-            $result = ["status" => true, "error" => false, "data" => $location_devices];
+            $result = ["status" => true, "error" => false, "data" => $location_devices, "last_points" => $last_point_item];
         }
         return $result;
 

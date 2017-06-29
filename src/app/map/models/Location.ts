@@ -1,7 +1,7 @@
 /**
  * Created by hiepl on 6/24/2017.
  */
-export class Location {
+export interface Location {
     lat: number;
     lng: number;
     status: string;

@@ -2,7 +2,7 @@
 
 <!-- this creates a google map on the page with the given lat/lng from -->
 <!-- the component as the initial center of the map: -->
-<agm-map [latitude]="lat" [longitude]="lng" [mapDraggable]="mapDraggable" (mapClick)="onClick($event)">
+<agm-map [latitude]="lat" [longitude]="lng" [mapDraggable]="mapDraggable" (mapClick)="onClick($event)"  [fitBounds]="mapBounds">
     <agm-marker *ngFor="let m of allMarkers"
                 (markerClick)="onClick(m)"
                 [latitude]="m.currentLocation.lat"

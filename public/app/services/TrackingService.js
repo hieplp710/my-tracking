@@ -1,4 +1,4 @@
-System.register(["@angular/core", "../map/models/marker", "@angular/http", "rxjs/add/operator/toPromise", "rxjs/add/operator/catch", "rxjs/add/operator/map"], function (exports_1, context_1) {
+System.register(["@angular/core", "@angular/http", "rxjs/add/operator/toPromise", "rxjs/add/operator/catch", "rxjs/add/operator/map"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -10,14 +10,11 @@ System.register(["@angular/core", "../map/models/marker", "@angular/http", "rxjs
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var __moduleName = context_1 && context_1.id;
-    var core_1, marker_1, http_1, TrackingService;
+    var core_1, http_1, TrackingService;
     return {
         setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
-            },
-            function (marker_1_1) {
-                marker_1 = marker_1_1;
             },
             function (http_1_1) {
                 http_1 = http_1_1;
@@ -33,40 +30,53 @@ System.register(["@angular/core", "../map/models/marker", "@angular/http", "rxjs
             TrackingService = (function () {
                 function TrackingService(http) {
                     this.http = http;
+                    this.urlLocation = "/tracking/get-locations";
                 }
-                TrackingService.prototype.getLocations = function (url) {
-                    return this.http.post(url, {}).toPromise()
+                TrackingService.prototype.getLocations = function (url, lastPoint) {
+                    //send to server in order to know which location that we returned
+                    return this.http.post(url, { "lastPoint": lastPoint }).toPromise()
                         .then(this.extractData)
                         .catch(this.handleError);
                 };
                 ;
                 TrackingService.prototype.extractData = function (value) {
                     var body = value.json();
-                    if (body.length > 0) {
+                    var locationObject;
+                    if (body.status) {
                         var markers = [];
-                        for (var i = 0; i < body.length; i++) {
-                            var temp = body[i];
-                            var marker = new marker_1.Marker();
-                            marker.deviceId = temp.device_id;
-                            marker.deviceNumber = temp.device_number;
+                        for (var i = 0; i < body.data.length; i++) {
+                            var temp = body.data[i];
+                            var marker = {
+                                deviceId: temp.device_id,
+                                deviceNumber: temp.device_number,
+                                currentLocation: null,
+                                locations: []
+                            };
                             var locs = [];
                             for (var j = 0; j < temp.locations.length; j++) {
                                 var loc = temp.locations[j];
                                 var newLoc = {
-                                    lat: loc.lat,
-                                    lng: loc.lng,
+                                    lat: parseFloat(loc.lat),
+                                    lng: parseFloat(loc.lng),
                                     state: 'N/A',
                                     status: (loc.status > 0 ? 'On' : 'Off'),
                                     time: loc.created_at,
                                     velocity: loc.velocity,
                                 };
                                 locs.push(newLoc);
+                                if (i === 0) {
+                                    marker.currentLocation = loc;
+                                }
                             }
                             ;
                             marker.locations = locs;
                             markers.push(marker);
                         }
-                        return markers;
+                        locationObject = {
+                            markers: markers,
+                            lastPoint: body.last_points
+                        };
+                        return locationObject;
                     }
                     return [];
                 };

@@ -43,7 +43,7 @@ System.register(["@angular/core", "@angular/http", "rxjs/add/operator/toPromise"
                     var body = value.json();
                     var locationObject;
                     if (body.status) {
-                        var markers = [];
+                        var markers = {};
                         for (var i = 0; i < body.data.length; i++) {
                             var temp = body.data[i];
                             var marker = {
@@ -70,12 +70,13 @@ System.register(["@angular/core", "@angular/http", "rxjs/add/operator/toPromise"
                             }
                             ;
                             marker.locations = locs;
-                            markers.push(marker);
+                            markers[temp.device_id] = marker;
                         }
                         locationObject = {
                             markers: markers,
                             lastPoint: body.last_points
                         };
+                        console.log(locationObject, 'locationObject');
                         return locationObject;
                     }
                     return [];

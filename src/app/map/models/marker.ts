@@ -11,6 +11,6 @@ export interface MyMarker {
 }
 
 export interface LocationObj {
-    markers : MyMarker[];
+    markers : object;
     lastPoint : Location;
 }

@@ -15,7 +15,7 @@ import {Location} from "../map/models/Location";
 export class TrackingService {
     constructor (private http: Http) {}
     urlLocation: string = "/tracking/get-locations";
-    getLocations(url : string, lastPoint : Location): Promise<LocationObj> {
+    getLocations(url : string, lastPoint : Location): Promise<any> {
         //send to server in order to know which location that we returned
         return this.http.post(url, {"lastPoint":lastPoint}).toPromise()
             .then(this.extractData)
@@ -25,7 +25,7 @@ export class TrackingService {
         let body = value.json();
         let locationObject : LocationObj;
         if ( body.status ) {
-            let markers : MyMarker[] = [];
+            let markers = {};
             for (let i = 0; i < body.data.length; i++) {
                 let temp = body.data[i];
                 let marker : MyMarker = {
@@ -51,12 +51,13 @@ export class TrackingService {
                     }
                 };
                 marker.locations = locs;
-                markers.push(marker);
+                markers[temp.device_id] = marker;
             }
             locationObject = {
                 markers : markers,
                 lastPoint : body.last_points
             };
+            console.log(locationObject, 'locationObject');
             return locationObject;
         }
         return [];

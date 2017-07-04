@@ -80,7 +80,7 @@ class Tracking_device extends Model
         $from_format = $from->format('Y-m-d H:i:s');
         $last_point = isset($options["last_point"]) ?  (" AND l.created_at > '" . $options["last_point"]['created_at'] . "'") : '';
         //for test
-        $from_format = '2017-06-26 23:00:00';
+        $from_format = '2017-06-26 10:00:00';
         $current_user = Auth::user()->getAuthIdentifier();
         $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
 
@@ -89,7 +89,7 @@ class Tracking_device extends Model
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 and l.created_at >= ? $last_point $user_condition
-                order by d.id, l.created_at limit 50";
+                order by d.id, l.created_at limit 500";
         $locations = DB::select($query, [$from_format]);
         $location_devices = [];
 
@@ -104,7 +104,9 @@ class Tracking_device extends Model
                     ];
                 }
                 if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){
-                    $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
+                    if (is_numeric($location_device->lat) && is_numeric($location_device->lng)) {
+                        $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
+                    }
                 }
             }
             $last_point_item = $locations[count($locations) - 1];

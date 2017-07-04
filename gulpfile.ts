@@ -57,7 +57,8 @@ gulp.task("libs", () => {
             'rxjs/**/*.js',
             'zone.js/dist/**',
             '@angular/**/bundles/**',
-            '@agm/**/**'
+            '@agm/**/**',
+            'jQuery/**/**'
         ], {cwd: "node_modules/**"}) /* Glob required here. */
         .pipe(gulp.dest("public/lib"));
 });

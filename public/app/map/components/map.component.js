@@ -1,4 +1,4 @@
-System.register(["@angular/core", "../../services/TrackingService", "@agm/core"], function (exports_1, context_1) {
+System.register(["@angular/core", "../../services/TrackingService", "@agm/core", "jquery"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -10,7 +10,7 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var __moduleName = context_1 && context_1.id;
-    var core_1, TrackingService_1, core_2, MapComponent;
+    var core_1, TrackingService_1, core_2, jquery_1, MapComponent;
     return {
         setters: [
             function (core_1_1) {
@@ -21,6 +21,9 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
             },
             function (core_2_1) {
                 core_2 = core_2_1;
+            },
+            function (jquery_1_1) {
+                jquery_1 = jquery_1_1;
             }
         ],
         execute: function () {
@@ -29,8 +32,8 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
                     this.trackingService = trackingService;
                     this._mapsAPILoader = _mapsAPILoader;
                     this.title = 'My first AGM project';
-                    this.lat = 10.828264;
-                    this.lng = 106.643006;
+                    this.lat = 10.820751;
+                    this.lng = 106.630894;
                     this.internalInterval = null;
                 }
                 ;
@@ -42,7 +45,8 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
                 MapComponent.prototype.ngAfterViewInit = function () {
                     var _this = this;
                     this._mapsAPILoader.load().then(function () {
-                        _this.mapBounds = google.maps.LatLngBounds();
+                        // _this.mapBounds = new google.maps.LatLngBounds();
+                        // _this.mapBounds.extend(new google.maps.LatLng({"lat" : _this.lat, "lng" : _this.lng}));
                     });
                 };
                 MapComponent.prototype.ngOnInit = function () {
@@ -50,13 +54,22 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
                 };
                 ;
                 MapComponent.prototype.requestLocation = function () {
-                    console.log(this, 'this');
                     var _this = this;
                     this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint).
                         then(function (locationObj) {
                         // console.log(markers.length, 'location markers');
-                        console.log(locationObj, 'locationObj');
-                        _this.allMarkers = locationObj.markers;
+                        if (_this.allMarkers === undefined) {
+                            _this.allMarkers = locationObj.markers;
+                        }
+                        else {
+                            var keys = Object.keys(locationObj.markers);
+                            for (var i = 0; i < keys.length; i++) {
+                                if (_this.allMarkers[keys[i]] !== undefined) {
+                                    _this.allMarkers[keys[i]].locations = _this.allMarkers[keys[i]].locations
+                                        .concat(locationObj.markers[keys[i]].locations);
+                                }
+                            }
+                        }
                         _this.lastPoint = locationObj.lastPoint;
                         if (_this.internalInterval == null) {
                             _this.fetchMarkers(_this);
@@ -67,9 +80,9 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
                     //handler to markers
                     var _this = context;
                     _this.internalInterval = setInterval(function () {
-                        for (var i = 0; i < _this.allMarkers.length; i++) {
-                            var marker = _this.allMarkers[i];
-                            console.log(marker, 'marker in loop');
+                        var keys = Object.keys(_this.allMarkers);
+                        for (var i = 0; i < keys.length; i++) {
+                            var marker = _this.allMarkers[keys[i]];
                             _this.handleLocation(marker, _this);
                         }
                     }, 2000);
@@ -77,14 +90,16 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
                 ;
                 MapComponent.prototype.handleLocation = function (marker, context) {
                     /** handle for location */
-                    console.log(google, 'shit google');
+                    if (context.mapBounds === undefined) {
+                        context.mapBounds = new google.maps.LatLngBounds();
+                    }
                     if (marker.locations.length > 1) {
                         var lt = marker.locations.shift();
                         marker.currentLocation = lt;
-                        console.log(context.allMarkers, 'marker.currentLocation');
-                        var latLng = new google.maps.LatLng(lt.lat, lt.lng);
+                        var coord = new google.maps.LatLng({ "lat": lt.lat, "lng": lt.lng });
                         if (context.mapBounds !== undefined) {
-                            context.mapBounds.extend(latLng);
+                            context.mapBounds.extend(coord);
+                            console.log(context.mapBounds, 'context.mapBounds');
                         }
                     }
                     else {
@@ -92,6 +107,32 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core"]
                     }
                 };
                 ;
+                MapComponent.prototype.log = function (value) {
+                    console.log(value);
+                };
+                MapComponent.prototype.toArray = function () {
+                    if (this.allMarkers != null && this.allMarkers !== undefined) {
+                        var keys = Object.keys(this.allMarkers);
+                        console.log(this.allMarkers, 'to aray');
+                        var arrs = [];
+                        for (var i = 0; i < keys.length; i++) {
+                            var temp = this.allMarkers[keys[i]];
+                            arrs.push(temp);
+                        }
+                        return arrs;
+                    }
+                    else {
+                        return [];
+                    }
+                };
+                MapComponent.prototype.onMapReady = function ($event) {
+                    console.log($event, 'map event');
+                    if (this.mapBounds !== undefined) {
+                        //google.map.fitBounds(this.mapBounds);
+                    }
+                    var height = jquery_1.default(window).height() - 120;
+                    jquery_1.default('agm-map').css({ "height": height + "px" });
+                };
                 return MapComponent;
             }());
             MapComponent = __decorate([

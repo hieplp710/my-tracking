@@ -3,6 +3,8 @@ import {Location} from "../models/location";
 import { MyMarker } from '../models/marker';
 import { TrackingService } from "../../services/TrackingService";
 import {AgmCoreModule, LatLngBounds, MapsAPILoader, LatLng} from '@agm/core';
+import { DeviceComponent } from "./device.component";
+
 import $ from 'jquery';
 
 declare var google: any;
@@ -82,7 +84,6 @@ export class MapComponent implements OnInit {
             let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
             if (context.mapBounds !== undefined ) {
                     context.mapBounds.extend(coord);
-                    console.log(context.mapBounds, 'context.mapBounds');
             }
         } else {
             context.requestLocation();
@@ -94,7 +95,6 @@ export class MapComponent implements OnInit {
     toArray() {
         if (this.allMarkers != null && this.allMarkers !== undefined) {
             var keys = Object.keys(this.allMarkers);
-            console.log(this.allMarkers, 'to aray');
             var arrs = [];
             for (let i = 0; i < keys.length; i++) {
                 let temp = this.allMarkers[keys[i]];
@@ -106,7 +106,6 @@ export class MapComponent implements OnInit {
         }
     }
     onMapReady($event) {
-        console.log($event, 'map event');
         if (this.mapBounds !== undefined) {
             //google.map.fitBounds(this.mapBounds);
         }

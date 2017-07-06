@@ -1,0 +1,12 @@
+<!-- this creates a google map on the page with the given lat/lng from -->
+<!-- the component as the initial center of the map: -->
+<div class="device-list" id="device-list">
+    <ul class="lstDevices">
+        <li *ngFor="let item of listDevice">
+            <label class="device" (click)="onClick(item, $event)">
+                <input type="checkbox" id="{{ item.deviceId }}" [checked]="true"/>
+                <span class="device-number">{{ item.deviceNumber }}</span>
+            </label>
+        </li>
+    </ul>
+</div>

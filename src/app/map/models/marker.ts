@@ -8,6 +8,7 @@ export interface MyMarker {
     deviceNumber: string;
     currentLocation : Location;
     locations: Location[];
+    visible? : boolean;
 }
 
 export interface LocationObj {

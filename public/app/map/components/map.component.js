@@ -99,7 +99,6 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                         var coord = new google.maps.LatLng({ "lat": lt.lat, "lng": lt.lng });
                         if (context.mapBounds !== undefined) {
                             context.mapBounds.extend(coord);
-                            console.log(context.mapBounds, 'context.mapBounds');
                         }
                     }
                     else {
@@ -113,7 +112,6 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                 MapComponent.prototype.toArray = function () {
                     if (this.allMarkers != null && this.allMarkers !== undefined) {
                         var keys = Object.keys(this.allMarkers);
-                        console.log(this.allMarkers, 'to aray');
                         var arrs = [];
                         for (var i = 0; i < keys.length; i++) {
                             var temp = this.allMarkers[keys[i]];
@@ -126,7 +124,6 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                     }
                 };
                 MapComponent.prototype.onMapReady = function ($event) {
-                    console.log($event, 'map event');
                     if (this.mapBounds !== undefined) {
                         //google.map.fitBounds(this.mapBounds);
                     }

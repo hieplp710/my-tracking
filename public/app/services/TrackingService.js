@@ -50,6 +50,7 @@ System.register(["@angular/core", "@angular/http", "rxjs/add/operator/toPromise"
                                 deviceId: temp.device_id,
                                 deviceNumber: temp.device_number,
                                 currentLocation: null,
+                                visible: true,
                                 locations: []
                             };
                             var locs = [];

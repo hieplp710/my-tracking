@@ -32,6 +32,7 @@ export class TrackingService {
                     deviceId : temp.device_id,
                     deviceNumber : temp.device_number,
                     currentLocation : null,
+                    visible : true,
                     locations : []
                 };
                 let locs : Location[] = [];

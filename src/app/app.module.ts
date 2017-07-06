@@ -7,6 +7,7 @@ import { AgmCoreModule } from "@agm/core";
 import {MapComponent} from "./map/components/map.component";
 import {Http, HttpModule} from "@angular/http";
 import {TrackingService} from "./services/TrackingService";
+import {DeviceComponent} from "./map/components/device.component";
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import {TrackingService} from "./services/TrackingService";
     ],
     declarations: [
         AppComponent,
-        MapComponent
+        MapComponent,
+        DeviceComponent
     ],
     providers: [
         HttpModule,

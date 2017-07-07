@@ -32,6 +32,11 @@ class Tracking_deviceCrudController extends CrudController
         */
 
         //$this->crud->setFromDb();
+        $this->crud->addColumn([
+            'name' => 'id', // The db column name
+            'label' => "Device Id", // Table column heading
+            'type' => 'Text'
+        ]);
 
         $this->crud->addColumn([
             'name' => 'device_number', // The db column name
@@ -88,8 +93,8 @@ class Tracking_deviceCrudController extends CrudController
         $this->crud->addField([
             // MANDATORY
             'name'  => 'device_number', // DB column name (will also be the name of the input)
-            'label' => 'Device Number', // the human-readable label for the input
-            'type'  => 'number', // the field type (text, number, select, checkbox, etc)
+            'label' => 'Device Name', // the human-readable label for the input
+            'type'  => 'text', // the field type (text, number, select, checkbox, etc)
 
             // OPTIONAL + example values
             'hint'       => 'device number', // helpful text, show up after input

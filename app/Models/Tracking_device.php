@@ -80,7 +80,7 @@ class Tracking_device extends Model
         $from_format = $from->format('Y-m-d H:i:s');
         $last_point = isset($options["last_point"]) ?  (" AND l.created_at > '" . $options["last_point"]['created_at'] . "'") : '';
         //for test
-        $from_format = '2017-06-26 10:00:00';
+        //$from_format = '2017-06-26 10:00:00';
         $current_user = Auth::user()->getAuthIdentifier();
         $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
 
@@ -88,13 +88,14 @@ class Tracking_device extends Model
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
-                where d.is_deleted = 0 and l.created_at >= ? $last_point $user_condition
-                order by d.id, l.created_at limit 500";
+                where d.is_deleted = 0 
+                order by d.id, l.created_at desc limit 50";
         $locations = DB::select($query, [$from_format]);
         $location_devices = [];
 
         $result = ["status" => true, "error" => false, "data" => []];
         if ($locations){
+            $locations = array_reverse($locations);
             foreach($locations as $location_device){
                 if (!isset($location_devices[$location_device->device_id_main])){
                     $location_devices[$location_device->device_id_main] = [
@@ -210,6 +211,8 @@ class Tracking_device extends Model
         $location->reverser = $data['reverser'];
         $location->checksum = $data['checksum'];
         $location->updated_at = date('Y-m-d H:i:s');
+        $location->command = $data['command'];
+        $location->current_state = '{}';
         $location->is_deleted = 0;
 
         return $location->save();

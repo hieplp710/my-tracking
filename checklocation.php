@@ -33,7 +33,7 @@ try {
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
-    $sql = "SELECT * FROM device_locations ORDER BY created_at DESC";
+    $sql = "SELECT * FROM device_locations ORDER BY created_at DESC LIMIT 1000";
     $result = $conn->query($sql);
     $data = [];
     if ($result->num_rows > 0) {

@@ -45,6 +45,7 @@ export class TrackingService {
                         status : (loc.status > 0 ? 'On' : 'Off'),
                         time : loc.created_at,
                         velocity: loc.velocity,
+                        lastTime : loc.last_point
                     };
                     locs.push(newLoc);
                     if ( i === 0 ) {

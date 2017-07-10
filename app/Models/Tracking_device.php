@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Support\Facades\Auth;
@@ -78,18 +79,17 @@ class Tracking_device extends Model
     public static function getUserDeviceLocation($user_id = 0, $options = []){
         $from = isset($options["from"]) ? \DateTime::createFromFormat('d-m-Y H:i:s', $options["from"]) : (new \DateTime())->sub(new \DateInterval("PT8M"));
         $from_format = $from->format('Y-m-d H:i:s');
-        $last_point = isset($options["last_point"]) ?  (" AND l.created_at > '" . $options["last_point"]['created_at'] . "'") : '';
+        $last_point = isset($options["last_point"]) ?  (" AND l.created_at > '" . $options["last_point"]['last_point'] . "'") : '';
         //for test
         //$from_format = '2017-06-26 10:00:00';
         $current_user = Auth::user()->getAuthIdentifier();
         $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
-
         $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
-                where d.is_deleted = 0 
-                order by d.id, l.created_at desc limit 50";
+                where d.is_deleted = 0 $last_point $user_condition
+                order by d.id, l.created_at desc limit 10";
         $locations = DB::select($query, [$from_format]);
         $location_devices = [];
 
@@ -106,6 +106,10 @@ class Tracking_device extends Model
                 }
                 if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){
                     if (is_numeric($location_device->lat) && is_numeric($location_device->lng)) {
+                        $location_device->last_point = $location_device->created_at;
+                        $date_created = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at, 'UTC');
+                        $date_created->setTimezone('Asia/Ho_Chi_Minh');
+                        $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
                 }

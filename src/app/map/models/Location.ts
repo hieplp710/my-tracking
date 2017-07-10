@@ -8,4 +8,5 @@ export interface Location {
     time: string;
     state: string;
     velocity: number;
+    lastTime?: string;
 }

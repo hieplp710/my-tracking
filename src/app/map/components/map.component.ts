@@ -3,7 +3,7 @@ import {Location} from "../models/location";
 import { MyMarker } from '../models/marker';
 import { TrackingService } from "../../services/TrackingService";
 import {AgmCoreModule, LatLngBounds, MapsAPILoader, LatLng} from '@agm/core';
-import { DeviceComponent } from "./device.component";
+
 
 import $ from 'jquery';
 
@@ -20,13 +20,13 @@ export class MapComponent implements OnInit {
     lng: number = 106.630894;
     mapDraggable: boolean;
     private internalInterval = null;
-    constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) { };
-    onClick($event) {
-        let latd = $event.coords.lat;
-        let long = $event.coords.lng;
+    momentValue = '';
+    constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
+        //this.options = new DatePickerOptions();
     };
     allMarkers : any;
     lastPoint : Location;
+    isInit = false;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -55,7 +55,17 @@ export class MapComponent implements OnInit {
                     }
                 }
             }
-            _this.lastPoint = locationObj.lastPoint;
+            if (locationObj != null && locationObj.lastPoint !== undefined && locationObj.lastPoint != null) {
+                _this.lastPoint = locationObj.lastPoint;
+            }
+            if (!_this.isInit) {
+                keys = Object.keys(_this.allMarkers);
+                for (let i = 0; i < keys.length; i++) {
+                    let marker = _this.allMarkers[keys[i]];
+                    _this.handleLocation(marker, _this);
+                }
+                _this.isInit = true;
+            }
             if (_this.internalInterval == null) {
                 _this.fetchMarkers(_this);
             }
@@ -71,7 +81,7 @@ export class MapComponent implements OnInit {
                 _this.handleLocation(marker, _this);
             }
 
-        }, 2000);
+        }, 10000);
     };
     handleLocation(marker : MyMarker, context) : void {
         /** handle for location */
@@ -112,6 +122,9 @@ export class MapComponent implements OnInit {
         let height = $(window).height() - 120;
         $('agm-map').css({"height":height + "px"});
 
+    }
+    onSelected($event) {
+        console.log($event, 'event marker emitted');
     }
 }
 

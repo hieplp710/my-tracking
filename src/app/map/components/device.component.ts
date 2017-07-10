@@ -3,10 +3,7 @@
  */
 
 import {Component, Input, OnInit} from '@angular/core';
-import {Location} from "../models/location";
 import { MyMarker } from '../models/marker';
-import { TrackingService } from "../../services/TrackingService";
-import {AgmCoreModule, LatLngBounds, MapsAPILoader, LatLng} from '@agm/core';
 import $ from 'jquery';
 
 
@@ -23,7 +20,6 @@ export class DeviceComponent implements OnInit {
     }
     onClick(marker : MyMarker, ev) {
         ev.stopPropagation();
-        console.log(ev, 'ev');
         //check if checkbox is checked
         var isChecked = $(ev.target).is(':checked');
         marker.visible = isChecked;

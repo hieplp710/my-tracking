@@ -11,7 +11,7 @@ const tslint = require('gulp-tslint');
  * Remove build directory.
  */
 gulp.task('clean', (cb) => {
-    return del(["build"], cb);
+    return del(["public/app"], cb);
 });
 
 /**
@@ -58,7 +58,9 @@ gulp.task("libs", () => {
             'zone.js/dist/**',
             '@angular/**/bundles/**',
             '@agm/**/**',
-            'jQuery/**/**'
+            'jQuery/**/**',
+            'ng-pick-datetime/**',
+            'moment/**',
         ], {cwd: "node_modules/**"}) /* Glob required here. */
         .pipe(gulp.dest("public/lib"));
 });
@@ -78,6 +80,6 @@ gulp.task('watch', function () {
 /**
  * Build the project.
  */
-gulp.task("build", ['compile', 'resources', 'libs'], () => {
+gulp.task("build", ['clean', 'compile', 'resources', 'libs'], () => {
     console.log("Building the project ...");
 });

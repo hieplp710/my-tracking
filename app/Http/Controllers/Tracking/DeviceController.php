@@ -32,8 +32,12 @@ class DeviceController extends BaseController
             $data = $request->getContent();
             $location = new Tracking_device();
             $result = $location->handleLocation($data);
-            return response()->json($result);
+            $responseCode = 200;
+            if (!$result['status']) {
+                $responseCode = 500;
+            }
+            return response()->json($result, $responseCode);
         }
-        return response()->json(["status" => false, "error" => "Not support method"]);
+        return response()->json(["status" => false, "error" => "Not support method"], 500);
     }
 }

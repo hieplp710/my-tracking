@@ -20,7 +20,9 @@
             // other libraries
             'rxjs': 'npm:rxjs',
             '@agm/core': 'npm:@agm/core/core.umd.js',
-            'jquery': 'npm:jQuery/dist/jquery.js'
+            'jquery': 'npm:jQuery/dist/jquery.js',
+            'ng-pick-datetime' : 'npm:ng-pick-datetime',
+            'moment': 'npm:moment'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -30,7 +32,17 @@
             },
             rxjs: {
                 defaultExtension: 'js'
-            }
+            },
+            'ng-pick-datetime': {
+                main: 'picker.bundle.js',
+                defaultExtension: 'js'
+            },
+            // momentJS
+            'moment': {
+                main: 'moment.js',
+                defaultExtension: 'js'
+            },
+
         }
     });
 })(this);

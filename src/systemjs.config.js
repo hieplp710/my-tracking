@@ -20,7 +20,8 @@
             // other libraries
             'rxjs': 'npm:rxjs',
             '@agm/core': 'npm:@agm/core/core.umd.js',
-            'jquery': 'npm:jQuery/dist/jquery.js'
+            'jquery': 'npm:jQuery/dist/jquery.js',
+            'moment': 'npm:moment'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -31,6 +32,7 @@
             rxjs: {
                 defaultExtension: 'js'
             }
+
         }
     });
 })(this);

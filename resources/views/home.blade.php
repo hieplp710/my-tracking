@@ -8,6 +8,7 @@
 <script src="lib/zone.js/dist/zone.js"></script>
 <script src="lib/reflect-metadata/Reflect.js"></script>
 <script src="lib/systemjs/dist/system.src.js"></script>
+<script src="lib/jQuery/dist/jquery.js"></script>
 
 <!-- 2. Configure SystemJS -->
 <script src="systemjs.config.js"></script>

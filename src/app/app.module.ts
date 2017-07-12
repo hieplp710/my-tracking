@@ -8,7 +8,8 @@ import {MapComponent} from "./map/components/map.component";
 import {Http, HttpModule} from "@angular/http";
 import {TrackingService} from "./services/TrackingService";
 import {DeviceComponent} from "./map/components/device.component";
-
+import $ from "jquery";
+import {A2Edatetimepicker} from "./ng2-datetimepicker/datetimepicker.module";
 
 @NgModule({
     imports: [
@@ -16,6 +17,7 @@ import {DeviceComponent} from "./map/components/device.component";
         HttpModule,
         CommonModule,
         FormsModule,
+        A2Edatetimepicker,
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyC6wjnpjfBcfyyQYpnuXDKEzKombAnFdjc',
             libraries: ['places']

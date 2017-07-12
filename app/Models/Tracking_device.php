@@ -84,12 +84,16 @@ class Tracking_device extends Model
         //$from_format = '2017-06-26 10:00:00';
         $current_user = Auth::user()->getAuthIdentifier();
         $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
+        $limit = '';
+        if ($last_point == '') {
+            $limit = "limit 2";
+        }
         $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 $last_point $user_condition
-                order by d.id, l.created_at desc limit 10";
+                order by d.id, l.created_at desc $limit";
         $locations = DB::select($query, [$from_format]);
         $location_devices = [];
 

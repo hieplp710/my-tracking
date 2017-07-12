@@ -9,6 +9,7 @@ import {Http, HttpModule} from "@angular/http";
 import {TrackingService} from "./services/TrackingService";
 import {DeviceComponent} from "./map/components/device.component";
 
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -23,7 +24,7 @@ import {DeviceComponent} from "./map/components/device.component";
     declarations: [
         AppComponent,
         MapComponent,
-        DeviceComponent
+        DeviceComponent,
     ],
     providers: [
         HttpModule,

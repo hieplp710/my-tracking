@@ -59,8 +59,7 @@ gulp.task("libs", () => {
             '@angular/**/bundles/**',
             '@agm/**/**',
             'jQuery/**/**',
-            'ng-pick-datetime/**',
-            'moment/**',
+            'ng2-datetime/**'
         ], {cwd: "node_modules/**"}) /* Glob required here. */
         .pipe(gulp.dest("public/lib"));
 });

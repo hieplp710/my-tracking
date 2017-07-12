@@ -21,8 +21,9 @@
             'rxjs': 'npm:rxjs',
             '@agm/core': 'npm:@agm/core/core.umd.js',
             'jquery': 'npm:jQuery/dist/jquery.js',
-            'ng-pick-datetime' : 'npm:ng-pick-datetime',
-            'moment': 'npm:moment'
+            'moment' : 'npm:moment/moment.js',
+            'eonasdan-bootstrap-datetimepicker': 'npm:eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+            'ng2-eonasdan-datetimepicker': 'npm:ng2-eonasdan-datetimepicker/dist/datetimepicker.directive.js',
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -32,16 +33,7 @@
             },
             rxjs: {
                 defaultExtension: 'js'
-            },
-            'ng-pick-datetime': {
-                main: 'picker.bundle.js',
-                defaultExtension: 'js'
-            },
-            // momentJS
-            'moment': {
-                main: 'moment.js',
-                defaultExtension: 'js'
-            },
+            }
 
         }
     });

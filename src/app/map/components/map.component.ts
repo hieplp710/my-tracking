@@ -3,8 +3,7 @@ import {Location} from "../models/location";
 import { MyMarker } from '../models/marker';
 import { TrackingService } from "../../services/TrackingService";
 import {AgmCoreModule, LatLngBounds, MapsAPILoader, LatLng} from '@agm/core';
-
-
+import moment from 'moment';
 import $ from 'jquery';
 
 declare var google: any;
@@ -20,7 +19,11 @@ export class MapComponent implements OnInit {
     lng: number = 106.630894;
     mapDraggable: boolean;
     private internalInterval = null;
-    momentValue = '';
+    dateTo = "11-07-2017";
+    options = {
+        format: "DD-MM-YYYY",
+        maxDate: this.dateTo
+    };
     constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
         //this.options = new DatePickerOptions();
     };
@@ -36,7 +39,9 @@ export class MapComponent implements OnInit {
     }
     ngOnInit(): void {
         this.requestLocation();
-
+        document.addEventListener('visibilitychange', function(){
+            document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
+        });
     };
     mapBounds : LatLngBounds;
     requestLocation() {
@@ -81,14 +86,14 @@ export class MapComponent implements OnInit {
                 _this.handleLocation(marker, _this);
             }
 
-        }, 10000);
+        }, 5000);
     };
     handleLocation(marker : MyMarker, context) : void {
         /** handle for location */
         if (context.mapBounds === undefined) {
             context.mapBounds = new google.maps.LatLngBounds();
         }
-        if (marker.locations.length > 1) {
+        if (marker.locations.length >= 1) {
             let lt : Location = marker.locations.shift();
             marker.currentLocation = lt;
             let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
@@ -121,7 +126,6 @@ export class MapComponent implements OnInit {
         }
         let height = $(window).height() - 120;
         $('agm-map').css({"height":height + "px"});
-
     }
     onSelected($event) {
         console.log($event, 'event marker emitted');

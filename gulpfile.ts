@@ -60,7 +60,8 @@ gulp.task("libs", () => {
             '@agm/**/**',
             'jQuery/**/**',
             'moment/**',
-            'bootstrap/**'
+            'bootstrap/**',
+            '@ngui/datetime-picker/**'
         ], {cwd: "node_modules/**"}) /* Glob required here. */
         .pipe(gulp.dest("public/lib"));
 });

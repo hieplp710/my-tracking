@@ -23,7 +23,11 @@
                 <device-control [listDevice]="toArray()">Control device</device-control>
             </div>
             <div class="col-md-12">
-
+                <input [(ngModel)]="date_from"
+                       ngui-datetime-picker
+                       date-format="DD-MM-YYYY hh:mm"
+                       minute-step="5"
+                       close-on-select="false"/>
             </div>
         </div>
     </div>

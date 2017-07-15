@@ -22,6 +22,7 @@
             '@agm/core': 'npm:@agm/core/core.umd.js',
             'jquery': 'npm:jQuery/dist/jquery.js',
             'moment' : 'npm:moment/moment.js',
+            '@ngui/datetime-picker' : 'npm:@ngui/datetime-picker/dist',
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -31,6 +32,10 @@
             },
             rxjs: {
                 defaultExtension: 'js'
+            },
+            '@ngui/datetime-picker' : {
+                main : './datetime-picker.umd.js',
+                defaultExtension : 'js'
             }
 
         }

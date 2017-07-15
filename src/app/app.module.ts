@@ -9,7 +9,7 @@ import {Http, HttpModule} from "@angular/http";
 import {TrackingService} from "./services/TrackingService";
 import {DeviceComponent} from "./map/components/device.component";
 import $ from "jquery";
-import {A2Edatetimepicker} from "./ng2-datetimepicker/datetimepicker.module";
+import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 
 @NgModule({
     imports: [
@@ -17,7 +17,7 @@ import {A2Edatetimepicker} from "./ng2-datetimepicker/datetimepicker.module";
         HttpModule,
         CommonModule,
         FormsModule,
-        A2Edatetimepicker,
+        NguiDatetimePickerModule,
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyC6wjnpjfBcfyyQYpnuXDKEzKombAnFdjc',
             libraries: ['places']

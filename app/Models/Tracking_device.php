@@ -85,15 +85,18 @@ class Tracking_device extends Model
         $current_user = Auth::user()->getAuthIdentifier();
         $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
         $query = '';
+        $date_current = new Carbon();
+        $date_current->subDay(1);
+        $yesterday = $date_current->format('Y-m-d H:i:s');
+        // and l.created_at >= '$yesterday'
         if ($last_point == '') {
             $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
-                    from users as u 
-                        inner join tracking_devices as d on (u.id = d.user_id $user_condition)
+                    from tracking_devices as d
                         left join device_locations as l on d.id = l.device_id
-                    where d.is_deleted = 0  
+                    where d.is_deleted = 0 $user_condition
                         and l.created_at >= (select MAX(l.created_at) 
                             from tracking_devices as d1
-                                left join device_locations as l on d1.id = l.device_id where d1.id = d.id)
+                            left join device_locations as l on d1.id = l.device_id  where d1.id = d.id)
                     group by d.id
                     order by d.id, l.created_at desc";
         } else {

@@ -15,18 +15,24 @@ declare var google: any;
 })
 
 export class MapComponent implements OnInit {
-    title: string = 'My first AGM project';
     lat: number = 10.820751;
     lng: number = 106.630894;
     mapDraggable: boolean;
     private internalInterval = null;
     date_from : Date;
+    date_to: Date;
+    isRoadmap : boolean = false;
     constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
         //this.options = new DatePickerOptions();
     };
     allMarkers : any;
     lastPoint : Location;
     isInit = false;
+    roadmapMarkers : any;
+    roadmapSelectedMarker : MyMarker;
+    icon_roadmap = APP_URL + "/assets/images/pin.png";
+    icon_roadmap_start = APP_URL + "/assets/images/start_pin.png";
+    icon_roadmap_end = APP_URL + "/assets/images/end_pin.png";
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -39,16 +45,17 @@ export class MapComponent implements OnInit {
         document.addEventListener('visibilitychange', function(){
             document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
         });
-        this.date_from = new Date(2017, 0, 28);
+        this.date_from = new Date();
+        this.date_to = new Date();
     };
     mapBounds : LatLngBounds;
+    mapRoadmapBounds : LatLngBounds;
     requestLocation() {
         let _this = this;
         this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint).
         then(function(locationObj) {
             // console.log(markers.length, 'location markers');
             var keys = [];
-            console.log(locationObj, 'locationObj');
             if (locationObj !== undefined) {
                 if (_this.allMarkers === undefined) {
                     _this.allMarkers = locationObj.markers;
@@ -69,6 +76,10 @@ export class MapComponent implements OnInit {
                     for (let i = 0; i < keys.length; i++) {
                         let marker = _this.allMarkers[keys[i]];
                         _this.handleLocation(marker, _this);
+                        if (_this.roadmapSelectedMarker === undefined) {
+                            //init the marker that choiceonDeviceSelected($event) on roadmap mode
+                            _this.roadmapSelectedMarker = marker;
+                        }
                     }
                     _this.isInit = true;
                 }
@@ -109,12 +120,13 @@ export class MapComponent implements OnInit {
     log(value) {
         console.log(value);
     }
-    toArray() {
-        if (this.allMarkers != null && this.allMarkers !== undefined) {
-            var keys = Object.keys(this.allMarkers);
+    toArray(data? : any) {
+        let data_markers = data !== undefined ? data : this.allMarkers;
+        if (data_markers != null && data_markers !== undefined) {
+            var keys = Object.keys(data_markers);
             var arrs = [];
             for (let i = 0; i < keys.length; i++) {
-                let temp = this.allMarkers[keys[i]];
+                let temp = data_markers[keys[i]];
                 arrs.push(temp);
             }
             return arrs;
@@ -123,14 +135,67 @@ export class MapComponent implements OnInit {
         }
     }
     onMapReady($event) {
-        if (this.mapBounds !== undefined) {
-            //google.map.fitBounds(this.mapBounds);
+        if (this.mapRoadmapBounds === undefined) {
+            this.mapRoadmapBounds = new google.maps.LatLngBounds();
         }
         let height = $(window).height() - 120;
         $('agm-map').css({"height":height + "px"});
     }
     onSelected($event) {
         console.log($event, 'event marker emitted');
+    }
+    onChangeTab($event) {
+        console.log($event);
+        let $target = $($event.target).attr('data-target');
+        $('li.tab.active').removeClass('active');
+        $($event.target).addClass('active');
+        $('div.row.tab-pane').addClass('hide');
+        $($target).removeClass('hide');
+        if ($target === '#real-time') {
+            this.isRoadmap = false;
+        } else {
+            this.isRoadmap = true;
+        }
+    }
+    onViewRoadmap($event) {
+        console.log($event);
+        let _this = this;
+        let options = {
+            "isRoadmap":true,
+            "dateFrom": this.formatDateTime(this.date_from),
+            "dateTo": this.formatDateTime(this.date_to),
+            "deviceId": this.roadmapSelectedMarker.deviceId
+        };
+        this.trackingService.getLocations(this.trackingService.urlLocation, null, options).
+        then(function(locationObj) {
+            if (locationObj.markers[_this.roadmapSelectedMarker.deviceId] === undefined) {
+                alert("Không có thông tin lộ trình!");
+                return false;
+            }
+            _this.roadmapMarkers = [];
+            _this.roadmapMarkers = locationObj.markers[_this.roadmapSelectedMarker.deviceId].locations;
+            _this.mapRoadmapBounds = new google.maps.LatLngBounds();
+            for (let i = 0; i < _this.roadmapMarkers.length; i++) {
+                let lt = _this.roadmapMarkers[i];
+                let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+                if (_this.mapRoadmapBounds !== undefined ) {
+                    _this.mapRoadmapBounds.extend(coord);
+                }
+            }
+            }, function(error) {});
+    }
+    onDeviceSelected($event) {
+        this.roadmapSelectedMarker = $event;
+    }
+    private formatDateTime(date : Date) {
+        var datetimeStr = "";
+        var year = date.getFullYear();
+        var month = ((date.getMonth() + 1) < 10 ? ("0" + (date.getMonth() + 1)) : (date.getMonth() + 1));
+        var dateStr = (date.getDate() < 10 ? "0" + (date.getDate()) : date.getDate());
+        var hour = (date.getHours() < 10 ? ("0" + date.getHours()) : date.getHours());
+        var minutes = (date.getMinutes() < 10 ? ("0" + date.getMinutes()) : date.getMinutes());
+        var second = (date.getSeconds() < 10 ? ("0" + date.getSeconds()) : date.getSeconds());
+        return year + '-' + month + '-' + dateStr + " " + hour + ":" + minutes + ":" + second;
     }
 }
 

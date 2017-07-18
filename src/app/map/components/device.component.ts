@@ -2,7 +2,7 @@
  * Created by hiepl on 7/5/2017.
  */
 
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import { MyMarker } from '../models/marker';
 import $ from 'jquery';
 
@@ -15,6 +15,8 @@ import $ from 'jquery';
 
 export class DeviceComponent implements OnInit {
     @Input() listDevice : MyMarker[];
+    @Input() is_radio? : boolean;
+    @Output() onSelectedDevice = new EventEmitter();
     ngOnInit() {
         console.log("control is init");
     }
@@ -23,5 +25,6 @@ export class DeviceComponent implements OnInit {
         //check if checkbox is checked
         var isChecked = $(ev.target).is(':checked');
         marker.visible = isChecked;
+        this.onSelectedDevice.emit(marker);
     }
 }

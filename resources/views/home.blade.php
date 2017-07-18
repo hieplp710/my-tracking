@@ -10,21 +10,19 @@
 <script src="lib/systemjs/dist/system.src.js"></script>
 <script src="lib/jQuery/dist/jquery.js"></script>
 <script src="lib/moment-with-locales.js"></script>
-
+<script type="text/javascript">
+    var APP_URL = '{{ $url }}';
+</script>
 <!-- 2. Configure SystemJS -->
 <script src="systemjs.config.js"></script>
 <script>
     System.import('app')
         .then(null, console.error.bind(console));
 </script>
-<div class="container">
+<div class="container full-screen">
     <div class="row">
         <div class="col-lg-12">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <app>Loading...</app>
-                </div>
-            </div>
+            <app>Loading...</app>
         </div>
     </div>
 </div>

@@ -16,11 +16,23 @@ export class TrackingService {
     constructor (private http: Http) {}
     lastPoint : any;
     urlLocation: string = "/tracking/get-locations";
-    getLocations(url : string, lastPoint : any): Promise<any> {
+    getLocations(url : string, lastPoint? : any, options? : any): Promise<any> {
         //send to server in order to know which location that we returned
-        this.lastPoint = lastPoint !== undefined ? this.createTimeByString(lastPoint.last_point) : false;
+        this.lastPoint = (lastPoint !== undefined && lastPoint != null) ? this.createTimeByString(lastPoint.last_point) : false;
         let _this = this;
-        return this.http.post(url, {"lastPoint":lastPoint}).toPromise()
+        let opts = options ? options : {"isRoadmap":false};
+        let is_roadmap = opts.isRoadmap;
+        let data = {"options":{
+            "lastPoint":lastPoint,
+            "isRoadmap":false
+        }};
+        if (is_roadmap) {
+            data["options"]['isRoadmap'] = true;
+            data["options"]['dateFrom'] = opts.dateFrom;
+            data["options"]['dateTo'] = opts.dateTo;
+            data["options"]['deviceId'] = opts.deviceId;
+        }
+        return this.http.post(url, data).toPromise()
             .then(function(value){
                 return _this.extractData(value);
             })

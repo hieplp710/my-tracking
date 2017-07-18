@@ -21,8 +21,7 @@ class DeviceController extends BaseController
 
     public function getDeviceLocations(Request $request, $user_id = 0){
         $this->middleware('auth');
-        $lastPoint = Input::get('lastPoint');
-        $options = !empty($lastPoint) ? ['last_point' => $lastPoint] : null;
+        $options = Input::get('options');
         $result = Tracking_device::getUserDeviceLocation($user_id, $options);
         return response()->json($result);
     }

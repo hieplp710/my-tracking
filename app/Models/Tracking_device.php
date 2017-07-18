@@ -77,20 +77,18 @@ class Tracking_device extends Model
     }
 
     public static function getUserDeviceLocation($user_id = 0, $options = []){
-        $from = isset($options["from"]) ? \DateTime::createFromFormat('d-m-Y H:i:s', $options["from"]) : (new \DateTime())->sub(new \DateInterval("PT8M"));
-        $from_format = $from->format('Y-m-d H:i:s');
-        $last_point = isset($options["last_point"]) ?  (" AND l.created_at > '" . $options["last_point"]['last_point'] . "'") : '';
-        //for test
-        //$from_format = '2017-06-26 10:00:00';
-        $current_user = Auth::user()->getAuthIdentifier();
-        $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
+        $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;
         $query = '';
-        $date_current = new Carbon();
-        $date_current->subDay(1);
-        $yesterday = $date_current->format('Y-m-d H:i:s');
-        // and l.created_at >= '$yesterday'
-        if ($last_point == '') {
-            $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
+        if (!$is_roadmap) {
+            $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
+            $current_user = Auth::user()->getAuthIdentifier();
+            $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
+            $date_current = new Carbon();
+            $date_current->subDay(1);
+            $yesterday = $date_current->format('Y-m-d H:i:s');
+            // and l.created_at >= '$yesterday'
+            if ($last_point == '') {
+                $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
                         left join device_locations as l on d.id = l.device_id
                     where d.is_deleted = 0 $user_condition
@@ -99,16 +97,26 @@ class Tracking_device extends Model
                             left join device_locations as l on d1.id = l.device_id  where d1.id = d.id)
                     group by d.id
                     order by d.id, l.created_at desc";
-        } else {
-            $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
+            } else {
+                $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 $last_point $user_condition
                 order by d.id, l.created_at desc";
+            }
+        } else {
+            $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
+            $to_date = $options['dateTo'] ? $options['dateTo'] : '';
+            $device_id = $options['deviceId'] ? $options['deviceId'] : '';
+            $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
+                from users as u 
+                inner join tracking_devices as d on u.id = d.user_id
+                inner join device_locations as l on d.id = l.device_id
+                where d.is_deleted = 0 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id'
+                order by d.id, l.created_at desc";
         }
-
-        $locations = DB::select($query, [$from_format]);
+        $locations = DB::select($query, []);
         $location_devices = [];
 
         $result = ["status" => true, "error" => false, "data" => []];

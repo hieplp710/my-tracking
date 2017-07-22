@@ -19,6 +19,7 @@ class Tracking_device extends Model
     const REQUEST_TYPE_LOCATION = 1;
     const REQUEST_TYPE_LOCATION_ROLLBACK = 2;
     const REQUEST_TYPE_SIM_INFOR = 3;
+    const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -85,7 +86,7 @@ class Tracking_device extends Model
             $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
             $date_current = new Carbon();
             $date_current->subDay(1);
-            $yesterday = $date_current->format('Y-m-d H:i:s');
+            $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
             if ($last_point == '') {
                 $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
@@ -109,6 +110,12 @@ class Tracking_device extends Model
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
             $to_date = $options['dateTo'] ? $options['dateTo'] : '';
             $device_id = $options['deviceId'] ? $options['deviceId'] : '';
+            $from_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $from_date, 'Asia/Ho_Chi_Minh');
+            $from_date_obj->setTimezone('UTC');
+            $to_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $to_date, 'Asia/Ho_Chi_Minh');
+            $to_date_obj->setTimezone('UTC');
+            $from_date = $from_date_obj->format(self::DB_DATETIME_FORMAT);
+            $to_date = $to_date_obj->format(self::DB_DATETIME_FORMAT);
             $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
@@ -133,7 +140,7 @@ class Tracking_device extends Model
                 if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){
                     if (is_numeric($location_device->lat) && is_numeric($location_device->lng)) {
                         $location_device->last_point = $location_device->created_at;
-                        $date_created = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at, 'UTC');
+                        $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
                         $date_created->setTimezone('Asia/Ho_Chi_Minh');
                         $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
@@ -193,7 +200,7 @@ class Tracking_device extends Model
         if (empty($data[3])){
             return ["status" => false, "error" => "Empty time"];
         }
-        $locationDate = \DateTime::createFromFormat('Y-m-d H:i:s',$data[3]);
+        $locationDate = \DateTime::createFromFormat(self::DB_DATETIME_FORMAT,$data[3]);
         if (!$locationDate){
             return ["status" => false, "error" => "Invalid time format"];
         }
@@ -240,7 +247,7 @@ class Tracking_device extends Model
         $location->created_at = $data['time'];
         $location->reverser = $data['reverser'];
         $location->checksum = $data['checksum'];
-        $location->updated_at = date('Y-m-d H:i:s');
+        $location->updated_at = date(self::DB_DATETIME_FORMAT);
         $location->command = $data['command'];
         $location->current_state = '{}';
         $location->is_deleted = 0;

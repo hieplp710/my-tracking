@@ -1,0 +1,49 @@
+.container.full-screen {
+    width: 100%;
+    margin: -20px 0 0 0;
+}
+div#control-section {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+div#map-section {
+    margin-left: 0;
+    margin-right: 0;
+    padding-right: 15px;
+}
+
+ul.tabs {
+    padding: 0;
+    list-style: none;
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+ul.tabs li {
+    display: block;
+    float: left;
+    padding: 10px;
+}
+li.active.tab {
+    border-left: 1px solid #cccccc;
+    border-top: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    border-bottom: 1px solid #ffffff;
+    margin-bottom: -1px;
+    background: #fff;
+}
+
+div.tab-pane {
+    background: #ffffff;
+    border-top: 1px solid #cccccc;
+    padding-top: 10px;
+}
+
+li.tab {
+    min-width: 100px;
+    text-align: center;
+}
+div#device-list {
+    overflow: auto;
+}

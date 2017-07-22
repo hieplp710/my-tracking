@@ -11,7 +11,7 @@
 <script src="lib/jQuery/dist/jquery.js"></script>
 <script src="lib/moment-with-locales.js"></script>
 <script type="text/javascript">
-    var APP_URL = '{{ $url }}';
+    window.APP_URL = '{{ $url }}';
 </script>
 <!-- 2. Configure SystemJS -->
 <script src="systemjs.config.js"></script>

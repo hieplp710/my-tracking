@@ -30,9 +30,9 @@ export class MapComponent implements OnInit {
     isInit = false;
     roadmapMarkers : any;
     roadmapSelectedMarker : MyMarker;
-    icon_roadmap = APP_URL + "/assets/images/pin.png";
-    icon_roadmap_start = APP_URL + "/assets/images/start_pin.png";
-    icon_roadmap_end = APP_URL + "/assets/images/end_pin.png";
+    icon_roadmap = window['APP_URL'] + "/assets/images/pin.png";
+    icon_roadmap_start = window['APP_URL'] + "/assets/images/start_pin.png";
+    icon_roadmap_end = window['APP_URL'] + "/assets/images/end_pin.png";
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -140,6 +140,8 @@ export class MapComponent implements OnInit {
         }
         let height = $(window).height() - 120;
         $('agm-map').css({"height":height + "px"});
+        $('#control-section div.row.tab-pane').css({"height":(height - 44) + "px"});
+        $('#control-section div.device-list').css({"height":(height - 44 - 123) + "px"});
     }
     onSelected($event) {
         console.log($event, 'event marker emitted');

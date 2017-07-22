@@ -12,12 +12,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <style type="text/css">
-        .container.full-screen {
-            width: 100%;
-            margin: -20px 0 0 0;
-        }
-    </style>
+    <link href="{{ asset('css/map.css') }}" rel="stylesheet">
 </head>
 <body>
     <div id="app">

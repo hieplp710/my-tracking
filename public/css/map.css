@@ -47,3 +47,28 @@ li.tab {
 div#device-list {
     overflow: auto;
 }
+.marker-info.row {
+    max-width: 500px;
+    width: 90%;
+    min-width: 250px;
+}
+.marker-info span.label {
+    font-size: 14px;
+    color: #999999;
+    clear: both;
+    font-weight: 300;
+    text-align: left;
+    padding-left: 15px;
+}
+.agm-info-window-content {
+    overflow: hidden;
+}
+
+.marker-info span.content {
+    line-height: 24px;
+    font-weight: 600;
+}
+
+.marker-info span.time {
+    padding-bottom: 10px;
+}

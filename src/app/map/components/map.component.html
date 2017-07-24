@@ -11,8 +11,10 @@
                             [longitude]="m.currentLocation != null ? m.currentLocation.lng : 0">
                     <agm-info-window>
                         <div class="marker-info row">
-                            <span class="col-xs-6">Thời gian:</span><span class="col-xs-6">{{ m.currentLocation.time }}</span>
-                            <span class="col-xs-6">Trạng thái:</span><span class="col-xs-6">{{ m.currentLocation.status }}</span>
+                            <span class="col-xs-12 time"><strong>{{ m.currentLocation.time }}</strong></span>
+                            <span class="col-xs-6 label">Trạng thái:</span><span class="col-xs-6 content">{{ m.currentLocation.status }}</span>
+                            <span *ngIf="m.currentLocation.state != ''"  class="col-xs-6 label">Thời gian:</span><span class="col-xs-6 content">{{ m.currentLocation.state }}</span>
+                            <span class="col-xs-6 label">Vận tốc:</span><span class="col-xs-6 content">{{ m.currentLocation.velocity }}</span>
                         </div>
                     </agm-info-window>
                 </agm-marker>
@@ -24,8 +26,10 @@
                             [longitude]="mk.lng">
                     <agm-info-window>
                         <div class="marker-info row">
-                            <span class="col-xs-6">Thời gian:</span><span class="col-xs-6">{{ mk.time }}</span>
-                            <span class="col-xs-6">Trạng thái:</span><span class="col-xs-6">{{ mk.status }}</span>
+                            <span class="col-xs-12"><strong>{{ mk.time }}</strong></span>
+                            <span class="col-xs-6 label">Trạng thái:</span><span class="col-xs-6 content">{{ mk.status }}</span>
+                            <span *ngIf="mk.status != ''"  class="col-xs-6 label">Thời gian:</span><span class="col-xs-6 content">{{ mk.state }}</span>
+                            <span class="col-xs-6 label">Vận tốc:</span><span class="col-xs-6 content">{{ mk.velocity }}</span>
                         </div>
                     </agm-info-window>
                 </agm-marker>

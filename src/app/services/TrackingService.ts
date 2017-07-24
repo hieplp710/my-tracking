@@ -61,8 +61,8 @@ export class TrackingService {
                         let newLoc: Location = {
                             lat: parseFloat(loc.lat),
                             lng: parseFloat(loc.lng),
-                            state: 'N/A',
-                            status: (loc.status > 0 ? 'On' : 'Off'),
+                            state: loc.current_state !== undefined ? loc.current_state : '',
+                            status: loc.status,
                             time: loc.created_at,
                             velocity: loc.velocity,
                             lastTime: loc.last_point

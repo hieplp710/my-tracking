@@ -20,6 +20,7 @@ class Tracking_device extends Model
     const REQUEST_TYPE_LOCATION_ROLLBACK = 2;
     const REQUEST_TYPE_SIM_INFOR = 3;
     const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
+    const DEVICE_DATETIME_FORMAT = 'y-m-d H:i:s';
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -143,6 +144,7 @@ class Tracking_device extends Model
                         $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
                         $date_created->setTimezone('Asia/Ho_Chi_Minh');
                         $location_device->created_at = $date_created->format('d-m-Y H:i:s');
+                        $location_device->status = self::getStatusText(["status" => $location_device->status]);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
                 }
@@ -181,6 +183,9 @@ class Tracking_device extends Model
                 $is_valid = $this->validate($data_array);
                 if (!$is_valid['status']){
                     return ["status" => false, "error" => $is_valid['error']];
+                }
+                if ($device instanceof Tracking_device) {
+                    $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
                 }
                 $isSave = $this->addLocation($device, $is_valid['data']);
                 if ($isSave) return ["status" => true, "error" => false];
@@ -249,7 +254,7 @@ class Tracking_device extends Model
         $location->checksum = $data['checksum'];
         $location->updated_at = date(self::DB_DATETIME_FORMAT);
         $location->command = $data['command'];
-        $location->current_state = '{}';
+        $location->current_state = !empty($data['current_state']) ? $data['current_state'] : '{}';
         $location->is_deleted = 0;
 
         return $location->save();
@@ -267,6 +272,97 @@ class Tracking_device extends Model
         return false;
     }
 
+    /**
+     * @description update current_state field in order to calculate status of device
+     */
+    private function updateCurrentState($location) {
+        $current_state = $this->current_state;
+        $statusText = '';
+        if (empty($current_state) || $current_state == '{}') {
+            //update new device with first state
+            $this->current_state = json_encode($location);
+            $this->save();
+        } else {
+            //for update
+            $current_state_obj = json_decode($current_state, true);
+            $current_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $current_state_obj['time']);
+            $location_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $location['time']);
+            $different = 0;
 
+            if ($current_time < $location_time) {
+                //for normal location
+                if ($current_state_obj['status'] == $location['status']) {
+                    //expand status time in current status
+                    $different = $current_time->diffInSeconds($location_time);
+                    $statusText = self::getDifferentTime($different);
+                } else {
+                    //$statusText = self::getStatusText($location);
+                }
+                $this->current_state = json_encode($location);
+                $this->save();
+
+            } else {
+                //for rollback location
+                //get location that nearest of rollback update
+                $nearest_ago_loc = Devicelocation::where('created_at' , '<', $location_time->format(self::DB_DATETIME_FORMAT))
+                    ->orderBy('created_at', 'desc')->take(1)->first();
+                $nearest_later_loc = Devicelocation::where('created_at' , '>', $location_time->format(self::DB_DATETIME_FORMAT))
+                    ->orderBy('created_at', 'asc')->take(1)->first();
+                //update status for later loc
+                $statusLatterText = '';
+                if ($location['status'] == $nearest_later_loc->status) {
+                    //expand status time in current status
+                    $later_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_later_loc->created_at);
+                    $different = $location_time->diffInSeconds($later_location_time);
+                    //$statusLatterText = self::getStatusText($nearest_later_loc->toArray()) . ' trong ' . self::getDifferentTime($different);
+                    $statusLatterText = self::getDifferentTime($different);
+                } else {
+                    //$statusLatterText = self::getStatusText($nearest_later_loc->toArray());
+                }
+                $nearest_later_loc->current_state = $statusLatterText;
+                $nearest_later_loc->save();
+
+                //update status
+                if ($location['status'] == $nearest_ago_loc->status) {
+                    //expand status time in current status
+                    $ago_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_ago_loc->created_at);
+                    $different = $ago_location_time->diffInSeconds($location_time);
+                    //$statusText = self::getStatusText($location) . ' trong ' . self::getDifferentTime($different);
+                    $statusText = self::getDifferentTime($different);
+                } else {
+                    //$statusText = self::getStatusText($location);
+                }
+            }
+        }
+        return $statusText;
+    }
+
+    public static function getStatusText($location) {
+        $text = '';
+        if ($location['status'] == 1 && $location['velocity'] > 5) {
+            $text = 'Đang chạy';
+        } else if ($location['status'] == 1 && $location['velocity'] <= 5) {
+            $text = 'Dừng';
+        } else {
+            $text = 'Đỗ';
+        }
+        return $text;
+    }
+
+    public static function getDifferentTime($diff_in_seconds = 0)
+    {
+        $textTime = '';
+        $hours = intval($diff_in_seconds / 3600);
+        $mins = intval(($diff_in_seconds % 3600) / 60);
+        $secs = ($diff_in_seconds % 60);
+        $textTime = "$secs giây";
+        if ($mins > 0) {
+            $textTime = "$mins phút, " . $textTime;
+        }
+        if ($hours > 0) {
+            $textTime = "$hours giờ, " . $textTime;
+        }
+        return $textTime;
+    }
 
 }

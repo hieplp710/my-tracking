@@ -33,6 +33,7 @@ export class MapComponent implements OnInit {
     icon_roadmap = window['APP_URL'] + "/assets/images/pin.png";
     icon_roadmap_start = window['APP_URL'] + "/assets/images/start_pin.png";
     icon_roadmap_end = window['APP_URL'] + "/assets/images/end_pin.png";
+    geoCoder: any;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -50,6 +51,7 @@ export class MapComponent implements OnInit {
     };
     mapBounds : LatLngBounds;
     mapRoadmapBounds : LatLngBounds;
+    isSending: boolean = false;
     requestLocation() {
         let _this = this;
         this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint).
@@ -86,6 +88,7 @@ export class MapComponent implements OnInit {
                 if (_this.internalInterval == null) {
                     _this.fetchMarkers(_this);
                 }
+                _this.isSending = false;
             }
         }, function(error) {});
     }
@@ -106,6 +109,12 @@ export class MapComponent implements OnInit {
         if (context.mapBounds === undefined) {
             context.mapBounds = new google.maps.LatLngBounds();
         }
+        let locationsLenght = 0;
+        let keys = Object.keys(context.allMarkers);
+        for (let i = 0; i < keys.length; i++) {
+            let marker = context.allMarkers[keys[i]];
+            locationsLenght = marker.locations.length;
+        }
         if (marker.locations.length >= 1) {
             let lt : Location = marker.locations.shift();
             marker.currentLocation = lt;
@@ -113,7 +122,8 @@ export class MapComponent implements OnInit {
             if (context.mapBounds !== undefined ) {
                     context.mapBounds.extend(coord);
             }
-        } else {
+        } else if (locationsLenght === 0 && !context.isSending) {
+            context.isSending = true;
             context.requestLocation();
         }
     };
@@ -142,6 +152,8 @@ export class MapComponent implements OnInit {
         $('agm-map').css({"height":height + "px"});
         $('#control-section div.row.tab-pane').css({"height":(height - 44) + "px"});
         $('#control-section div.device-list').css({"height":(height - 44 - 123) + "px"});
+        //init geocoder
+        this.geoCoder = new google.maps.Geocoder();
     }
     onSelected($event) {
         console.log($event, 'event marker emitted');
@@ -198,6 +210,23 @@ export class MapComponent implements OnInit {
         var minutes = (date.getMinutes() < 10 ? ("0" + date.getMinutes()) : date.getMinutes());
         var second = (date.getSeconds() < 10 ? ("0" + date.getSeconds()) : date.getSeconds());
         return year + '-' + month + '-' + dateStr + " " + hour + ":" + minutes + ":" + second;
+    }
+    onMarkerClick($event, location) {
+        let latlng = {
+            "lat": location.lat,
+            "lng": location.lng
+        };
+        this.geoCoder.geocode({'location': latlng}, function(results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    location.address = results[0].formatted_address;
+                } else {
+                    location.address = 'N/A';
+                }
+            } else {
+                location.address = 'N/A';
+            }
+        });
     }
 }
 

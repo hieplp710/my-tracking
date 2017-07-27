@@ -98,14 +98,14 @@ class Tracking_device extends Model
                             from tracking_devices as d1
                             left join device_locations as l on d1.id = l.device_id  where d1.id = d.id)
                     group by d.id
-                    order by d.id, l.created_at desc";
+                    order by d.id, l.created_at desc, l.status desc";
             } else {
                 $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 $last_point $user_condition
-                order by d.id, l.created_at desc";
+                order by d.id, l.created_at desc, l.status desc";
             }
         } else {
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
@@ -122,7 +122,7 @@ class Tracking_device extends Model
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id'
-                order by d.id, l.created_at desc";
+                order by d.id, l.created_at desc, l.status desc";
         }
         $locations = DB::select($query, []);
         $location_devices = [];
@@ -130,7 +130,13 @@ class Tracking_device extends Model
         $result = ["status" => true, "error" => false, "data" => []];
         if ($locations){
             $locations = array_reverse($locations);
+            $last_time = 0;
             foreach($locations as $location_device){
+                $tempTime = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC')->format('U');
+                if (intval($tempTime) > $last_time){
+                    $last_point_item = $location_device;
+                    $last_time = intval($tempTime);
+                }
                 if (!isset($location_devices[$location_device->device_id_main])){
                     $location_devices[$location_device->device_id_main] = [
                         "device_id" => $location_device->device_id_main,
@@ -144,12 +150,14 @@ class Tracking_device extends Model
                         $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
                         $date_created->setTimezone('Asia/Ho_Chi_Minh');
                         $location_device->created_at = $date_created->format('d-m-Y H:i:s');
-                        $location_device->status = self::getStatusText(["status" => $location_device->status]);
+                        $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
+                        $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
+                        $location_device->heading = self::getHeadingClass($location_device->heading);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
                 }
             }
-            $last_point_item = $locations[count($locations) - 1];
+            //$last_point_item = $locations[count($locations) - 1];//wrong here
             $location_devices = array_values($location_devices);
             $result = ["status" => true, "error" => false, "data" => $location_devices, "last_points" => $last_point_item];
         }
@@ -297,8 +305,8 @@ class Tracking_device extends Model
                     $statusText = self::getDifferentTime($different);
                 } else {
                     //$statusText = self::getStatusText($location);
+                    $this->current_state = json_encode($location);
                 }
-                $this->current_state = json_encode($location);
                 $this->save();
 
             } else {
@@ -363,6 +371,44 @@ class Tracking_device extends Model
             $textTime = "$hours giờ, " . $textTime;
         }
         return $textTime;
+    }
+
+    public static function getHeadingClass($heading = 0) {
+        $headingClass = "";
+        if ($heading >= 0 && $heading <= 22.5){
+            $headingClass = "hd1";
+        } else if ($heading <= 45){
+            $headingClass = "hd2";
+        } else if ($heading <= 67.5) {
+            $headingClass = "hd3";
+        } else if ($heading <= 90) {
+            $headingClass = "hd4";
+        } else if ($heading <= 112.5) {
+            $headingClass = "hd5";
+        } else if ($heading <= 135) {
+            $headingClass = "hd6";
+        } else if ($heading <= 157.5) {
+            $headingClass = "hd7";
+        } else if ($heading <= 180) {
+            $headingClass = "hd8";
+        } else if ($heading <= 202.5) {
+            $headingClass = "hd9";
+        } else if ($heading <= 225) {
+            $headingClass = "hd10";
+        } else if ($heading <= 247.5) {
+            $headingClass = "hd11";
+        } else if ($heading <= 270) {
+            $headingClass = "hd12";
+        } else if ($heading <= 292.5) {
+            $headingClass = "hd13";
+        } else if ($heading <= 315) {
+            $headingClass = "hd14";
+        } else if ($heading <= 337.5) {
+            $headingClass = "hd15";
+        } else if ($heading <= 360) {
+            $headingClass = "hd16";
+        }
+        return $headingClass;
     }
 
 }

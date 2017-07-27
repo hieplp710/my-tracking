@@ -4,32 +4,36 @@
     <div id="map-section" class="col-md-9">
         <div class="row">
             <agm-map [mapDraggable]="mapDraggable" (mapReady)="onMapReady($event)" [fitBounds]="isRoadmap ? mapRoadmapBounds : mapBounds" [maxZoom]="16">
-                <agm-marker *ngFor="let m of toArray()"
+                <agm-marker class="marker-device {{ m.currentLocation.headingClass }}" *ngFor="let m of toArray()"
                             [visible]="m.visible && !isRoadmap"
                             [title]="m.deviceNumber"
                             [latitude]="m.currentLocation != null ? m.currentLocation.lat : 0"
-                            [longitude]="m.currentLocation != null ? m.currentLocation.lng : 0">
+                            [longitude]="m.currentLocation != null ? m.currentLocation.lng : 0"
+                            (markerClick)="onMarkerClick($event, m.currentLocation)">
                     <agm-info-window>
                         <div class="marker-info row">
                             <span class="col-xs-12 time"><strong>{{ m.currentLocation.time }}</strong></span>
-                            <span class="col-xs-6 label">Trạng thái:</span><span class="col-xs-6 content">{{ m.currentLocation.status }}</span>
-                            <span *ngIf="m.currentLocation.state != ''"  class="col-xs-6 label">Thời gian:</span><span class="col-xs-6 content">{{ m.currentLocation.state }}</span>
-                            <span class="col-xs-6 label">Vận tốc:</span><span class="col-xs-6 content">{{ m.currentLocation.velocity }}</span>
+                            <span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">{{ m.currentLocation.status }}</span>
+                            <span *ngIf="m.currentLocation.state != ''"  class="col-xs-4 label">Thời gian:</span><span class="col-xs-8 content">{{ m.currentLocation.state }}</span>
+                            <span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">{{ m.currentLocation.velocity }}</span>
+                            <span *ngIf="m.currentLocation.address != '' && m.currentLocation.address != null" class="col-xs-4 label">Địa chỉ:</span><span class="col-xs-8 content">{{ m.currentLocation.address }}</span>
                         </div>
                     </agm-info-window>
                 </agm-marker>
-                <agm-marker *ngFor="let mk of roadmapMarkers; let i = index" [attr.data-index]="i"
+                <agm-marker class="marker-device-roadmap {{ mk.headingClass }}" *ngFor="let mk of roadmapMarkers; let i = index" [attr.data-index]="i"
                             [visible]="isRoadmap"
                             [title]="roadmapSelectedMarker.deviceNumber"
                             [latitude]="mk.lat"
                             [iconUrl]="i == 0 ? icon_roadmap_start : (i == (roadmapMarkers.length - 1) ? icon_roadmap_end : icon_roadmap)"
-                            [longitude]="mk.lng">
+                            [longitude]="mk.lng"
+                            (markerClick)="onMarkerClick($event, mk)">
                     <agm-info-window>
                         <div class="marker-info row">
                             <span class="col-xs-12"><strong>{{ mk.time }}</strong></span>
-                            <span class="col-xs-6 label">Trạng thái:</span><span class="col-xs-6 content">{{ mk.status }}</span>
-                            <span *ngIf="mk.status != ''"  class="col-xs-6 label">Thời gian:</span><span class="col-xs-6 content">{{ mk.state }}</span>
-                            <span class="col-xs-6 label">Vận tốc:</span><span class="col-xs-6 content">{{ mk.velocity }}</span>
+                            <span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">{{ mk.status }}</span>
+                            <span *ngIf="mk.status != ''"  class="col-xs-4 label">Thời gian:</span><span class="col-xs-8 content">{{ mk.state }}</span>
+                            <span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">{{ mk.velocity }}</span>
+                            <span *ngIf="mk.address != '' && mk.address != null" class="col-xs-4 label">Địa chỉ:</span><span class="col-xs-8 content">{{ mk.address }}</span>
                         </div>
                     </agm-info-window>
                 </agm-marker>

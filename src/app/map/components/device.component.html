@@ -5,7 +5,7 @@
         <li *ngFor="let item of listDevice">
             <label class="device" (click)="onClick(item, $event)">
                 <input *ngIf="!is_radio" type="checkbox" id="check-{{ item.deviceId }}" [checked]="true"/>
-                <input *ngIf="is_radio" type="radio" id="radio-{{ item.deviceId }}" [checked]="true"/>
+                <input *ngIf="is_radio" type="radio" name="roadmap-device" id="radio-{{ item.deviceId }}" [checked]="true"/>
                 <span class="device-number">{{ item.deviceNumber }}</span>
             </label>
         </li>

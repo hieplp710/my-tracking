@@ -65,6 +65,7 @@ export class TrackingService {
                             status: loc.status,
                             time: loc.created_at,
                             velocity: loc.velocity,
+                            headingClass: loc.heading,
                             lastTime: loc.last_point
                         };
                         locs.push(newLoc);

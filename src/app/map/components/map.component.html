@@ -37,6 +37,11 @@
                         </div>
                     </agm-info-window>
                 </agm-marker>
+                <agm-polyline [visible]="isRoadmap" [strokeColor]="'#00B3FD'" [strokeOpacity]="0.8">
+                    <agm-polyline-point *ngFor="let mk of roadmapMarkers;" [latitude]="mk.lat" [longitude]="mk.lng">
+                    </agm-polyline-point>
+                </agm-polyline>
+
             </agm-map>
         </div>
     </div>

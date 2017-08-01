@@ -256,7 +256,7 @@ class Tracking_device extends Model
         $location->lng = $data['lng'];
         $location->status = $data['status'];
         $location->heading = $data['heading'];
-        $location->velocity = $data['velocity'];
+        $location->velocity = intval($data['velocity'] * 1.85);
         $location->created_at = $data['time'];
         $location->reverser = $data['reverser'];
         $location->checksum = $data['checksum'];

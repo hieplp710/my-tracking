@@ -30,9 +30,11 @@ export class MapComponent implements OnInit {
     isInit = false;
     roadmapMarkers : any;
     roadmapSelectedMarker : MyMarker;
-    icon_roadmap = window['APP_URL'] + "/assets/images/pin.png";
+    icon_roadmap = window['APP_URL'] + "/assets/images/$hd$-pin.png";
     icon_roadmap_start = window['APP_URL'] + "/assets/images/start_pin.png";
     icon_roadmap_end = window['APP_URL'] + "/assets/images/end_pin.png";
+    icon_roadmap_stop = window['APP_URL'] + "/assets/images/stop.png";
+    icon_roadmap_pause = window['APP_URL'] + "/assets/images/pause.png";
     geoCoder: any;
     ngAfterViewInit() {
         let _this = this;
@@ -227,6 +229,26 @@ export class MapComponent implements OnInit {
                 location.address = 'N/A';
             }
         });
+    }
+    getRoadmapPin(index, marker : Location) {
+        let pin = this.icon_roadmap;
+        let img = '';
+        if (index === 0) {
+            img = this.icon_roadmap_start;
+        } else if (index === (this.roadmapMarkers.length - 1)) {
+            img = this.icon_roadmap_end;
+        } else {
+            if (marker.status === 'Đỗ') {
+                img = this.icon_roadmap_stop;
+            } else if (marker.status === 'Dừng') {
+                img = this.icon_roadmap_pause;
+            } else {
+                img = this.icon_roadmap;
+                img = img.replace('$hd$', marker.headingClass);
+            }
+
+        }
+        return img;
     }
 }
 

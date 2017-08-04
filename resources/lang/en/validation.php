@@ -103,6 +103,9 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'username' => array(
+            'required' => 'Username không hợp lệ',
+        ),
     ],
 
     /*

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Tracking_device;
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -51,6 +53,10 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'username' => 'required|string|max:50|unique:users',
+            'phone' => 'required|min:11|numeric',
+            'device_id' => 'required|min:10|max:10',
+            'device_name' => 'required|min:10',
         ]);
     }
 
@@ -62,10 +68,29 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'username' => $data['username'],
+            'phone' => $data['phone'],
             'password' => bcrypt($data['password']),
         ]);
+        
+        if ($user instanceof User) {
+            //update device to user
+            $device = Tracking_device::where('id', '=', $data['device_id'])
+                ->where('is_deleted', '=', 0)
+                ->where(function ($query) {
+                    $query->orWhere('user_id', '=', 0)
+                        ->orWhereNull('user_id');
+                })
+                ->take(1)
+                ->get();
+            if ($device instanceof Tracking_device) {
+                $device->user_id = $user->id;
+                $device->save();
+            }
+        }
+        return $user;
     }
 }

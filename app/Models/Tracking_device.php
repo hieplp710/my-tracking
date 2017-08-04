@@ -177,32 +177,38 @@ class Tracking_device extends Model
     public function handleLocation($data){
         $result = ["status" => false, "error" => "Empty data!"];
         if (!empty($data)){
-            $data_array = explode(',', $data);
-            $device_id = $data_array[1];
-            $device = Tracking_device::find($device_id);
-            if (!($device instanceof Tracking_device)){
-                $result = ["status" => false, "error" => "Invalid device id"];
-                return $result;
+            $arrData = explode('|', $data);
+            if (count($arrData) == 0) {
+                return ["status" => false, "error" => "Invalid data"];
             }
-            $command = $data_array[2];
+            foreach($arrData as $item) {
+                $data_array = explode(',', $item);
+                $device_id = $data_array[1];
+                $device = Tracking_device::find($device_id);
+                if (!($device instanceof Tracking_device)){
+                    $result = ["status" => false, "error" => "Invalid device id"];
+                    return $result;
+                }
+                $command = $data_array[2];
 
-            //insert new location
-            if ($command == self::REQUEST_TYPE_LOCATION || $command == self::REQUEST_TYPE_LOCATION_ROLLBACK){
-                $is_valid = $this->validate($data_array);
-                if (!$is_valid['status']){
-                    return ["status" => false, "error" => $is_valid['error']];
+                //insert new location
+                if ($command == self::REQUEST_TYPE_LOCATION || $command == self::REQUEST_TYPE_LOCATION_ROLLBACK){
+                    $is_valid = $this->validate($data_array);
+                    if (!$is_valid['status']){
+                        return ["status" => false, "error" => $is_valid['error']];
+                    }
+                    if ($device instanceof Tracking_device) {
+                        $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
+                    }
+                    $isSave = $this->addLocation($device, $is_valid['data']);
+                    if ($isSave) return ["status" => true, "error" => false];
+                } else if ($command == self::REQUEST_TYPE_SIM_INFOR){
+                    $isSave = $this->updateDeviceInformation($device, $data_array);
+                    if ($isSave) return ["status" => true, "error" => false];
+                } else {
+                    $result = ["status" => false, "error" => "Unknown command"];
+                    return $result;
                 }
-                if ($device instanceof Tracking_device) {
-                    $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
-                }
-                $isSave = $this->addLocation($device, $is_valid['data']);
-                if ($isSave) return ["status" => true, "error" => false];
-            } else if ($command == self::REQUEST_TYPE_SIM_INFOR){
-                $isSave = $this->updateDeviceInformation($device, $data_array);
-                if ($isSave) return ["status" => true, "error" => false];
-            } else {
-                $result = ["status" => false, "error" => "Unknown command"];
-                return $result;
             }
 
         }
@@ -347,9 +353,9 @@ class Tracking_device extends Model
 
     public static function getStatusText($location) {
         $text = '';
-        if ($location['status'] == 1 && $location['velocity'] > 5) {
+        if ($location['status'] == 1 && $location['velocity'] > 2) {
             $text = 'Đang chạy';
-        } else if ($location['status'] == 1 && $location['velocity'] <= 5) {
+        } else if ($location['status'] == 1 && $location['velocity'] <= 1) {
             $text = 'Dừng';
         } else {
             $text = 'Đỗ';

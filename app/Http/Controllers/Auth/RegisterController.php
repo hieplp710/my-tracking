@@ -49,14 +49,12 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+         return Validator::make($data, [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'username' => 'required|string|max:50|unique:users',
-            'phone' => 'required|min:11|numeric',
-            'device_id' => 'required|min:10|max:10',
-            'device_name' => 'required|min:10',
+            'phone' => 'required|min:10|numeric',
+            'device_id' => 'inactive|min:10|max:10',
         ]);
     }
 
@@ -75,7 +73,6 @@ class RegisterController extends Controller
             'phone' => $data['phone'],
             'password' => bcrypt($data['password']),
         ]);
-        
         if ($user instanceof User) {
             //update device to user
             $device = Tracking_device::where('id', '=', $data['device_id'])
@@ -86,9 +83,10 @@ class RegisterController extends Controller
                 })
                 ->take(1)
                 ->get();
-            if ($device instanceof Tracking_device) {
-                $device->user_id = $user->id;
-                $device->save();
+            if ($device[0] instanceof Tracking_device) {
+                $device[0]->user_id = $user->id;
+                $device[0]->device_number = $data['device_name'] ? $data['device_name'] : $data['device_id'];
+                $device[0]->save();
             }
         }
         return $user;

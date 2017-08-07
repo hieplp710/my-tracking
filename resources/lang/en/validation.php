@@ -87,6 +87,7 @@ return [
     'unique'               => 'The :attribute has already been taken.',
     'uploaded'             => 'The :attribute failed to upload.',
     'url'                  => 'The :attribute format is invalid.',
+    "inactive" => "Thiết bị không hợp lệ!",
 
     /*
     |--------------------------------------------------------------------------
@@ -105,6 +106,19 @@ return [
         ],
         'username' => array(
             'required' => 'Username không hợp lệ',
+        ),
+        'password' => array(
+            'required' => 'Mật khẩu không được để trống',
+            'confirmed' => "Mật khẩu xác nhận không khớp!"
+        ),
+        'phone' => array(
+            'required' => 'Điện thoại không được để trống',
+            'min'                  => [
+                'numeric' => 'Số điện thoải phải từ 10 chử số',
+            ]
+        ),
+        'name' => array(
+            'required' => 'Tên khách hàng không được để trống',
         ),
     ],
 

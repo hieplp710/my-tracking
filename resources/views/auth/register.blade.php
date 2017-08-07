@@ -11,7 +11,7 @@
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                            <label for="name" class="col-md-4 control-label">Name</label>
+                            <label for="name" class="col-md-4 control-label">Tên</label>
 
                             <div class="col-md-6">
                                 <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" required autofocus>
@@ -38,7 +38,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
-                            <label for="phone" class="col-md-4 control-label">Phone</label>
+                            <label for="phone" class="col-md-4 control-label">Điện thoại</label>
 
                             <div class="col-md-6">
                                 <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') }}" required autofocus>
@@ -51,10 +51,10 @@
                             </div>
                         </div>
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                            <label for="email" class="col-md-4 control-label">E-Mail Address</label>
+                            <label for="email" class="col-md-4 control-label">E-Mail</label>
 
                             <div class="col-md-6">
-                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}">
 
                                 @if ($errors->has('email'))
                                     <span class="help-block">
@@ -65,7 +65,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                            <label for="password" class="col-md-4 control-label">Password</label>
+                            <label for="password" class="col-md-4 control-label">Mật khẩu</label>
 
                             <div class="col-md-6">
                                 <input id="password" type="password" class="form-control" name="password" required>
@@ -79,7 +79,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="password-confirm" class="col-md-4 control-label">Confirm Password</label>
+                            <label for="password-confirm" class="col-md-4 control-label">Xác nhận mật khẩu</label>
 
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
@@ -88,13 +88,19 @@
                         <div class="form-group">
                             <h3 class="col-md-4 control-label">Thông tin thiết bị</h3>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group{{ $errors->has('device_id') ? ' has-error' : '' }}">
 
                             <label for="device_id" class="col-md-4 control-label">Mã thiết bị</label>
 
                             <div class="col-md-6">
                                 <input id="device_id" type="text" class="form-control" name="device_id">
+                                @if ($errors->has('device_id'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('device_id') }}</strong>
+                                    </span>
+                                @endif
                             </div>
+
                         </div>
                         <div class="form-group">
                             <label for="device_id" class="col-md-4 control-label">Tên thiết bị</label>

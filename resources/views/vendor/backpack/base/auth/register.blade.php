@@ -54,7 +54,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
-                            <label class="col-md-4 control-label">Điện thoại</label>
+                            <label class="col-md-4 control-label">Phone</label>
 
                             <div class="col-md-6">
                                 <input type="text" class="form-control" name="phone" value="{{ old('phone') }}">
@@ -68,7 +68,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                            <label class="col-md-4 control-label">Mật khẩu</label>
+                            <label class="col-md-4 control-label">{{ trans('backpack::base.password') }}</label>
 
                             <div class="col-md-6">
                                 <input type="password" class="form-control" name="password">

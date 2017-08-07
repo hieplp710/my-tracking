@@ -67,7 +67,7 @@ class Tracking_device extends Model
     public function getUserName(){
         $user = User::where('id', $this->user_id)
             ->get();
-        return $user->first()->name;
+        return (isset($user) && $user->first()) ? $user->first()->name : '';
     }
 
     public function displayCreatedAt(){

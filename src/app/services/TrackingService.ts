@@ -31,6 +31,7 @@ export class TrackingService {
             data["options"]['dateFrom'] = opts.dateFrom;
             data["options"]['dateTo'] = opts.dateTo;
             data["options"]['deviceId'] = opts.deviceId;
+            data["options"]['nextLoc'] = opts.nextLoc ? opts.nextLoc : null;
         }
         return this.http.post(url, data).toPromise()
             .then(function(value){
@@ -79,7 +80,8 @@ export class TrackingService {
             }
             locationObject = {
                 markers : markers,
-                lastPoint : body.last_points
+                lastPoint : body.last_points,
+                hasMore : body.hasMore
             };
             return locationObject;
         }

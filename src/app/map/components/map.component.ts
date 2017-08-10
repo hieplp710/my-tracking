@@ -36,6 +36,7 @@ export class MapComponent implements OnInit {
     icon_roadmap_stop = window['APP_URL'] + "/assets/images/stop.png";
     icon_roadmap_pause = window['APP_URL'] + "/assets/images/pause.png";
     geoCoder: any;
+    isRunningRoadmap = false;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -134,11 +135,15 @@ export class MapComponent implements OnInit {
     }
     toArray(data? : any) {
         let data_markers = data !== undefined ? data : this.allMarkers;
+        let _this = this;
         if (data_markers != null && data_markers !== undefined) {
             var keys = Object.keys(data_markers);
             var arrs = [];
             for (let i = 0; i < keys.length; i++) {
                 let temp = data_markers[keys[i]];
+                if (_this.roadmapSelectedMarker == null) {
+                    _this.roadmapSelectedMarker = temp;
+                }
                 arrs.push(temp);
             }
             return arrs;
@@ -169,12 +174,14 @@ export class MapComponent implements OnInit {
         $($target).removeClass('hide');
         if ($target === '#real-time') {
             this.isRoadmap = false;
+            this.requestLocation();
         } else {
+            clearInterval(this.internalInterval);
+            this.internalInterval = null;
             this.isRoadmap = true;
         }
     }
     onViewRoadmap($event) {
-        console.log($event);
         let _this = this;
         let options = {
             "isRoadmap":true,
@@ -182,23 +189,40 @@ export class MapComponent implements OnInit {
             "dateTo": this.formatDateTime(this.date_to),
             "deviceId": this.roadmapSelectedMarker.deviceId
         };
-        this.trackingService.getLocations(this.trackingService.urlLocation, null, options).
+        _this.isRunningRoadmap = false;
+        _this.roadmapMarkers = [];
+        _this.fetchRoadMap(_this.trackingService.urlLocation, options, _this);
+    }
+    fetchRoadMap(url, options, context) {
+        context.trackingService.getLocations(url, null, options).
         then(function(locationObj) {
-            if (locationObj.markers[_this.roadmapSelectedMarker.deviceId] === undefined) {
+            if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined
+                && context.roadmapMarkers.length === 0 && !context.isRunningRoadmap) {
                 alert("Không có thông tin lộ trình!");
+                context.isRunningRoadmap = false;
                 return false;
-            }
-            _this.roadmapMarkers = [];
-            _this.roadmapMarkers = locationObj.markers[_this.roadmapSelectedMarker.deviceId].locations;
-            _this.mapRoadmapBounds = new google.maps.LatLngBounds();
-            for (let i = 0; i < _this.roadmapMarkers.length; i++) {
-                let lt = _this.roadmapMarkers[i];
-                let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
-                if (_this.mapRoadmapBounds !== undefined ) {
-                    _this.mapRoadmapBounds.extend(coord);
+            };
+            context.isRunningRoadmap = true;
+            if (locationObj.markers[context.roadmapSelectedMarker.deviceId] !== undefined) {
+                context.roadmapMarkers = context.roadmapMarkers.concat(
+                    locationObj.markers[context.roadmapSelectedMarker.deviceId].locations);
+                console.log(context.roadmapMarkers, 'log locations');
+                context.mapRoadmapBounds = new google.maps.LatLngBounds();
+                for (let i = 0; i < context.roadmapMarkers.length; i++) {
+                    let lt = context.roadmapMarkers[i];
+                    let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+                    if (context.mapRoadmapBounds !== undefined ) {
+                        context.mapRoadmapBounds.extend(coord);
+                    }
                 }
             }
-            }, function(error) {});
+            //has more
+            if (locationObj.hasMore) {
+                let newoptions = options;
+                newoptions['nextLoc'] = locationObj.lastPoint.last_point;
+                context.fetchRoadMap(url, newoptions, context);
+            }
+        }, function(error) {});
     }
     onDeviceSelected($event) {
         this.roadmapSelectedMarker = $event;

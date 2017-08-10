@@ -14,4 +14,5 @@ export interface MyMarker {
 export interface LocationObj {
     markers : object;
     lastPoint : Location;
+    hasMore?: boolean;
 }

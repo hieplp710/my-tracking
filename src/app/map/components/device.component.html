@@ -4,7 +4,7 @@
     <ul class="lstDevices">
         <li *ngFor="let item of listDevice; let i = index">
             <label class="device" (click)="onClick(item, $event)">
-                <input *ngIf="!is_radio" type="checkbox" id="check-{{ item.deviceId }}" [checked]="i == 0 ? true : false"/>
+                <input *ngIf="!is_radio" type="checkbox" id="check-{{ item.deviceId }}" [checked]="true"/>
                 <input *ngIf="is_radio" type="radio" name="roadmap-device" id="radio-{{ item.deviceId }}" [checked]="i == 0 ? true : false"/>
                 <span class="device-number">{{ item.deviceNumber }}</span>
             </label>

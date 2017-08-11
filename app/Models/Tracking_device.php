@@ -100,14 +100,14 @@ class Tracking_device extends Model
                             from tracking_devices as d1
                             left join device_locations as l on d1.id = l.device_id  where d1.id = d.id)
                     group by d.id
-                    order by d.id, l.created_at desc, l.status desc";
+                    order by d.id, l.created_at desc, l.status asc";
             } else {
                 $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 $last_point $user_condition
-                order by d.id, l.created_at desc, l.status desc";
+                order by d.id, l.created_at desc, l.status asc";
             }
         } else {
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';

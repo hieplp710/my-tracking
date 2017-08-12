@@ -21,7 +21,7 @@ class Tracking_device extends Model
     const REQUEST_TYPE_SIM_INFOR = 3;
     const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
     const DEVICE_DATETIME_FORMAT = 'y-m-d H:i:s';
-    const ROADMAP_LIMIT = 100;
+    const ROADMAP_LIMIT = 200;
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -139,7 +139,7 @@ class Tracking_device extends Model
         $locations = DB::select($query, []);
         $location_devices = [];
 
-        $result = ["status" => true, "error" => false, "data" => []];
+        $result = ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];
         $has_more = false;
         if ($is_roadmap) {
             $has_more = count($locations) >= $roadmapLimit ? true : false;

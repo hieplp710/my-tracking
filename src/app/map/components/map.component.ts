@@ -191,22 +191,16 @@ export class MapComponent implements OnInit {
         };
         _this.isRunningRoadmap = false;
         _this.roadmapMarkers = [];
+        _this.mapRoadmapBounds = null;
         _this.fetchRoadMap(_this.trackingService.urlLocation, options, _this);
     }
     fetchRoadMap(url, options, context) {
         context.trackingService.getLocations(url, null, options).
         then(function(locationObj) {
-            if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined
-                && context.roadmapMarkers.length === 0 && !context.isRunningRoadmap) {
-                alert("Không có thông tin lộ trình!");
-                context.isRunningRoadmap = false;
-                return false;
-            };
-            context.isRunningRoadmap = true;
-            if (locationObj.markers[context.roadmapSelectedMarker.deviceId] !== undefined) {
-                context.roadmapMarkers = context.roadmapMarkers.concat(
-                    locationObj.markers[context.roadmapSelectedMarker.deviceId].locations);
-                console.log(context.roadmapMarkers, 'log locations');
+            //last time where not thing to load
+            if (!locationObj.hasMore && context.roadmapMarkers.length !== 0
+                && locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined) {
+                console.log('no more on last request');
                 context.mapRoadmapBounds = new google.maps.LatLngBounds();
                 for (let i = 0; i < context.roadmapMarkers.length; i++) {
                     let lt = context.roadmapMarkers[i];
@@ -216,11 +210,47 @@ export class MapComponent implements OnInit {
                     }
                 }
             }
+            if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined
+                && context.roadmapMarkers.length === 0 && !context.isRunningRoadmap) {
+                alert("Không có thông tin lộ trình!");
+                context.isRunningRoadmap = false;
+                return false;
+            };
+            if (locationObj.markers[context.roadmapSelectedMarker.deviceId] !== undefined) {
+                context.roadmapMarkers = context.roadmapMarkers.concat(
+                locationObj.markers[context.roadmapSelectedMarker.deviceId].locations);
+                if (context.mapRoadmapBounds == null) {
+                    //load when first load marker in order to know where markers should be
+                    context.mapRoadmapBounds = new google.maps.LatLngBounds();
+                    for (let i = 0; i < context.roadmapMarkers.length; i++) {
+                        let lt = context.roadmapMarkers[i];
+                        let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+                        if (context.mapRoadmapBounds !== undefined ) {
+                            context.mapRoadmapBounds.extend(coord);
+                        }
+                    }
+                }
+                //last time but still points returned
+                if (!locationObj.hasMore && context.roadmapMarkers.length !== 0) {
+                    console.log('has more on last request');
+                    context.mapRoadmapBounds = new google.maps.LatLngBounds();
+                    for (let i = 0; i < context.roadmapMarkers.length; i++) {
+                        let lt = context.roadmapMarkers[i];
+                        let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+                        if (context.mapRoadmapBounds !== undefined ) {
+                            context.mapRoadmapBounds.extend(coord);
+                        }
+                    }
+                }
+            }
             //has more
             if (locationObj.hasMore) {
                 let newoptions = options;
                 newoptions['nextLoc'] = locationObj.lastPoint.last_point;
-                context.fetchRoadMap(url, newoptions, context);
+                context.isRunningRoadmap = true;
+                setTimeout(function() {
+                    context.fetchRoadMap(url, newoptions, context);
+                }, 1000);
             }
         }, function(error) {});
     }

@@ -9,6 +9,7 @@ use Backpack\CRUD\CrudTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Devicelocation;
+use App\Models\Mobile_Detect;
 
 class Tracking_device extends Model
 {
@@ -22,6 +23,7 @@ class Tracking_device extends Model
     const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
     const DEVICE_DATETIME_FORMAT = 'y-m-d H:i:s';
     const ROADMAP_LIMIT = 200;
+    const ROADMAP_LIMIT_MOBILE = 50;
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -83,6 +85,10 @@ class Tracking_device extends Model
         $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;
         $query = '';
         $roadmapLimit = self::ROADMAP_LIMIT;
+        $detecter = new Mobile_Detect();
+        if ($detecter->isMobile()){
+            $roadmapLimit = self::ROADMAP_LIMIT_MOBILE;
+        }
         if (!$is_roadmap) {
             $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
             $current_user = Auth::user()->getAuthIdentifier();

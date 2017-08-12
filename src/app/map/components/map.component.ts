@@ -8,10 +8,11 @@ import $ from 'jquery';
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 
 declare var google: any;
+declare var MarkerClusterer: any;
 @Component({
     selector: 'map',
     templateUrl: './app/map/components/map.component.html',
-    styleUrls: ['./app/map/components/map.css'],
+    styleUrls: ['./app/map/components/map.css']
 })
 
 export class MapComponent implements OnInit {
@@ -22,6 +23,7 @@ export class MapComponent implements OnInit {
     date_from : Date;
     date_to: Date;
     isRoadmap : boolean = false;
+    map = null;
     constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
         //this.options = new DatePickerOptions();
     };
@@ -55,6 +57,8 @@ export class MapComponent implements OnInit {
     mapBounds : LatLngBounds;
     mapRoadmapBounds : LatLngBounds;
     isSending: boolean = false;
+    markerClusterer = null;
+    roadmapPolyline = null;
     requestLocation() {
         let _this = this;
         this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint).
@@ -155,6 +159,8 @@ export class MapComponent implements OnInit {
         if (this.mapRoadmapBounds === undefined) {
             this.mapRoadmapBounds = new google.maps.LatLngBounds();
         }
+        console.log($event, 'event');
+        this.map = $event;
         let height = $(window).height() - 120;
         $('agm-map').css({"height":height + "px"});
         $('#control-section div.row.tab-pane').css({"height":(height - 44) + "px"});
@@ -201,14 +207,7 @@ export class MapComponent implements OnInit {
             if (!locationObj.hasMore && context.roadmapMarkers.length !== 0
                 && locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined) {
                 console.log('no more on last request');
-                context.mapRoadmapBounds = new google.maps.LatLngBounds();
-                for (let i = 0; i < context.roadmapMarkers.length; i++) {
-                    let lt = context.roadmapMarkers[i];
-                    let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
-                    if (context.mapRoadmapBounds !== undefined ) {
-                        context.mapRoadmapBounds.extend(coord);
-                    }
-                }
+                context.displayRoapmap(context);
             }
             if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined
                 && context.roadmapMarkers.length === 0 && !context.isRunningRoadmap) {
@@ -232,16 +231,9 @@ export class MapComponent implements OnInit {
                 }
                 //last time but still points returned
                 if (!locationObj.hasMore && context.roadmapMarkers.length !== 0) {
-                    console.log('has more on last request');
-                    context.mapRoadmapBounds = new google.maps.LatLngBounds();
-                    for (let i = 0; i < context.roadmapMarkers.length; i++) {
-                        let lt = context.roadmapMarkers[i];
-                        let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
-                        if (context.mapRoadmapBounds !== undefined ) {
-                            context.mapRoadmapBounds.extend(coord);
-                        }
-                    }
+                    context.displayRoapmap(context);
                 }
+
             }
             //has more
             if (locationObj.hasMore) {
@@ -255,7 +247,42 @@ export class MapComponent implements OnInit {
         }, function(error) {});
     }
     onDeviceSelected($event) {
+        console.log($event, 'event');
         this.roadmapSelectedMarker = $event;
+    }
+    displayRoapmap(context) {
+        context.mapRoadmapBounds = new google.maps.LatLngBounds();
+        var markers = [];
+        var coords = [];
+        for (let i = 0; i < context.roadmapMarkers.length; i++) {
+            let lt = context.roadmapMarkers[i];
+            let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+            if (context.mapRoadmapBounds !== undefined ) {
+                context.mapRoadmapBounds.extend(coord);
+            }
+            var mk = new google.maps.Marker({
+                position: coord,
+                map: context.map,
+                icon: {
+                    url: context.getRoadmapPin(i, lt),
+                    anchor: new google.maps.Point(10, 10),
+                    scaledSize: new google.maps.Size(20, 20)
+                }
+            });
+            markers.push(mk);
+            coords.push(coord);
+        }
+        context.markerClusterer = new MarkerClusterer(context.map, markers,
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+        context.roadmapPolyline = new google.maps.Polyline({
+            path: coords,
+            geodesic: true,
+            strokeColor: '#00B3FD',
+            strokeOpacity: 0.8,
+            strokeWeight: 2
+        });
+
+        context.roadmapPolyline.setMap(context.map);
     }
     private formatDateTime(date : Date) {
         var datetimeStr = "";

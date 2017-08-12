@@ -22,7 +22,7 @@ class Tracking_device extends Model
     const REQUEST_TYPE_SIM_INFOR = 3;
     const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
     const DEVICE_DATETIME_FORMAT = 'y-m-d H:i:s';
-    const ROADMAP_LIMIT = 200;
+    const ROADMAP_LIMIT = 1000;
     const ROADMAP_LIMIT_MOBILE = 50;
      /*
     |--------------------------------------------------------------------------

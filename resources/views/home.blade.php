@@ -10,6 +10,7 @@
 <script src="lib/systemjs/dist/system.src.js"></script>
 <script src="lib/jQuery/dist/jquery.js"></script>
 <script src="lib/moment-with-locales.js"></script>
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 <script type="text/javascript">
     window.APP_URL = '{{ $url }}';
 </script>

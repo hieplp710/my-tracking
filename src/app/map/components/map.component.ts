@@ -58,6 +58,10 @@ export class MapComponent implements OnInit {
     mapRoadmapBounds : LatLngBounds;
     isSending: boolean = false;
     markerClusterer = null;
+    stopMarkers = [];
+    parkMarkers = [];
+    startRoadmapMarker = null;
+    endRoadmapMarker = null;
     roadmapPolyline = null;
     requestLocation() {
         let _this = this;
@@ -180,6 +184,7 @@ export class MapComponent implements OnInit {
         $($target).removeClass('hide');
         if ($target === '#real-time') {
             this.isRoadmap = false;
+            this.clearCluster();
             this.requestLocation();
         } else {
             clearInterval(this.internalInterval);
@@ -189,6 +194,7 @@ export class MapComponent implements OnInit {
     }
     onViewRoadmap($event) {
         let _this = this;
+        _this.clearCluster();
         let options = {
             "isRoadmap":true,
             "dateFrom": this.formatDateTime(this.date_from),
@@ -247,20 +253,21 @@ export class MapComponent implements OnInit {
         }, function(error) {});
     }
     onDeviceSelected($event) {
-        console.log($event, 'event');
         this.roadmapSelectedMarker = $event;
     }
     displayRoapmap(context) {
         context.mapRoadmapBounds = new google.maps.LatLngBounds();
         var markers = [];
         var coords = [];
-        for (let i = 0; i < context.roadmapMarkers.length; i++) {
+        var stopMarkers = [];
+        var parkMarkers = [];
+        for (let i = 1; i < (context.roadmapMarkers.length - 1); i++) {
             let lt = context.roadmapMarkers[i];
             let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
             if (context.mapRoadmapBounds !== undefined ) {
                 context.mapRoadmapBounds.extend(coord);
             }
-            var mk = new google.maps.Marker({
+            let mk = new google.maps.Marker({
                 position: coord,
                 map: context.map,
                 icon: {
@@ -269,11 +276,90 @@ export class MapComponent implements OnInit {
                     scaledSize: new google.maps.Size(20, 20)
                 }
             });
-            markers.push(mk);
+            //compose infowindow content
+            let state = (lt.state !== '') ?
+                            '<span class="col-xs-4 label">Thời gian:</span><span class="col-xs-8 content">' + lt.state + '</span>' : '';
+            let contentWindow = '<div class="marker-info row" id="' + lt.lat + '_' + lt.lng + '">'
+                + '<span class="col-xs-12"><strong>' + lt.time + '</strong></span>'
+                + '<span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">' + lt.status + '</span>'
+                + state
+                + '<span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">' + lt.velocity + '</span>'
+                + '<span class="col-xs-4 label">Tọa độ:</span><span class="col-xs-8 content">' + lt.lat + ', ' + lt.lng + '</span>'
+                + '<span  class="col-xs-4 label">Địa chỉ:</span><span class="col-xs-8 content address"></span></div>';
+            //insert infor window
+            let infowindow = new google.maps.InfoWindow({
+                content: contentWindow
+            });
+            mk.addListener('click', function(evt) {
+                console.log(mk, 'infowindow');
+                infowindow.open(context.map, mk);
+                let position = mk.getPosition().lat() + '_' + mk.getPosition().lng();
+                let latlng = {
+                    "lat": mk.getPosition().lat(),
+                    "lng": mk.getPosition().lng()
+                };
+                context.geoCoder.geocode({'location': latlng}, function(results, status) {
+                    let address = '';
+                    if (status === 'OK') {
+                        if (results[0]) {
+                            address = results[0].formatted_address;
+                        } else {
+                            address = 'N/A';
+                        }
+                    } else {
+                        address = 'N/A';
+                    }
+                    $('.marker-info  span.content.address').text(address);
+                });
+
+            });
             coords.push(coord);
+            if (lt.status === 'Dừng') {
+                context.stopMarkers.push(mk);
+            } else if (lt.status === 'Đỗ') {
+                context.parkMarkers.push(mk);
+            }else {
+                markers.push(mk);
+            };
         }
+        let firstLoc = context.roadmapMarkers[0];
+        let firstPoint = new google.maps.LatLng({"lat" : firstLoc.lat, "lng" : firstLoc.lng});
+        context.startRoadmapMarker = new google.maps.Marker({
+            position: firstPoint,
+            map: context.map,
+            icon: {
+                url: context.icon_roadmap_start,
+                anchor: new google.maps.Point(10, 10),
+                scaledSize: new google.maps.Size(20, 20)
+            }
+        });
+        let lastLoc = context.roadmapMarkers[(context.roadmapMarkers.length - 1)];
+        let lastPoint = new google.maps.LatLng({"lat" : firstLoc.lat, "lng" : firstLoc.lng});
+        context.endRoadmapMarker = new google.maps.Marker({
+            position: lastPoint,
+            map: context.map,
+            icon: {
+                url: context.icon_roadmap_end,
+                anchor: new google.maps.Point(10, 10),
+                scaledSize: new google.maps.Size(20, 20)
+            }
+        });
         context.markerClusterer = new MarkerClusterer(context.map, markers,
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+            {
+                imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+                maxZoom: 14,
+            });
+        //override image style for marker cluster
+        // context.stopMarkerClusterer = new MarkerClusterer(context.map, stopMarkers,
+        //     {
+        //         imagePath: context.icon_roadmap_pause,
+        //         styles : [{
+        //             url: context.icon_roadmap_pause,
+        //             height: 20,
+        //             width: 20,
+        //             "background-size": "100%"
+        //         }]
+        //     });
         context.roadmapPolyline = new google.maps.Polyline({
             path: coords,
             geodesic: true,
@@ -330,6 +416,34 @@ export class MapComponent implements OnInit {
 
         }
         return img;
+    };
+    clearCluster() {
+        if (this.markerClusterer != null) {
+            this.markerClusterer.clearMarkers();
+            this.markerClusterer = null;
+        }
+        //remove stop and park marker
+        for (var i = 0; i < this.parkMarkers.length; i++) {
+            this.parkMarkers[i].setMap(null);
+        }
+        for (var i = 0; i < this.stopMarkers.length; i++) {
+            this.stopMarkers[i].setMap(null);
+        }
+        this.parkMarkers = [];
+        this.stopMarkers = [];
+        //remove start, end marker
+        if (this.startRoadmapMarker != null) {
+            this.startRoadmapMarker.setMap(null);
+            this.startRoadmapMarker = null;
+        }
+        if (this.endRoadmapMarker != null) {
+            this.endRoadmapMarker.setMap(null);
+            this.endRoadmapMarker = null;
+        }
+        if (this.roadmapPolyline != null) {
+            this.roadmapPolyline.setMap(null);
+            this.roadmapPolyline = null;
+        }
     }
 }
 

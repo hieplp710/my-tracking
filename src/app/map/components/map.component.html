@@ -3,7 +3,7 @@
 <div class="wrapper-map" class="row">
     <div id="map-section" class="col-md-9">
         <div class="row">
-            <agm-map [mapDraggable]="mapDraggable" (mapReady)="onMapReady($event)" [fitBounds]="isRoadmap ? mapRoadmapBounds : mapBounds" [maxZoom]="22">
+            <agm-map [mapDraggable]="mapDraggable" (mapReady)="onMapReady($event)" [fitBounds]="isRoadmap ? mapRoadmapBounds : mapBounds" [maxZoom]="16">
                 <agm-marker class="marker-device {{ m.currentLocation.headingClass }}" *ngFor="let m of toArray()"
                             [visible]="m.visible && !isRoadmap"
                             [title]="m.deviceNumber"

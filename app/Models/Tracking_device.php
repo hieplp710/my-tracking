@@ -225,15 +225,16 @@ class Tracking_device extends Model
                         $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
                     }
                     $isSave = $this->addLocation($device, $is_valid['data']);
-                    if ($isSave) return ["status" => true, "error" => false];
+                    if ($isSave) $result = ["status" => true, "error" => false];
                 } else if ($command == self::REQUEST_TYPE_SIM_INFOR){
                     $isSave = $this->updateDeviceInformation($device, $data_array);
-                    if ($isSave) return ["status" => true, "error" => false];
+                    if ($isSave) $result = ["status" => true, "error" => false];
                 } else {
                     $result = ["status" => false, "error" => "Unknown command"];
                     return $result;
                 }
             }
+            return $result;
 
         }
         return false;
@@ -348,27 +349,31 @@ class Tracking_device extends Model
                     ->orderBy('created_at', 'asc')->take(1)->first();
                 //update status for later loc
                 $statusLatterText = '';
-                if ($location['status'] == $nearest_later_loc->status) {
-                    //expand status time in current status
-                    $later_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_later_loc->created_at);
-                    $different = $location_time->diffInSeconds($later_location_time);
-                    //$statusLatterText = self::getStatusText($nearest_later_loc->toArray()) . ' trong ' . self::getDifferentTime($different);
-                    $statusLatterText = self::getDifferentTime($different);
-                } else {
-                    //$statusLatterText = self::getStatusText($nearest_later_loc->toArray());
+                if ($nearest_later_loc instanceof Devicelocation) {
+                    if ($location['status'] == $nearest_later_loc->status) {
+                        //expand status time in current status
+                        $later_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_later_loc->created_at);
+                        $different = $location_time->diffInSeconds($later_location_time);
+                        //$statusLatterText = self::getStatusText($nearest_later_loc->toArray()) . ' trong ' . self::getDifferentTime($different);
+                        $statusLatterText = self::getDifferentTime($different);
+                    } else {
+                        //$statusLatterText = self::getStatusText($nearest_later_loc->toArray());
+                    }
+                    $nearest_later_loc->current_state = $statusLatterText;
+                    $nearest_later_loc->save();
                 }
-                $nearest_later_loc->current_state = $statusLatterText;
-                $nearest_later_loc->save();
 
                 //update status
-                if ($location['status'] == $nearest_ago_loc->status) {
-                    //expand status time in current status
-                    $ago_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_ago_loc->created_at);
-                    $different = $ago_location_time->diffInSeconds($location_time);
-                    //$statusText = self::getStatusText($location) . ' trong ' . self::getDifferentTime($different);
-                    $statusText = self::getDifferentTime($different);
-                } else {
-                    //$statusText = self::getStatusText($location);
+                if ($nearest_ago_loc instanceof Devicelocation) {
+                    if ($location['status'] == $nearest_ago_loc->status) {
+                        //expand status time in current status
+                        $ago_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_ago_loc->created_at);
+                        $different = $ago_location_time->diffInSeconds($location_time);
+                        //$statusText = self::getStatusText($location) . ' trong ' . self::getDifferentTime($different);
+                        $statusText = self::getDifferentTime($different);
+                    } else {
+                        //$statusText = self::getStatusText($location);
+                    }
                 }
             }
         }

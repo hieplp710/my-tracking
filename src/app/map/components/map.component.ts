@@ -347,7 +347,7 @@ export class MapComponent implements OnInit {
         context.markerClusterer = new MarkerClusterer(context.map, markers,
             {
                 imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-                maxZoom: 14,
+                maxZoom: 16,
             });
         //override image style for marker cluster
         // context.stopMarkerClusterer = new MarkerClusterer(context.map, stopMarkers,

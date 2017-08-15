@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Devicelocation;
 use App\Models\Mobile_Detect;
+use Illuminate\Support\Facades\Log;
+use Monolog\Logger;
 
 class Tracking_device extends Model
 {
@@ -200,13 +202,14 @@ class Tracking_device extends Model
      */
     public function handleLocation($data){
         $result = ["status" => false, "error" => "Empty data!"];
+        Log::info(json_encode($data));
         if (!empty($data)){
             $arrData = explode('|', $data);
             if (count($arrData) == 0) {
                 return ["status" => false, "error" => "Invalid data"];
             }
             foreach($arrData as $item) {
-                $data_array = explode(',', $item);
+                $data_array = explode(',', trim($item));
                 $device_id = $data_array[1];
                 $device = Tracking_device::find($device_id);
                 if (!($device instanceof Tracking_device)){

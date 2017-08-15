@@ -9,8 +9,9 @@
                             [title]="m.deviceNumber"
                             [latitude]="m.currentLocation != null ? m.currentLocation.lat : 0"
                             [longitude]="m.currentLocation != null ? m.currentLocation.lng : 0"
-                            (markerClick)="onMarkerClick($event, m.currentLocation)">
-                    <agm-info-window>
+                            [openInfoWindow]="false"
+                            (markerClick)="onMarkerClick($event, m.currentLocation, infowindow)" #marker>
+                    <agm-info-window hostMarker="marker" #infowindow>
                         <div class="marker-info row">
                             <span class="col-xs-12 time"><strong>{{ m.currentLocation.time }}</strong></span>
                             <span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">{{ m.currentLocation.status }}</span>

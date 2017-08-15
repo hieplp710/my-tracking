@@ -39,6 +39,8 @@ export class MapComponent implements OnInit {
     icon_roadmap_pause = window['APP_URL'] + "/assets/images/pause.png";
     geoCoder: any;
     isRunningRoadmap = false;
+    current_infowindow = null;
+    current_roadmap_infowindow = null;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -52,7 +54,14 @@ export class MapComponent implements OnInit {
             document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
         });
         this.date_from = new Date();
+        this.date_from.setHours(0);
+        this.date_from.setMinutes(0);
+        this.date_from.setSeconds(0);
+
         this.date_to = new Date();
+        this.date_to.setHours(23);
+        this.date_to.setMinutes(59);
+        this.date_to.setSeconds(59);
     };
     mapBounds : LatLngBounds;
     mapRoadmapBounds : LatLngBounds;
@@ -187,6 +196,10 @@ export class MapComponent implements OnInit {
             this.clearCluster();
             this.requestLocation();
         } else {
+            if (this.current_infowindow != null) {
+                this.current_infowindow.close();
+                this.current_infowindow = null;
+            };
             clearInterval(this.internalInterval);
             this.internalInterval = null;
             this.isRoadmap = true;
@@ -291,7 +304,10 @@ export class MapComponent implements OnInit {
                 content: contentWindow
             });
             mk.addListener('click', function(evt) {
-                console.log(mk, 'infowindow');
+                if ( context.current_roadmap_infowindow != null ) {
+                    context.current_roadmap_infowindow.close();
+                };
+                context.current_roadmap_infowindow = infowindow;
                 infowindow.open(context.map, mk);
                 let position = mk.getPosition().lat() + '_' + mk.getPosition().lng();
                 let latlng = {
@@ -380,7 +396,7 @@ export class MapComponent implements OnInit {
         var second = (date.getSeconds() < 10 ? ("0" + date.getSeconds()) : date.getSeconds());
         return year + '-' + month + '-' + dateStr + " " + hour + ":" + minutes + ":" + second;
     }
-    onMarkerClick($event, location) {
+    onMarkerClick($event, location, infowindow) {
         let latlng = {
             "lat": location.lat,
             "lng": location.lng
@@ -396,6 +412,12 @@ export class MapComponent implements OnInit {
                 location.address = 'N/A';
             }
         });
+        console.log(infowindow, 'infowindow');
+        if ( this.current_infowindow != null ) {
+            this.current_infowindow.close();
+        }
+        infowindow.open();
+        this.current_infowindow = infowindow;
     }
     getRoadmapPin(index, marker : Location) {
         let pin = this.icon_roadmap;

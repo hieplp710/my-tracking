@@ -202,9 +202,11 @@ class Tracking_device extends Model
      */
     public function handleLocation($data){
         $result = ["status" => false, "error" => "Empty data!"];
-        Log::info(json_encode($data));
         if (!empty($data)){
             $arrData = explode('|', $data);
+            if (count($arrData) > 1) {
+                Log::info($data);
+            }
             if (count($arrData) == 0) {
                 return ["status" => false, "error" => "Invalid data"];
             }

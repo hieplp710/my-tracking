@@ -62,6 +62,16 @@ export class MapComponent implements OnInit {
         this.date_to.setHours(23);
         this.date_to.setMinutes(59);
         this.date_to.setSeconds(59);
+        $('#control-device').on('click', function(e) {
+            e.preventDefault();
+            //$('#control-section').animate();
+            if ($('#control-section').attr('class').indexOf('slide-left') !== -1) {
+                //remove class slide left and add class slide right
+                $('#control-section').removeClass('slide-left').addClass('slide-right');
+            } else {
+                $('#control-section').removeClass('slide-right').addClass('slide-left');
+            }
+        });
     };
     mapBounds : LatLngBounds;
     mapRoadmapBounds : LatLngBounds;
@@ -174,10 +184,18 @@ export class MapComponent implements OnInit {
         }
         console.log($event, 'event');
         this.map = $event;
-        let height = $(window).height() - 120;
-        $('agm-map').css({"height":height + "px"});
-        $('#control-section div.row.tab-pane').css({"height":(height - 44) + "px"});
-        $('#control-section div.device-list').css({"height":(height - 44 - 123) + "px"});
+        let width = $(window).width();
+        if (width < 800) {
+            let height = $(window).height() - 52;
+            $('agm-map').css({"height":height + "px"});
+            $('#control-section div.row.tab-pane').css({"height":(height - 40 + "px")});
+            $('#control-section div.device-list').css({"height":(height - 240) + "px"});
+        } else {
+            let height = $(window).height() - 120;
+            $('agm-map').css({"height":height + "px"});
+            $('#control-section div.row.tab-pane').css({"height":(height - 44) + "px"});
+            $('#control-section div.device-list').css({"height":(height - 44 - 123) + "px"});
+        };
         //init geocoder
         this.geoCoder = new google.maps.Geocoder();
     }
@@ -218,6 +236,10 @@ export class MapComponent implements OnInit {
         _this.roadmapMarkers = [];
         _this.mapRoadmapBounds = null;
         _this.fetchRoadMap(_this.trackingService.urlLocation, options, _this);
+        if ($('#control-section').attr('class').indexOf('slide-left') !== -1) {
+            //remove class slide left and add class slide right
+            $('#control-section').removeClass('slide-left').addClass('slide-right');
+        }
     }
     fetchRoadMap(url, options, context) {
         context.trackingService.getLocations(url, null, options).
@@ -274,6 +296,18 @@ export class MapComponent implements OnInit {
         var coords = [];
         var stopMarkers = [];
         var parkMarkers = [];
+        let firstLoc = context.roadmapMarkers[0];
+        let firstPoint = new google.maps.LatLng({"lat" : firstLoc.lat, "lng" : firstLoc.lng});
+        context.startRoadmapMarker = new google.maps.Marker({
+            position: firstPoint,
+            map: context.map,
+            icon: {
+                url: context.icon_roadmap_start,
+                anchor: new google.maps.Point(10, 10),
+                scaledSize: new google.maps.Size(20, 20)
+            }
+        });
+        coords.push(firstPoint);
         for (let i = 1; i < (context.roadmapMarkers.length - 1); i++) {
             let lt = context.roadmapMarkers[i];
             let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
@@ -338,25 +372,16 @@ export class MapComponent implements OnInit {
                 markers.push(mk);
             };
         }
-        let firstLoc = context.roadmapMarkers[0];
-        let firstPoint = new google.maps.LatLng({"lat" : firstLoc.lat, "lng" : firstLoc.lng});
-        context.startRoadmapMarker = new google.maps.Marker({
-            position: firstPoint,
-            map: context.map,
-            icon: {
-                url: context.icon_roadmap_start,
-                anchor: new google.maps.Point(10, 10),
-                scaledSize: new google.maps.Size(20, 20)
-            }
-        });
+
         let lastLoc = context.roadmapMarkers[(context.roadmapMarkers.length - 1)];
-        let lastPoint = new google.maps.LatLng({"lat" : firstLoc.lat, "lng" : firstLoc.lng});
+        let lastPoint = new google.maps.LatLng({"lat" : lastLoc.lat, "lng" : lastLoc.lng});
+        coords.push(lastPoint);
         context.endRoadmapMarker = new google.maps.Marker({
             position: lastPoint,
             map: context.map,
             icon: {
                 url: context.icon_roadmap_end,
-                anchor: new google.maps.Point(10, 10),
+                anchor: new google.maps.Point(5, 20),
                 scaledSize: new google.maps.Size(20, 20)
             }
         });

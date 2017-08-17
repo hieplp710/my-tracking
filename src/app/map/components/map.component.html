@@ -1,7 +1,7 @@
 <!-- this creates a google map on the page with the given lat/lng from -->
 <!-- the component as the initial center of the map: -->
-<div class="wrapper-map" class="row">
-    <div id="map-section" class="col-md-9">
+<div class="row content-wrapper">
+    <div id="map-section" class="col-md-9 col-sm-12">
         <div class="row">
             <agm-map [mapDraggable]="mapDraggable" (mapReady)="onMapReady($event)" [fitBounds]="isRoadmap ? mapRoadmapBounds : mapBounds" [maxZoom]="17">
                 <agm-marker class="marker-device {{ m.currentLocation.headingClass }}" *ngFor="let m of toArray()"
@@ -47,7 +47,8 @@
             </agm-map>
         </div>
     </div>
-    <div id="control-section" class="col-md-3">
+    <div id="control-section" class="col-md-3 col-sm-3">
+        <a href="#" id="control-device" class="mobile-toggle"><i class="fa fa-car" aria-hidden="true"></i></a>
         <div class="row">
             <div class="col-lg-12" id="tabs-wrapper">
                 <ul class="tabs">

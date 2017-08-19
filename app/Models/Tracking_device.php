@@ -387,9 +387,9 @@ class Tracking_device extends Model
 
     public static function getStatusText($location) {
         $text = '';
-        if ($location['status'] == 1 && $location['velocity'] > 2) {
+        if ($location['status'] == 1 && $location['velocity'] > 0) {
             $text = 'Đang chạy';
-        } else if ($location['status'] == 1 && $location['velocity'] <= 1) {
+        } else if ($location['status'] == 1 && $location['velocity'] <= 0) {
             $text = 'Dừng';
         } else {
             $text = 'Đỗ';

@@ -9,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\Tracking_deviceRequest as StoreRequest;
 use App\Http\Requests\Tracking_deviceRequest as UpdateRequest;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 
 class Tracking_deviceCrudController extends CrudController
@@ -157,12 +158,21 @@ class Tracking_deviceCrudController extends CrudController
                 'class' => 'form-group col-md-12'
             ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
         ]);
+//        $this->crud->addField([
+//            // MANDATORY
+//            'name'  => 'user_id', // DB column name (will also be the name of the input)
+//            'label' => 'Owner', // the human-readable label for the input
+//            'type'  => 'number', // the field type (text, number, select, checkbox, etc)
+//        ]);
         $this->crud->addField([
-            // MANDATORY
-            'name'  => 'user_id', // DB column name (will also be the name of the input)
-            'label' => 'Owner', // the human-readable label for the input
-            'type'  => 'number', // the field type (text, number, select, checkbox, etc)
+            'name' => 'user_id',
+            'label' => 'Owner',
+            'type' => 'select2_from_array',
+            'options' => $this->getOwner(),
+            'allows_null' => false,
+            'hint' => 'Search user to own this device',
         ]);
+        $this->getOwner();
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
@@ -249,5 +259,13 @@ class Tracking_deviceCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         return $redirect_location;
+    }
+    private function getOwner() {
+        $users = User::get()->toArray();
+        $userArray = [];
+        foreach($users as $user) {
+            $userArray[$user['id']] = $user["name"];
+        }
+        return $userArray;
     }
 }

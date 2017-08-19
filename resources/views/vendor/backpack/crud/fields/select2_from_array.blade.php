@@ -40,6 +40,19 @@
     <!-- include select2 css-->
     <link href="{{ asset('vendor/adminlte/plugins/select2/select2.min.css') }}" rel="stylesheet" type="text/css" />
     {{-- <link href="{{ asset('vendor/backpack/select2/select2-bootstrap-dick.css') }}" rel="stylesheet" type="text/css" /> --}}
+    <style type="text/css" rel="stylesheet">
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            border: 1px solid #d2d6de;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        .select2-container .select2-selection--single .select2-selection__rendered:hover,
+        .select2-container .select2-selection--single .select2-selection__rendered:active,
+        .select2-container .select2-selection--single .select2-selection__rendered:visited
+        {
+            border-color: #3c8dbc;
+        }
+    </style>
     @endpush
 
     {{-- FIELD JS - will be loaded in the after_scripts section --}}

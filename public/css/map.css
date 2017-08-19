@@ -110,17 +110,17 @@ div#device-list {
     }
     div#control-section.slide-left {
         -webkit-animation-name: slide-left; /* Safari 4.0 - 8.0 */
-        -webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+        -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
         animation-name: slide-left;
-        animation-duration: 2s;
+        animation-duration: 1s;
         right: 0;
     }
 
     div#control-section.slide-right {
         -webkit-animation-name: slide-right; /* Safari 4.0 - 8.0 */
-        -webkit-animation-duration: 2s; /* Safari 4.0 - 8.0 */
+        -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
         animation-name: slide-right;
-        animation-duration: 2s;
+        animation-duration: 1s;
         right: -33.33%;
     }
 
@@ -182,17 +182,17 @@ div#device-list {
     }
     div#control-section.slide-left {
         -webkit-animation-name: slide-left; /* Safari 4.0 - 8.0 */
-        -webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+        -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
         animation-name: slide-left;
-        animation-duration: 2s;
+        animation-duration: 1s;
         right: 0;
     }
 
     div#control-section.slide-right {
         -webkit-animation-name: slide-right; /* Safari 4.0 - 8.0 */
-        -webkit-animation-duration: 2s; /* Safari 4.0 - 8.0 */
+        -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
         animation-name: slide-right;
-        animation-duration: 2s;
+        animation-duration: 1s;
         right: -56%;
     }
 

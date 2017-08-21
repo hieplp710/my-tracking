@@ -17,7 +17,7 @@ class Tracking_device extends Model
 {
     use CrudTrait;
     use Helper;
-    protected $fillable = ['id','device_number', 'setting', 'sim_infor', 'activated_at', 'user_id'];
+    protected $fillable = ['id','device_number', 'setting', 'sim_infor', 'activated_at', 'user_id', 'status'];
     protected $table = 'tracking_devices';
     const REQUEST_TYPE_LOCATION = 1;
     const REQUEST_TYPE_LOCATION_ROLLBACK = 2;
@@ -75,6 +75,11 @@ class Tracking_device extends Model
         return (isset($user) && $user->first()) ? $user->first()->name : '';
     }
 
+    public function getStatus(){
+        $values = ["1" => "Active", "0" => "In-Active", "2" => "Extend Expired"];
+        return isset($values[$this->status]) ? $values[$this->status] : '';
+    }
+
     public function displayCreatedAt(){
         return Helper::formatDatetime($this->created_at);
     }
@@ -100,7 +105,7 @@ class Tracking_device extends Model
             $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
             if ($last_point == '') {
-                $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
+                $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
                         left join device_locations as l on d.id = l.device_id
                     where d.is_deleted = 0 $user_condition
@@ -110,11 +115,11 @@ class Tracking_device extends Model
                     group by d.id
                     order by d.id, l.created_at desc, l.status asc";
             } else {
-                $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
+                $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
-                inner join device_locations as l on d.id = l.device_id
-                where d.is_deleted = 0 $last_point $user_condition
+                left join device_locations as l on (d.id = l.device_id $last_point)
+                where d.is_deleted = 0  $user_condition
                 order by d.id, l.created_at desc, l.status asc";
             }
         } else {
@@ -133,7 +138,7 @@ class Tracking_device extends Model
             if (!empty($next_loc)) {
                 $condition_next_loc = " AND l.created_at > '$next_loc'";
             }
-            $query = "select d.id as device_id_main, IFNULL(d.device_number,'N/A') as device_number, l.* 
+            $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
                 inner join device_locations as l on d.id = l.device_id
@@ -152,34 +157,77 @@ class Tracking_device extends Model
         if ($is_roadmap) {
             $has_more = count($locations) >= $roadmapLimit ? true : false;
         }
+        $last_point_item = isset($options["lastPoint"]) ? $options["lastPoint"] : '';
+
         if ($locations){
             if (!$is_roadmap){
                 $locations = array_reverse($locations);
             }
             $last_time = 0;
             foreach($locations as $location_device){
-                $tempTime = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC')->format('U');
-                if (intval($tempTime) > $last_time){
-                    $last_point_item = $location_device;
-                    $last_time = intval($tempTime);
+                if ($location_device->id != null){
+                    $tempTime = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC')->format('U');
+                    if (intval($tempTime) > $last_time){
+                        $last_point_item = $location_device;
+                        $last_time = intval($tempTime);
+                    }
+                    if (!isset($location_devices[$location_device->device_id_main])){
+                        $location_devices[$location_device->device_id_main] = [
+                            "device_id" => $location_device->device_id_main,
+                            "device_number" => $location_device->device_number,
+                            "locations" => []
+                        ];
+                    }
+                    if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){
+                        if (is_numeric($location_device->lat) && is_numeric($location_device->lng)) {
+                            $location_device->last_point = $location_device->created_at;
+                            $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
+                            $date_created->setTimezone('Asia/Ho_Chi_Minh');
+                            $location_device->created_at = $date_created->format('d-m-Y H:i:s');
+                            $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
+                            $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
+                            $location_device->heading = self::getHeadingClass($location_device->heading);
+                            $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
+                        }
+                    }
                 }
-                if (!isset($location_devices[$location_device->device_id_main])){
-                    $location_devices[$location_device->device_id_main] = [
-                        "device_id" => $location_device->device_id_main,
-                        "device_number" => $location_device->device_number,
-                        "locations" => []
-                    ];
-                }
-                if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){
-                    if (is_numeric($location_device->lat) && is_numeric($location_device->lng)) {
-                        $location_device->last_point = $location_device->created_at;
-                        $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
-                        $date_created->setTimezone('Asia/Ho_Chi_Minh');
-                        $location_device->created_at = $date_created->format('d-m-Y H:i:s');
-                        $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
-                        $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
-                        $location_device->heading = self::getHeadingClass($location_device->heading);
-                        $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
+                else {
+                    //no location is found
+                    //check current state, if command is two, get time from server
+
+                    $current_state = $location_device->current_state_device;
+
+                    if (!isset($location_devices[$location_device->device_id_main])){
+                        $location_devices[$location_device->device_id_main] = [
+                            "device_id" => $location_device->device_id_main,
+                            "device_number" => $location_device->device_number,
+                            "locations" => []
+                        ];
+                    }
+                    if (!empty($current_state)){
+
+                        $state_obj = json_decode($current_state);
+                        if ($state_obj->command == 2) {
+                            //$later_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_later_loc->created_at);
+                            //$different = $location_time->diffInSeconds($later_location_time);
+                            //`id`,`device_id`,`command`,`lat`,`lng`,`status`,`heading`,`created_at`,`updated_at`,`current_state`,`velocity`,`reverser`,`checksum`,
+
+                            $loction = new \stdClass();
+                            $loction->device_id = $location_device->device_id_main;
+                            $loction->command = 2;
+                            $loction->lat = $state_obj->lat;
+                            $loction->lng = $state_obj->lng;
+                            $loction->status = self::getStatusText(["status" => $state_obj->status, 'velocity' => $state_obj->velocity]);
+                            $loction->heading = self::getHeadingClass($state_obj->heading);
+                            $loction->created_at = Carbon::now('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
+                            $last_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, '20' . $state_obj->time, 'UTC');                            
+                            $now = Carbon::now('UTC');
+                            $diff = $last_time->diffInSeconds($now);
+                            $loction->current_state = self::getDifferentTime($diff);
+                            $location_devices[$location_device->device_id_main]['locations'][] = $loction;
+                            $loction->last_point = $now->format('Y-m-d H:i:s');
+                            $last_point_item = $loction;
+                        }
                     }
                 }
             }

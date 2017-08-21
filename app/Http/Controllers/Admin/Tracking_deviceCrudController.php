@@ -73,6 +73,13 @@ class Tracking_deviceCrudController extends CrudController
             'function_name' => 'getUserName',
         ]);
 
+        $this->crud->addColumn([
+            'name' => 'status', // The db column name
+            'label' => "Status", // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getStatus',
+        ]);
+
         //add field
         $this->crud->addField([
             // MANDATORY
@@ -172,7 +179,14 @@ class Tracking_deviceCrudController extends CrudController
             'allows_null' => false,
             'hint' => 'Search user to own this device',
         ]);
-        $this->getOwner();
+
+        $this->crud->addField([
+            'name' => 'status',
+            'label' => 'Status',
+            'type' => 'select_from_array',
+            'options' => ['0' => "In-Active", '1' => "Active", '2' => 'Extend expired'],
+            'allows_null' => false,
+        ]);
 
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
@@ -263,8 +277,9 @@ class Tracking_deviceCrudController extends CrudController
     private function getOwner() {
         $users = User::get()->toArray();
         $userArray = [];
+        $userArray[0] = "None";
         foreach($users as $user) {
-            $userArray[$user['id']] = $user["name"];
+            $userArray[$user['id']] = $user["username"];
         }
         return $userArray;
     }

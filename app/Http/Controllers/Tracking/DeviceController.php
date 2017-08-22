@@ -8,6 +8,7 @@
 namespace App\Http\Controllers\Tracking;
 
 use App\Models\Tracking_device;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Input;
@@ -38,5 +39,25 @@ class DeviceController extends BaseController
             return response()->json($result, $responseCode);
         }
         return response()->json(["status" => false, "error" => "Not support method"], 500);
+    }
+
+    public function generateDeviceId() {
+        $is_valid = false;
+        $device_id = '';
+        do {
+            $temp = self::getRandomString();
+            $device = Tracking_device::find($temp);
+            if (!($device instanceof Tracking_device)) {
+                $is_valid = true;
+                $device_id = $temp;
+            }
+        }while (!$is_valid);
+        return $device_id;
+    }
+    private static function getRandomString() {
+        $year = Carbon::now('UTC')->format('y');
+        $rans = mt_rand(9,99999999);
+        $device_id = $year . str_pad($rans,8,0,STR_PAD_LEFT);
+        return $device_id;
     }
 }

@@ -31,3 +31,4 @@ Route::group([
 
 Route::post('/tracking/location', 'Tracking\DeviceController@location')->name('location');
 Route::post('/tracking/get-locations', 'Tracking\DeviceController@getDeviceLocations')->name('get_location');
+Route::get('/device/get-deviceid', 'Tracking\DeviceController@generateDeviceId')->name('get_device_id');

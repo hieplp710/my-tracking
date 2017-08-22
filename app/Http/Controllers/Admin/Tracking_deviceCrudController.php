@@ -91,7 +91,8 @@ class Tracking_deviceCrudController extends CrudController
             'hint'       => 'device id', // helpful text, show up after input
             'attributes' => [
                 'placeholder' => 'Device id',
-                'class' => 'form-control some-class'
+                'class' => 'form-control tracking_device_id',
+                'readonly' => 'readonly'
             ], // extra HTML attributes and values your input might need
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-12'
@@ -126,7 +127,7 @@ class Tracking_deviceCrudController extends CrudController
             'attributes' => [
                 'default' => '{}',
                 'placeholder' => 'Device Number',
-                'class' => 'form-control some-class'
+                'class' => 'form-control some-class',
             ], // extra HTML attributes and values your input might need
             'wrapperAttributes' => [
                 'class' => 'form-group col-md-12'

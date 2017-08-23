@@ -17,7 +17,7 @@ class Tracking_device extends Model
 {
     use CrudTrait;
     use Helper;
-    protected $fillable = ['id','device_number', 'setting', 'sim_infor', 'activated_at', 'user_id', 'status'];
+    protected $fillable = ['id','device_number', 'setting', 'sim_infor', 'activated_at', 'user_id', 'status', 'expired_at'];
     protected $table = 'tracking_devices';
     const REQUEST_TYPE_LOCATION = 1;
     const REQUEST_TYPE_LOCATION_ROLLBACK = 2;
@@ -82,6 +82,10 @@ class Tracking_device extends Model
 
     public function displayCreatedAt(){
         return Helper::formatDatetime($this->created_at);
+    }
+
+    public function displayExpiredAt() {
+        return Helper::formatDatetime($this->expired_at);
     }
 
     public function displayActivatedAt(){

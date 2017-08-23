@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\Tracking_device;
 use App\User;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -86,6 +87,11 @@ class RegisterController extends Controller
             if ($device[0] instanceof Tracking_device) {
                 $device[0]->user_id = $user->id;
                 $device[0]->device_number = $data['device_name'] ? $data['device_name'] : $data['device_id'];
+                //set activated at and expired at
+                $now = Carbon::now('UTC');
+                $nextYear = Carbon::now('UTC')->addYears(1);
+                $device[0]->activated_at = $now->format(Tracking_device::DB_DATETIME_FORMAT);
+                $device[0]->expired_at = $nextYear->format(Tracking_device::DB_DATETIME_FORMAT);
                 $device[0]->save();
             }
         }

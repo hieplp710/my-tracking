@@ -61,6 +61,12 @@ class Tracking_deviceCrudController extends CrudController
             'function_name' => 'displayActivatedAt',
         ]);
         $this->crud->addColumn([
+            'name' => 'expired_at', // The db column name
+            'label' => "Expired At", // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'displayExpiredAt',
+        ]);
+        $this->crud->addColumn([
             'name' => 'created_at', // The db column name
             'label' => "Created At", // Table column heading
             'type' => 'model_function',
@@ -145,6 +151,22 @@ class Tracking_deviceCrudController extends CrudController
             'hint'       => 'Activated date', // helpful text, show up after input
             'attributes' => [
                 'placeholder' => 'Device Number',
+                'class' => 'form-control some-class'
+            ], // extra HTML attributes and values your input might need
+            'wrapperAttributes' => [
+                'class' => 'form-group col-md-12'
+            ] // extra HTML attributes for the field wrapper - mostly for resizing fields using the bootstrap column classes
+        ]);
+        $this->crud->addField([
+            // MANDATORY
+            'name'  => 'expired_at', // DB column name (will also be the name of the input)
+            'label' => 'Expired At', // the human-readable label for the input
+            'type'  => 'date_picker', // the field type (text, number, select, checkbox, etc)
+
+            // OPTIONAL + example values
+            'hint'       => 'Expired date', // helpful text, show up after input
+            'attributes' => [
+                'placeholder' => 'Expired At',
                 'class' => 'form-control some-class'
             ], // extra HTML attributes and values your input might need
             'wrapperAttributes' => [

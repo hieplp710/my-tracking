@@ -107,7 +107,7 @@ class Tracking_device extends Model
             if ($last_point == '') {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
-                        left join device_locations as l on d.id = l.device_id
+                        inner join device_locations as l on d.id = l.device_id
                     where d.is_deleted = 0 and d.status = 1 $user_condition
                         and l.created_at >= (select MAX(l.created_at) 
                             from tracking_devices as d1
@@ -118,7 +118,7 @@ class Tracking_device extends Model
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                 inner join tracking_devices as d on u.id = d.user_id
-                left join device_locations as l on (d.id = l.device_id $last_point)
+                inner join device_locations as l on (d.id = l.device_id $last_point)
                 where d.is_deleted = 0 and d.status = 1 $user_condition
                 order by d.id, l.created_at desc, l.status asc";
             }

@@ -56,8 +56,8 @@ class DeviceController extends BaseController
     }
     private static function getRandomString() {
         $year = Carbon::now('UTC')->format('y');
-        $rans = mt_rand(9,99999999);
-        $device_id = $year . str_pad($rans,8,0,STR_PAD_LEFT);
+        $rans = mt_rand(9,9999999);
+        $device_id = "1" . $year . str_pad($rans,7,0,STR_PAD_LEFT);
         return $device_id;
     }
 }

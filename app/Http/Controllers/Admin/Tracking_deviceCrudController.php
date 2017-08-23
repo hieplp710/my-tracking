@@ -9,6 +9,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 // VALIDATION: change the requests to match your own file names if you need form validation
 use App\Http\Requests\Tracking_deviceRequest as StoreRequest;
 use App\Http\Requests\Tracking_deviceRequest as UpdateRequest;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 
@@ -291,10 +292,26 @@ class Tracking_deviceCrudController extends CrudController
 
     public function update(UpdateRequest $request)
     {
+        //update the created at
+        $user_id = $request->get('user_id');
+        $device_id = $request->get('id');
+        $device = Tracking_device::find($device_id);
+        $old_user = $device->user_id;
         // your additional operations before save here
         $redirect_location = parent::updateCrud();
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
+        if ($redirect_location) {
+            if ($old_user != $user_id) {
+                //if user is change, change the time
+                $now = Carbon::now('UTC');
+                $nextYear = Carbon::now('UTC')->addYears(1);
+                $device->activated_at = $now->format(Tracking_device::DB_DATETIME_FORMAT);
+                $device->expired_at = $nextYear->format(Tracking_device::DB_DATETIME_FORMAT);
+                $device->save();
+            }
+        }
+
         return $redirect_location;
     }
     private function getOwner() {

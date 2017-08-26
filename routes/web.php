@@ -12,7 +12,13 @@
 */
 
 Route::get('/', function () {
-    return view('auth.login');
+    if (\Illuminate\Support\Facades\Auth::check()) {
+        $site_url = config('app.url');
+        return view('home',["url" => $site_url]);
+    } else {
+        return view('auth.login');
+    }
+
 });
 
 Auth::routes();

@@ -147,6 +147,98 @@ div#device-list {
         100% {right: -33.3333%;}
     }
 }
+
+@media (max-width: 450px) {
+    .mobile-toggle{
+        display: block;
+    }
+    a#control-device {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #216a94;
+        padding: 8px 0;
+        text-align: center;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 99999;
+        left: -39%;
+        top: 21px;
+        background: #f1f1f1;
+    }
+    a#control-device:hover,  a#control-device:active {
+        background: #216a94;
+        color: #ffffff;
+    }
+    div#control-section {
+        position: absolute;
+        right: -53.333%;
+        margin-left: 0;
+        margin-right: 0;
+        top: -14px;
+        background: #f1f1f1;
+    }
+    .content-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
+    div#control-section.slide-left {
+        -webkit-animation-name: slide-left; /* Safari 4.0 - 8.0 */
+        -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
+        animation-name: slide-left;
+        animation-duration: 1s;
+        right: 0;
+    }
+
+    div#control-section.slide-right {
+        -webkit-animation-name: slide-right; /* Safari 4.0 - 8.0 */
+        -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
+        animation-name: slide-right;
+        animation-duration: 1s;
+        right: -53.333%;
+    }
+
+    /* Safari 4.0 - 8.0 */
+    @-webkit-keyframes slide-left {
+        0%   {right: -53.333%;}
+        100% {right: 0;}
+    }
+
+    /* Standard syntax */
+    @keyframes slide-left {
+        0%   {right: -53.333%;}
+        100% {right: 0;}
+    }
+    /* Safari 4.0 - 8.0 */
+    @-webkit-keyframes slide-right {
+        0%   {right: 0%;}
+        100% {right: -53.333%;}
+    }
+
+    /* Standard syntax */
+    @keyframes slide-right {
+        0%   {right: 0;}
+        100% {right: -53.333%;}
+    }
+}
+@media (max-width: 400px) {
+    .mobile-toggle{
+        display: block;
+    }
+    a#control-device {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #216a94;
+        padding: 8px 0;
+        text-align: center;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 99999;
+        left: -29%;
+        top: 21px;
+        background: #f1f1f1;
+    }
+
+}
 @media (max-width: 360px) {
     .mobile-toggle{
         display: block;

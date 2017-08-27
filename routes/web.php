@@ -12,6 +12,10 @@
 */
 
 Route::get('/', function () {
+    if (\Illuminate\Support\Facades\Auth::check()) {
+        $site_url = config('app.url');
+        return view('home',["url" => $site_url]);
+    }
     return view('auth.login');
 });
 

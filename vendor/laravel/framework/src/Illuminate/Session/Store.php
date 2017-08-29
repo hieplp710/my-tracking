@@ -488,8 +488,8 @@ class Store implements Session
         }
 
         $this->setExists(false);
-
-        $this->setId($this->generateSessionId());
+        $id = $this->generateSessionId();
+        $this->setId($id);
 
         return true;
     }

@@ -103,6 +103,7 @@ div#device-list {
         margin-right: 0;
         top: -14px;
         background: #f1f1f1;
+        max-width:33.333%;
     }
     .content-wrapper {
         position: relative;
@@ -176,6 +177,7 @@ div#device-list {
         margin-right: 0;
         top: -14px;
         background: #f1f1f1;
+        max-width: 53.333%;
     }
     .content-wrapper {
         position: relative;
@@ -239,7 +241,7 @@ div#device-list {
     }
 
 }
-@media (max-width: 360px) {
+@media (max-width: 380px) {
     .mobile-toggle{
         display: block;
     }
@@ -267,6 +269,7 @@ div#device-list {
         margin-right: 0;
         top: -14px;
         background: #f1f1f1;
+        max-width: 56%;
     }
     .content-wrapper {
         position: relative;
@@ -339,6 +342,7 @@ div#device-list {
         margin-right: 0;
         top: -14px;
         background: #f1f1f1;
+        max-width: 63%;
     }
     .content-wrapper {
         position: relative;

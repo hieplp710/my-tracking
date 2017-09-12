@@ -103,5 +103,24 @@ export class TrackingService {
             datetime.setSeconds(parseInt(time_parts[2], 10));
         }
         return datetime;
+    };
+    getUserProfile(): Promise<any> {
+        let _this = this;
+        return this.http.get('/user/profile').toPromise().then(function(value){
+            return _this.responseProfile(value);
+        }).catch(this.handleError);
+    };
+    responseProfile(value) {
+        let body = value.json();
+        if (body.status) {
+            return body.data;
+        }
+        return false;
+    }
+    saveUserProfile(data: any): Promise<any> {
+        let _this = this;
+        return this.http.post('/user/save-profile', data).toPromise().then(function(value){
+            return _this.responseProfile(value);
+        }).catch(this.handleError);
     }
 }

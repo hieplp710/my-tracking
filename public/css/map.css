@@ -29,15 +29,16 @@ li.active.tab {
     border-left: 1px solid #cccccc;
     border-top: 1px solid #cccccc;
     border-right: 1px solid #cccccc;
-    border-bottom: 1px solid #ffffff;
+    border-bottom: none !important;
     margin-bottom: -1px;
     background: #fff;
 }
 
 div.tab-pane {
-    background: #ffffff;
+    background: #1e282c;
     border-top: 1px solid #cccccc;
     padding-top: 10px;
+    overflow-y: hidden;
 }
 
 li.tab {
@@ -74,6 +75,75 @@ div#device-list {
 }
 .mobile-toggle{
     display: none;
+}
+div#profile {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+}
+
+div#app {overflow-x: hidden;}
+
+/****  for nav*/
+.navbar-default {
+    background-color: #605ca8;
+    border-color: #d3e0e9;
+    color: #ffffff;
+}
+.navbar-default .navbar-brand {
+    color: #ffffff;
+}
+.navbar-collapse li a {
+    color: #ffffff !important;
+}
+.navbar-collapse li:hover a.dropdown-toggle, .navbar-collapse li:active
+a.dropdown-toggle, .navbar-collapse li.open a.dropdown-toggle {
+    background-color: #555299;
+    color: #ffffff;
+}
+
+.navbar-collapse li .dropdown-menu{
+    background-color: #555299;
+}
+
+.navbar-collapse li .dropdown-menu > li:hover > a{
+    background-color: #555299;
+}
+span.device-number {
+    color: #b8c7ce;
+}
+
+ul.lstDevices li:hover span.device-number {
+    color: #ffffff;
+}
+ul.lstDevices li{
+    border-left: 2px solid transparent;
+}
+ul.lstDevices li:hover {
+    background: #1e282c !important;
+    border-left: 2px solid #605ca8;
+}
+
+div#tabs-wrapper {
+    background: #2c3b41;
+    margin-bottom: -1px;
+}
+
+div#tabs-wrapper li {
+    color: #b8c7ce;
+    width: 50%;
+    border-bottom: 1px solid #cccccc;
+}
+
+div#tabs-wrapper li.active {
+    color: #ffffff;
+    background: #1e282c !important;
+    font-weight: bold;
+}
+
+div#tabs-wrapper li:last-child {
+    border-right: none;
 }
 @media (max-width: 800px) {
     .mobile-toggle{

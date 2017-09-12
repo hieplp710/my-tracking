@@ -192,11 +192,11 @@ export class MapComponent implements OnInit {
             $('#control-section #real-time div.device-list').css({"height":(height - 40) + "px"});
             $('#control-section #roadmap div.device-list').css({"height":(height - 240) + "px"});
         } else {
-            let height = $(window).height() - 120;
+            let height = $(window).height() - 55;
             $('agm-map').css({"height":height + "px"});
-            $('#control-section div.row.tab-pane').css({"height":(height - 44) + "px"});
-            $('#control-section #real-time div.device-list').css({"height":(height - 44) + "px"});
-            $('#control-section #roadmap div.device-list').css({"height":(height - 44 - 123) + "px"});
+            $('#control-section div.row.tab-pane').css({"height":(height - 42) + "px"});
+            $('#control-section #real-time div.device-list').css({"height":(height - 42) + "px"});
+            $('#control-section #roadmap div.device-list').css({"height":(height - 42 - 123) + "px"});
         };
         //init geocoder
         this.geoCoder = new google.maps.Geocoder();

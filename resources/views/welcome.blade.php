@@ -59,8 +59,22 @@
                 text-transform: uppercase;
             }
 
-            .m-b-md {
-                margin-bottom: 30px;
+
+            .navbar-collapse li.dropdown a {
+                color: #ffffff;
+            }
+            .navbar-collapse li.dropdown:hover a.dropdown-toggle, .navbar-collapse li.dropdown:active
+            a.dropdown-toggle, .navbar-collapse li.dropdown.open a.dropdown-toggle {
+                background-color: #555299;
+                color: #ffffff;
+            }
+
+            .navbar-collapse li .dropdown-menu{
+                background-color: #555299;
+            }
+
+            .navbar-collapse li .dropdown-menu > li:hover > a{
+                background-color: #555299;
             }
         </style>
         <!-- 1. Load libraries -->

@@ -57,7 +57,7 @@
                                                      document.getElementById('logout-form').submit();">
                                             Đăng xuất
                                         </a>
-
+                                        <a href="#profile" id="btnProfile">Thông tin tài khoản</a>
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                             {{ csrf_field() }}
                                         </form>
@@ -75,5 +75,6 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+    <!-- Modal -->
 </body>
 </html>

@@ -8,6 +8,7 @@ import {MapComponent} from "./map/components/map.component";
 import {Http, HttpModule} from "@angular/http";
 import {TrackingService} from "./services/TrackingService";
 import {DeviceComponent} from "./map/components/device.component";
+import {ProfileComponent} from "./map/components/profile.component";
 import $ from "jquery";
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 
@@ -27,6 +28,7 @@ import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
         AppComponent,
         MapComponent,
         DeviceComponent,
+        ProfileComponent
     ],
     providers: [
         HttpModule,

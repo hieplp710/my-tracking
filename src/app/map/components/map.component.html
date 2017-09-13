@@ -16,7 +16,7 @@
                             <span class="col-xs-12 time"><strong>{{ m.currentLocation.time }}</strong></span>
                             <span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">{{ m.currentLocation.status }}</span>
                             <span *ngIf="m.currentLocation.state != ''"  class="col-xs-4 label">Thời gian:</span><span class="col-xs-8 content">{{ m.currentLocation.state }}</span>
-                            <span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">{{ m.currentLocation.velocity }}</span>
+                            <span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">{{ m.currentLocation.velocity }} km/h</span>
                             <span class="col-xs-4 label">Tọa độ:</span><span class="col-xs-8 content">{{ m.currentLocation.lat}}, {{m.currentLocation.lng}}</span>
                             <span *ngIf="m.currentLocation.address != '' && m.currentLocation.address != null" class="col-xs-4 label">Địa chỉ:</span><span class="col-xs-8 content">{{ m.currentLocation.address }}</span>
                         </div>

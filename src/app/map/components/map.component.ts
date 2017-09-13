@@ -332,7 +332,7 @@ export class MapComponent implements OnInit {
                 + '<span class="col-xs-12"><strong>' + lt.time + '</strong></span>'
                 + '<span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">' + lt.status + '</span>'
                 + state
-                + '<span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">' + lt.velocity + '</span>'
+                + '<span class="col-xs-4 label">Vận tốc:</span><span class="col-xs-8 content">' + lt.velocity + ' km/h</span>'
                 + '<span class="col-xs-4 label">Tọa độ:</span><span class="col-xs-8 content">' + lt.lat + ', ' + lt.lng + '</span>'
                 + '<span  class="col-xs-4 label">Địa chỉ:</span><span class="col-xs-8 content address"></span></div>';
             //insert infor window

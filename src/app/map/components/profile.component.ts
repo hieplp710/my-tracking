@@ -37,7 +37,7 @@ export class ProfileComponent implements OnInit {
         });
     };
     onToggleModal() {
-        let overlay = $('<div class="overlay"></div>');
+        let overlay = $('<div class="overlay open"></div>');
         if (this.isShow) {
             $('body').append(overlay);
         } else {

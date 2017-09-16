@@ -79,12 +79,29 @@ div#profile {
     width: 100%;
     height: 100%;
     top: 0;
+    z-index: 999999;
 }
 .ngui-datetime-picker-wrapper input{
     max-width: 100%;
 }
 div#app {overflow-x: hidden;}
+button#saveProfile {
+    margin-left: 20px;
+}
 
+.overlay.open {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: #000000;
+    opacity: 0.7;
+    z-index: 99999;
+}
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #ffffff;
+}
 /****  for nav*/
 .navbar-default {
     background-color: #605ca8;
@@ -145,18 +162,39 @@ div#tabs-wrapper li.active {
 div#tabs-wrapper li:last-child {
     border-right: none;
 }
-ul.nav.navbar-nav.navbar-right {
-    margin-right: -180px;
-}
+
 .navbar-default .navbar-brand {
     color: #ffffff;
-    position: relative;
-    left: -170px;
+    position: absolute;
+    left: 20px;
 }
 ul.nav.navbar-nav.navbar-right {
-    margin-right: -180px;
+    position: absolute;
+    right: 20px;
+}
+button#saveProfile {
+    margin-left: 20px;
 }
 @media (max-width: 800px) {
+    ul.nav.navbar-nav.navbar-right {
+        position: static;
+    }
+    div#profile {
+        max-width: 92%;
+        top: -10%;
+    }
+    .modal-header {
+        padding: 0 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+    .modal-footer {
+        padding: 5px 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
     .mobile-toggle{
         display: block;
     }
@@ -231,6 +269,25 @@ ul.nav.navbar-nav.navbar-right {
 }
 
 @media (max-width: 450px) {
+    ul.nav.navbar-nav.navbar-right {
+        position: static;
+    }
+    div#profile {
+        max-width: 92%;
+        top: -10%;
+    }
+    .modal-header {
+        padding: 0 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+    .modal-footer {
+        padding: 5px 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
     .mobile-toggle{
         display: block;
     }
@@ -304,6 +361,25 @@ ul.nav.navbar-nav.navbar-right {
     }
 }
 @media (max-width: 400px) {
+    ul.nav.navbar-nav.navbar-right {
+        position: static;
+    }
+    div#profile {
+        max-width: 92%;
+        top: -10%;
+    }
+    .modal-header {
+        padding: 0 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+    .modal-footer {
+        padding: 5px 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
     .mobile-toggle{
         display: block;
     }
@@ -323,6 +399,25 @@ ul.nav.navbar-nav.navbar-right {
 
 }
 @media (max-width: 380px) {
+    ul.nav.navbar-nav.navbar-right {
+        position: static;
+    }
+    div#profile {
+        max-width: 92%;
+        top: -10%;
+    }
+    .modal-header {
+        padding: 0 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+    .modal-footer {
+        padding: 5px 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
     .mobile-toggle{
         display: block;
     }
@@ -396,6 +491,25 @@ ul.nav.navbar-nav.navbar-right {
     }
 }
 @media (max-width: 340px) {
+    ul.nav.navbar-nav.navbar-right {
+        position: static;
+    }
+    div#profile {
+        max-width: 92%;
+        top: -20%;
+    }
+    .modal-header {
+        padding: 0 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .form-group {
+        margin-bottom: 5px;
+    }
+    .modal-footer {
+        padding: 5px 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
     .mobile-toggle{
         display: block;
     }

@@ -26,6 +26,7 @@ class Tracking_device extends Model
     const DEVICE_DATETIME_FORMAT = 'y-m-d H:i:s';
     const ROADMAP_LIMIT = 1000;
     const ROADMAP_LIMIT_MOBILE = 1000;
+    const VELOCITY_RATIO = 1.85;
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -186,7 +187,7 @@ class Tracking_device extends Model
                         $location_device->last_point = $location_device->created_at;
                         $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
                         $date_created->setTimezone('Asia/Ho_Chi_Minh');
-                        $location_device->velocity = round(intval($location_device->velocity));
+                        $location_device->velocity = round(intval($location_device->velocity) * self::VELOCITY_RATIO);
                         $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
@@ -304,7 +305,7 @@ class Tracking_device extends Model
         $location->lng = $data['lng'];
         $location->status = $data['status'];
         $location->heading = $data['heading'];
-        $location->velocity = intval($data['velocity'] * 1.85);
+        $location->velocity = intval($data['velocity']);
         if ($data['command'] == 2) {
             $location->created_at = Carbon::now('UTC')->format(self::DB_DATETIME_FORMAT);
         } else {

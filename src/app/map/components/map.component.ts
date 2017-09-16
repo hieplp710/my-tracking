@@ -196,7 +196,7 @@ export class MapComponent implements OnInit {
             $('agm-map').css({"height":height + "px"});
             $('#control-section div.row.tab-pane').css({"height":(height - 42) + "px"});
             $('#control-section #real-time div.device-list').css({"height":(height - 42) + "px"});
-            $('#control-section #roadmap div.device-list').css({"height":(height - 42 - 123) + "px"});
+            $('#control-section #roadmap div.device-list').css({"height":(height - 50 - 123) + "px"});
         };
         //init geocoder
         this.geoCoder = new google.maps.Geocoder();

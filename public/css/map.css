@@ -32,7 +32,6 @@ li.active.tab {
 
 div.tab-pane {
     background: #4267b2;
-    border-top: 1px solid #cccccc;
     padding-top: 10px;
     overflow-y: hidden;
 }
@@ -179,6 +178,9 @@ button#saveProfile {
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }
+    button#view-roadmap {
+        margin-top: 10px;
+    }
     div#profile {
         max-width: 92%;
         top: -15%;
@@ -272,6 +274,9 @@ button#saveProfile {
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }
+    button#view-roadmap {
+        margin-top: 10px;
+    }
     div#profile {
         max-width: 92%;
         top: -15%;
@@ -361,6 +366,9 @@ button#saveProfile {
     }
 }
 @media (max-width: 400px) {
+    button#view-roadmap {
+        margin-top: 10px;
+    }
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }
@@ -399,6 +407,9 @@ button#saveProfile {
 
 }
 @media (max-width: 380px) {
+    button#view-roadmap {
+        margin-top: 10px;
+    }
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }
@@ -491,6 +502,9 @@ button#saveProfile {
     }
 }
 @media (max-width: 340px) {
+    button#view-roadmap {
+        margin-top: 10px;
+    }
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }

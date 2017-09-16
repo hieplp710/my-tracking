@@ -82,7 +82,9 @@ div#profile {
     height: 100%;
     top: 0;
 }
-
+.ngui-datetime-picker-wrapper input{
+    max-width: 100%;
+}
 div#app {overflow-x: hidden;}
 
 /****  for nav*/

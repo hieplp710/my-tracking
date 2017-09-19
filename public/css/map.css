@@ -174,7 +174,36 @@ ul.nav.navbar-nav.navbar-right {
 button#saveProfile {
     margin-left: 20px;
 }
+.edit-device-number{
+    color: #444444;
+    height: 20px;
+    font-size: 14px;
+    padding: 5px 5px;
+}
+ul.lstDevices li i.fa {
+    display: none;
+
+}
 @media (max-width: 800px) {
+    ul.lstDevices li label{
+        width: 80% !important;
+        float: left;
+    }
+    ul.lstDevices li i.fa {
+        display: inline-block;
+        margin : 0 5px;
+    }
+
+    ul.lstDevices li span.control {
+        color: #b8c7ce;
+        display: inline-block;
+        margin-top: 2px;
+    }
+    ul.lstDevices li:hover span.control {
+        color: #ffffff;
+    }
+
+
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }
@@ -271,6 +300,24 @@ button#saveProfile {
 }
 
 @media (max-width: 450px) {
+    ul.lstDevices li label{
+        width: 80% !important;
+        float: left;
+    }
+    ul.lstDevices li i.fa {
+        display: inline-block;
+        margin : 0 5px;
+    }
+
+    ul.lstDevices li span.control {
+        color: #b8c7ce;
+        display: inline-block;
+        margin-top: 2px;
+    }
+    ul.lstDevices li:hover span.control {
+        color: #ffffff;
+    }
+
     ul.nav.navbar-nav.navbar-right {
         position: static;
     }
@@ -366,6 +413,25 @@ button#saveProfile {
     }
 }
 @media (max-width: 400px) {
+    ul.lstDevices li label{
+        width: 80% !important;
+        float: left;
+    }
+    ul.lstDevices li i.fa {
+        display: inline-block;
+        margin : 0 5px;
+    }
+
+    ul.lstDevices li span.control {
+        color: #b8c7ce;
+        display: inline-block;
+        margin-top: 5px;
+    }
+    ul.lstDevices li:hover span.control {
+        color: #ffffff;
+    }
+
+
     button#view-roadmap {
         margin-top: 10px;
     }
@@ -407,6 +473,25 @@ button#saveProfile {
 
 }
 @media (max-width: 380px) {
+    ul.lstDevices li label{
+        width: 80% !important;
+        float: left;
+    }
+    ul.lstDevices li i.fa {
+        display: inline-block;
+        margin : 0 5px;
+    }
+
+    ul.lstDevices li span.control {
+        color: #b8c7ce;
+        display: inline-block;
+        margin-top: 2px;
+    }
+    ul.lstDevices li:hover span.control {
+        color: #ffffff;
+    }
+
+
     button#view-roadmap {
         margin-top: 10px;
     }
@@ -502,6 +587,25 @@ button#saveProfile {
     }
 }
 @media (max-width: 340px) {
+    ul.lstDevices li label{
+        width: 80% !important;
+        float: left;
+    }
+    ul.lstDevices li i.fa {
+        display: inline-block;
+        margin : 0 5px;
+    }
+
+    ul.lstDevices li span.control {
+        color: #b8c7ce;
+        display: inline-block;
+        margin-top: 2px;
+    }
+    ul.lstDevices li:hover span.control {
+        color: #ffffff;
+    }
+
+
     button#view-roadmap {
         margin-top: 10px;
     }

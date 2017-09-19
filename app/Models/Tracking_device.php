@@ -187,7 +187,7 @@ class Tracking_device extends Model
                         $location_device->last_point = $location_device->created_at;
                         $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
                         $date_created->setTimezone('Asia/Ho_Chi_Minh');
-                        $location_device->velocity = round(intval($location_device->velocity) * self::VELOCITY_RATIO);
+                        $location_device->velocity = $location_device->status > 0 ? round(intval($location_device->velocity) * self::VELOCITY_RATIO) : 0;
                         $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
@@ -467,5 +467,4 @@ class Tracking_device extends Model
         }
         return $headingClass;
     }
-
 }

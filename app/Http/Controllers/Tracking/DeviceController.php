@@ -60,4 +60,16 @@ class DeviceController extends BaseController
         $device_id = "1" . $year . str_pad($rans,7,0,STR_PAD_LEFT);
         return $device_id;
     }
+    public function updateDeviceName(Request $request) {
+        $this->middleware('auth');
+        $deviceId = $request->get('device_id');
+        $deviceName = $request->get('name');
+        $device = Tracking_device::find($deviceId);
+        if ($device instanceof Tracking_device) {
+            $device->device_number = $deviceName;
+            $device->save();
+            return response()->json(["status" => true, "error" => false]);
+        }
+        return response()->json(["status" => false, "error" => "Not support method"], 500);
+    }
 }

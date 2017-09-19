@@ -14,6 +14,7 @@ class VerifyCsrfToken extends BaseVerifier
     protected $except = [
         //
         '/tracking/location',
-        '/tracking/get-locations'
+        '/tracking/get-locations',
+        '/tracking/update-device-number',
     ];
 }

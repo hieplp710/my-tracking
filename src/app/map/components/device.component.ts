@@ -23,8 +23,46 @@ export class DeviceComponent implements OnInit {
     onClick(marker : MyMarker, ev) {
         ev.stopPropagation();
         //check if checkbox is checked
-        var isChecked = $(ev.target).is(':checked');
-        marker.visible = isChecked;
+        // var isChecked = $(ev.target).is(':checked');
+        // marker.visible = isChecked;
+        //pan to marker
         this.onSelectedDevice.emit(marker);
+    };
+    onEditDeviceName(item, $event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        item.isEdit = true;
+    };
+    onSave(item, $event) {
+        let keyCode = $event.which || $event.keyCode;
+        if (keyCode === 13) {
+            $.ajax({
+                "url" :'/tracking/update-device-number',
+                "method" : 'POST',
+                "data" : {"device_id": item.deviceId, "name" : item.deviceNumber},
+                "success": function(resp) {
+                    if (resp.status) {
+                        item.isEdit = false;
+                    }
+                }
+            });
+        } else if (keyCode === 27) {
+            item.isEdit = false;
+        }
+    }
+    onSaveClick(item, $event) {
+        $.ajax({
+            "url" :'/tracking/update-device-number',
+            "method" : 'POST',
+            "data" : {"device_id": item.deviceId, "name" : item.deviceNumber},
+            "success": function(resp) {
+                if (resp.status) {
+                    item.isEdit = false;
+                }
+            }
+        });
+    }
+    onCancel(item, $event) {
+        item.isEdit = false;
     }
 }

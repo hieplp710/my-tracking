@@ -18,12 +18,14 @@ declare var MarkerClusterer: any;
 export class MapComponent implements OnInit {
     lat: number = 10.820751;
     lng: number = 106.630894;
+    bufferMarker = [];
     mapDraggable: boolean;
     private internalInterval = null;
     date_from : Date;
     date_to: Date;
     isRoadmap : boolean = false;
     map = null;
+    zoom = 8;
     constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
         //this.options = new DatePickerOptions();
     };
@@ -178,11 +180,10 @@ export class MapComponent implements OnInit {
             return [];
         }
     }
-    onMapReady($event) {
+    onMapReady($event, map) {
         if (this.mapRoadmapBounds === undefined) {
             this.mapRoadmapBounds = new google.maps.LatLngBounds();
         }
-        console.log($event, 'event');
         this.map = $event;
         let width = $(window).width();
         if (width < 800) {
@@ -493,6 +494,12 @@ export class MapComponent implements OnInit {
             this.roadmapPolyline.setMap(null);
             this.roadmapPolyline = null;
         }
+    };
+    panToMarker($event) {
+        console.log($event, 'event');
+        this.lat = $event.currentLocation.lat;
+        this.lng = $event.currentLocation.lng;
+        this.zoom = 16;
     }
 }
 

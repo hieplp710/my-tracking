@@ -4,10 +4,20 @@
     <ul class="lstDevices">
         <li *ngFor="let item of listDevice; let i = index">
             <label class="device" (click)="onClick(item, $event)">
-                <input *ngIf="!is_radio" type="checkbox" id="check-{{ item.deviceId }}" [checked]="true"/>
+                <input *ngIf="!is_radio" type="checkbox" id="check-{{ item.deviceId }}" [checked]="true" class="hide"/>
                 <input *ngIf="is_radio" type="radio" name="roadmap-device" id="radio-{{ item.deviceId }}" [checked]="i == 0 ? true : false"/>
-                <span class="device-number">{{ item.deviceNumber }}</span>
+                <span *ngIf="is_radio" class="device-number">{{ item.deviceNumber }}</span>
+                <span class="device-number" *ngIf="!is_radio && !item.isEdit" (dblclick)="onEditDeviceName(item, $event)">
+                    {{ item.deviceNumber }}
+                </span>
+                <input type="text" class="edit-device-number" [(ngModel)]="item.deviceNumber" *ngIf="!is_radio && item.isEdit"
+                       (keypress)="onSave(item, $event)" value="{{ item.deviceNumber }}"/>
             </label>
+            <span class="control">
+                <i *ngIf="!item.isEdit" class="fa fa-pencil edit-device-toggle" (click)="onEditDeviceName(item, $event)" aria-hidden="true"></i>
+                <i *ngIf="item.isEdit" class="fa fa-check btn-save" (click)="onSaveClick(item, $event)" aria-hidden="true"></i>
+                <i *ngIf="item.isEdit" class="fa fa-times btn-cancel" (click)="onCancel(item, $event)"aria-hidden="true"></i>
+            </span>
         </li>
     </ul>
 </div>

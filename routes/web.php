@@ -36,5 +36,6 @@ Route::group([
 Route::post('/tracking/location', 'Tracking\DeviceController@location')->name('location');
 Route::post('/tracking/get-locations', 'Tracking\DeviceController@getDeviceLocations')->name('get_location');
 Route::post('/user/save-profile', 'HomeController@saveUserProfile')->name('save-profile');
+Route::post('/tracking/update-device-number', 'Tracking\DeviceController@updateDeviceName')->name('save-device-number');
 Route::get('/device/get-deviceid', 'Tracking\DeviceController@generateDeviceId')->name('get_device_id');
 Route::get('/user/profile', 'HomeController@getUserProfile')->name('get-profile');

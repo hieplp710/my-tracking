@@ -3,7 +3,8 @@
 <div class="row content-wrapper">
     <div id="map-section" class="col-md-9 col-sm-12">
         <div class="row">
-            <agm-map [mapDraggable]="mapDraggable" (mapReady)="onMapReady($event)" [fitBounds]="isRoadmap ? mapRoadmapBounds : mapBounds" [maxZoom]="17">
+            <agm-map [mapDraggable]="mapDraggable" (mapReady)="onMapReady($event, map)" [fitBounds]="isRoadmap ? mapRoadmapBounds : mapBounds"
+                     [maxZoom]="17" [latitude]="lat" [longitude]="lng" [zoom]="zoom" #map>
                 <agm-marker class="marker-device {{ m.currentLocation.headingClass }}" *ngFor="let m of toArray()"
                             [visible]="m.visible && !isRoadmap"
                             [title]="m.deviceNumber"
@@ -59,7 +60,7 @@
         </div>
         <div class="row tab-pane" id="real-time">
             <div class="col-md-12">
-                <device-control [listDevice]="toArray()" [is_radio]="false">Control device</device-control>
+                <device-control [listDevice]="toArray()" [is_radio]="false" (onSelectedDevice)="panToMarker($event)">Control device</device-control>
             </div>
         </div>
         <div class="row tab-pane hide" id="roadmap">

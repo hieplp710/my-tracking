@@ -52,6 +52,7 @@ export class TrackingService {
                     deviceNumber : temp.device_number,
                     currentLocation : null,
                     visible : true,
+                    isEdit : false,
                     locations : []
                 };
                 let locs : Location[] = [];

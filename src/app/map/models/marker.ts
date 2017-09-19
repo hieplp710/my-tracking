@@ -9,6 +9,7 @@ export interface MyMarker {
     currentLocation : Location;
     locations: Location[];
     visible? : boolean;
+    isEdit? : boolean;
 }
 
 export interface LocationObj {

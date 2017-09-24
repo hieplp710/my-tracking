@@ -496,7 +496,11 @@ export class MapComponent implements OnInit {
         }
     };
     panToMarker($event) {
-        console.log($event, 'event');
+        //if mobile mode, slide the device bar
+        if ($('#control-section').attr('class').indexOf('slide-left') !== -1) {
+            //remove class slide left and add class slide right
+            $('#control-device').trigger('click');
+        };
         this.lat = $event.currentLocation.lat;
         this.lng = $event.currentLocation.lng;
         this.zoom = 16;

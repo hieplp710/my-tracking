@@ -43,6 +43,7 @@ export class MapComponent implements OnInit {
     isRunningRoadmap = false;
     current_infowindow = null;
     current_roadmap_infowindow = null;
+    deviceLatestLocation = {};
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -86,7 +87,8 @@ export class MapComponent implements OnInit {
     roadmapPolyline = null;
     requestLocation() {
         let _this = this;
-        this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint).
+        this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint,
+            {"isRoadmap":false, "lastLocation":this.deviceLatestLocation}).
         then(function(locationObj) {
             // console.log(markers.length, 'location markers');
             var keys = [];
@@ -150,7 +152,9 @@ export class MapComponent implements OnInit {
         if (marker.locations.length >= 1) {
             let lt : Location = marker.locations.shift();
             marker.currentLocation = lt;
-            let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+            let coodrs = {"lat" : lt.lat, "lng" : lt.lng};
+            let coord = new google.maps.LatLng(coodrs);
+            context.deviceLatestLocation[marker.deviceId] = coodrs;
             if (context.mapBounds !== undefined ) {
                     context.mapBounds.extend(coord);
             }
@@ -503,7 +507,7 @@ export class MapComponent implements OnInit {
         };
         this.lat = $event.currentLocation.lat;
         this.lng = $event.currentLocation.lng;
-        this.zoom = 16;
+        this.map.setZoom(16);
     }
 }
 

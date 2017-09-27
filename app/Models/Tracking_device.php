@@ -112,7 +112,7 @@ class Tracking_device extends Model
             if ($last_point == '') {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
-                        inner join device_locations as l on d.id = l.device_id
+                        left join device_locations as l on d.id = l.device_id
                     where d.is_deleted = 0 and d.status = 1 $user_condition
                         and l.created_at >= (select MAX(l.created_at) 
                             from tracking_devices as d1
@@ -122,8 +122,8 @@ class Tracking_device extends Model
             } else {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
-                inner join tracking_devices as d on u.id = d.user_id
-                inner join device_locations as l on (d.id = l.device_id $last_point)
+                  left join tracking_devices as d on u.id = d.user_id
+                  left join device_locations as l on (d.id = l.device_id $last_point)
                 where d.is_deleted = 0 and d.status = 1 $user_condition
                 order by d.id, l.created_at desc, l.status asc";
             }
@@ -170,11 +170,14 @@ class Tracking_device extends Model
             }
             $last_time = 0;
             foreach($locations as $location_device){
-                $tempTime = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC')->format('U');
-                if (intval($tempTime) > $last_time){
-                    $last_point_item = $location_device;
-                    $last_time = intval($tempTime);
+                if (!empty($location_device->id)){
+                    $tempTime = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC')->format('U');
+                    if (intval($tempTime) > $last_time){
+                        $last_point_item = $location_device;
+                        $last_time = intval($tempTime);
+                    }
                 }
+
                 if (!isset($location_devices[$location_device->device_id_main])){
                     $location_devices[$location_device->device_id_main] = [
                         "device_id" => $location_device->device_id_main,
@@ -194,6 +197,28 @@ class Tracking_device extends Model
                         $location_device->heading = self::getHeadingClass($location_device->heading);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
+                } else if (isset($location_devices[$location_device->device_id_main]) && ($options["lastPoint"]['status'] == "Đỗ" || $options["lastPoint"]['status'] == "Dừng")) {
+                    $location_device->last_point = $options["lastPoint"]['last_point'];
+                    //get latest position of device
+                    $devID = $location_device->device_id_main;
+
+                    $location_device->velocity = $options["lastPoint"]['velocity'];
+                    $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
+                    $location_device->status = self::getStatusText(["status" => 0, 'velocity' => 0]);
+                    //get the diffirence
+                    //expand status time in current status
+                    $current_time_utc = Carbon::now('UTC');
+                    $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options["lastPoint"]['last_point'], 'UTC');
+                    $different = $current_time_utc->diffInSeconds($last_time_utc);
+                    $statusText = self::getDifferentTime($different);
+                    $location_device->current_state = $statusText;
+                    $location_device->heading = $options["lastPoint"]['heading'];
+                    if ($options['lastLocation'] && isset($options['lastLocation'][$devID])) {
+
+                        $location_device->lat = $options['lastLocation'][$devID]['lat'];
+                        $location_device->lng = $options['lastLocation'][$devID]['lng'];
+                    }
+                    $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                 }
             }
             //$last_point_item = $locations[count($locations) - 1];//wrong here
@@ -349,8 +374,7 @@ class Tracking_device extends Model
             $current_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $current_state_obj['time']);
             $location_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $location['time']);
             $different = 0;
-
-            if ($current_time < $location_time) {
+            if ($current_time <= $location_time) {
                 //for normal location
                 if ($current_state_obj['status'] == $location['status']) {
                     //expand status time in current status

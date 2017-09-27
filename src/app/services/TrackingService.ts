@@ -22,6 +22,7 @@ export class TrackingService {
         let _this = this;
         let opts = options ? options : {"isRoadmap":false};
         let is_roadmap = opts.isRoadmap;
+        console.log(options, 'options');
         let data = {"options":{
             "lastPoint":lastPoint,
             "isRoadmap":false
@@ -32,6 +33,8 @@ export class TrackingService {
             data["options"]['dateTo'] = opts.dateTo;
             data["options"]['deviceId'] = opts.deviceId;
             data["options"]['nextLoc'] = opts.nextLoc ? opts.nextLoc : null;
+        } else {
+            data["options"]['lastLocation'] = options.lastLocation !== undefined ? options.lastLocation : {};
         }
         return this.http.post(url, data).toPromise()
             .then(function(value){

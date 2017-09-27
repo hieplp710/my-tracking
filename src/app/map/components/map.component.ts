@@ -152,7 +152,7 @@ export class MapComponent implements OnInit {
         if (marker.locations.length >= 1) {
             let lt : Location = marker.locations.shift();
             marker.currentLocation = lt;
-            let coodrs = {"lat" : lt.lat, "lng" : lt.lng};
+            let coodrs = {"lat" : lt.lat, "lng" : lt.lng, "time": marker.currentLocation.time_original};
             let coord = new google.maps.LatLng(coodrs);
             context.deviceLatestLocation[marker.deviceId] = coodrs;
             if (context.mapBounds !== undefined ) {

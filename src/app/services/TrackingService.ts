@@ -69,6 +69,7 @@ export class TrackingService {
                             state: loc.current_state !== undefined ? loc.current_state : '',
                             status: loc.status,
                             time: loc.created_at,
+                            time_original: loc.created_at_org,
                             velocity: loc.velocity,
                             headingClass: loc.heading,
                             lastTime: loc.last_point

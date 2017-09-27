@@ -11,4 +11,5 @@ export interface Location {
     headingClass: string;
     address?: string;
     lastTime?: string;
+    time_original? : string;
 }

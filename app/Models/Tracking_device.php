@@ -191,6 +191,7 @@ class Tracking_device extends Model
                         $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
                         $date_created->setTimezone('Asia/Ho_Chi_Minh');
                         $location_device->velocity = $location_device->status > 0 ? round(intval($location_device->velocity) * self::VELOCITY_RATIO) : 0;
+                        $location_device->created_at_org = $location_device->created_at;
                         $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
@@ -201,22 +202,21 @@ class Tracking_device extends Model
                     $location_device->last_point = $options["lastPoint"]['last_point'];
                     //get latest position of device
                     $devID = $location_device->device_id_main;
-
-                    $location_device->velocity = $options["lastPoint"]['velocity'];
+                    $location_device->velocity = 0;
                     $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
                     $location_device->status = self::getStatusText(["status" => 0, 'velocity' => 0]);
                     //get the diffirence
                     //expand status time in current status
                     $current_time_utc = Carbon::now('UTC');
-                    $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options["lastPoint"]['last_point'], 'UTC');
+                    $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options['lastLocation'][$devID]['time'], 'UTC');
                     $different = $current_time_utc->diffInSeconds($last_time_utc);
                     $statusText = self::getDifferentTime($different);
                     $location_device->current_state = $statusText;
                     $location_device->heading = $options["lastPoint"]['heading'];
                     if ($options['lastLocation'] && isset($options['lastLocation'][$devID])) {
-
                         $location_device->lat = $options['lastLocation'][$devID]['lat'];
                         $location_device->lng = $options['lastLocation'][$devID]['lng'];
+                        $location_device->created_at_org = $options['lastLocation'][$devID]['time'];
                     }
                     $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                 }

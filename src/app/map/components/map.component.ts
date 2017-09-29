@@ -6,6 +6,7 @@ import {AgmCoreModule, LatLngBounds, MapsAPILoader, LatLng} from '@agm/core';
 import moment from 'moment';
 import $ from 'jquery';
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
+import {mapChildrenIntoArray} from "@angular/router/src/url_tree";
 
 declare var google: any;
 declare var MarkerClusterer: any;
@@ -152,7 +153,11 @@ export class MapComponent implements OnInit {
         if (marker.locations.length >= 1) {
             let lt : Location = marker.locations.shift();
             marker.currentLocation = lt;
-            let coodrs = {"lat" : lt.lat, "lng" : lt.lng, "time": marker.currentLocation.time_original};
+            let coodrs = {
+                "lat" : lt.lat, "lng" : lt.lng,
+                "time": marker.currentLocation.time_original,
+                "status" : marker.currentLocation.status
+            };
             let coord = new google.maps.LatLng(coodrs);
             context.deviceLatestLocation[marker.deviceId] = coodrs;
             if (context.mapBounds !== undefined ) {

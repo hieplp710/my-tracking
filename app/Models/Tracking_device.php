@@ -163,7 +163,6 @@ class Tracking_device extends Model
             $has_more = count($locations) >= $roadmapLimit ? true : false;
         }
         $last_point_item = isset($options["lastPoint"]) ? $options["lastPoint"] : '';
-
         if ($locations){
             if (!$is_roadmap){
                 $locations = array_reverse($locations);
@@ -210,27 +209,29 @@ class Tracking_device extends Model
                         $location_device->heading = self::getHeadingClass($location_device->heading);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
-                } else if (isset($location_devices[$location_device->device_id_main]) && ($options["lastPoint"]['status'] == "Đỗ" || $options["lastPoint"]['status'] == "Dừng")) {
-                    $location_device->last_point = $options["lastPoint"]['last_point'];
+                } else if (isset($location_devices[$location_device->device_id_main])) {
                     //get latest position of device
                     $devID = $location_device->device_id_main;
-                    $location_device->velocity = 0;
-                    $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
-                    $location_device->status = self::getStatusText(["status" => 0, 'velocity' => 0]);
-                    //get the diffirence
-                    //expand status time in current status
-                    $current_time_utc = Carbon::now('UTC');
-                    $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options['lastLocation'][$devID]['time'], 'UTC');
-                    $different = $current_time_utc->diffInSeconds($last_time_utc);
-                    $statusText = self::getDifferentTime($different);
-                    $location_device->current_state = $statusText;
-                    $location_device->heading = $options["lastPoint"]['heading'];
-                    if ($options['lastLocation'] && isset($options['lastLocation'][$devID])) {
-                        $location_device->lat = $options['lastLocation'][$devID]['lat'];
-                        $location_device->lng = $options['lastLocation'][$devID]['lng'];
-                        $location_device->created_at_org = $options['lastLocation'][$devID]['time'];
+                    if ($options['lastLocation'][$devID]['status'] == 'Đỗ') {
+                        $location_device->last_point = $options["lastPoint"]['last_point'];
+                        $location_device->velocity = 0;
+                        $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
+                        $location_device->status = self::getStatusText(["status" => 0, 'velocity' => 0]);
+                        //get the diffirence
+                        //expand status time in current status
+                        $current_time_utc = Carbon::now('UTC');
+                        $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options['lastLocation'][$devID]['time'], 'UTC');
+                        $different = $current_time_utc->diffInSeconds($last_time_utc);
+                        $statusText = self::getDifferentTime($different);
+                        $location_device->current_state = $statusText;
+                        $location_device->heading = $options["lastPoint"]['heading'];
+                        if ($options['lastLocation'] && isset($options['lastLocation'][$devID])) {
+                            $location_device->lat = $options['lastLocation'][$devID]['lat'];
+                            $location_device->lng = $options['lastLocation'][$devID]['lng'];
+                            $location_device->created_at_org = $options['lastLocation'][$devID]['time'];
+                        }
+                        $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
-                    $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                 }
             }
             //$last_point_item = $locations[count($locations) - 1];//wrong here
@@ -383,6 +384,7 @@ class Tracking_device extends Model
         } else {
             //for update
             $current_state_obj = json_decode($current_state, true);
+
             $current_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $current_state_obj['time']);
             $location_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $location['time']);
             $different = 0;
@@ -397,7 +399,6 @@ class Tracking_device extends Model
                     $this->current_state = json_encode($location);
                 }
                 $this->save();
-
             } else {
                 //for rollback location
                 //get location that nearest of rollback update

@@ -101,6 +101,7 @@ class Tracking_device extends Model
         if ($detecter->isMobile()){
             $roadmapLimit = self::ROADMAP_LIMIT_MOBILE;
         }
+        $last_point = '';
         if (!$is_roadmap) {
             $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
             $current_user = Auth::user()->getAuthIdentifier();
@@ -117,15 +118,14 @@ class Tracking_device extends Model
                         and l.created_at >= (select MAX(l.created_at) 
                             from tracking_devices as d1
                             left join device_locations as l on d1.id = l.device_id  where d1.id = d.id)
-                    group by d.id
-                    order by d.id, l.created_at desc, l.status desc";
+                    order by d.id, l.created_at desc, l.updated_at desc";
             } else {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                   left join tracking_devices as d on u.id = d.user_id
                   left join device_locations as l on (d.id = l.device_id $last_point)
                 where d.is_deleted = 0 and d.status = 1 $user_condition
-                order by d.id, l.created_at desc, l.status desc";
+                order by d.id, l.created_at desc, l.updated_at desc";
             }
         } else {
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
@@ -150,10 +150,6 @@ class Tracking_device extends Model
                 where d.is_deleted = 0 and d.status = 1 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id' $condition_next_loc
                 order by d.id, l.created_at, l.status limit $roadmapLimit";
         }
-//        echo '<pre>';
-//        print_r($query);
-//        echo '</pre>';
-//        exit();
         $locations = DB::select($query, []);
         $location_devices = [];
 
@@ -168,7 +164,22 @@ class Tracking_device extends Model
                 $locations = array_reverse($locations);
             }
             $last_time = 0;
-            foreach($locations as $location_device){
+            $temp_array = [];
+            if ($last_point == '' && !$is_roadmap) {
+                //first time
+                foreach($locations as $location_device){
+
+                    if (isset($temp_array[$location_device->device_id_main]) &&
+                        $temp_array[$location_device->device_id_main]->created_at == $location_device->created_at && $location_device->status == 1){
+                        continue;
+                    }
+                    $temp_array[$location_device->device_id_main] = $location_device;
+                }
+                $temp_array = array_values($temp_array);
+            } else {
+                $temp_array = $locations;
+            }
+            foreach($temp_array as $location_device){
                 if (!empty($location_device->id)){
                     $tempTime = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC')->format('U');
                     if (intval($tempTime) > $last_time){
@@ -193,7 +204,7 @@ class Tracking_device extends Model
                         $devID = $location_device->device_id_main;
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         //check if status is park
-                        if ($location_device->status == "Đỗ"){
+                        if ($location_device->status == "Đỗ" && !$is_roadmap){
                             $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time'] : $location_device->created_at;
                             $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
                             $current_time_utc = Carbon::now('UTC');
@@ -209,7 +220,7 @@ class Tracking_device extends Model
                         $location_device->heading = self::getHeadingClass($location_device->heading);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
-                } else if (isset($location_devices[$location_device->device_id_main])) {
+                } else if (isset($location_devices[$location_device->device_id_main]) && !$is_roadmap) {
                     //get latest position of device
                     $devID = $location_device->device_id_main;
                     if ($options['lastLocation'][$devID]['status'] == 'Đỗ') {

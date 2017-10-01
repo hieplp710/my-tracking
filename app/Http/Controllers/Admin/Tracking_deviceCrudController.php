@@ -302,7 +302,7 @@ class Tracking_deviceCrudController extends CrudController
         // your additional operations after save here
         // use $this->data['entry'] or $this->crud->entry
         if ($redirect_location) {
-            if ($old_user != $user_id) {
+            if ($old_user != $user_id && $device->user_id != 0) {
                 //if user is change, change the time
                 $now = Carbon::now('UTC');
                 $nextYear = Carbon::now('UTC')->addYears(1);

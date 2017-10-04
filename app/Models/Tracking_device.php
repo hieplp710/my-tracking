@@ -73,7 +73,7 @@ class Tracking_device extends Model
     public function getUserName(){
         $user = User::where('id', $this->user_id)
             ->get();
-        return (isset($user) && $user->first()) ? $user->first()->name : '';
+        return (isset($user) && $user->first()) ? $user->first()->username : '';
     }
 
     public function getStatus(){

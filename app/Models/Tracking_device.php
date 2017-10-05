@@ -281,10 +281,12 @@ class Tracking_device extends Model
                     return $result;
                 }
                 $command = $data_array[2];
-
                 //insert new location
                 if ($command == self::REQUEST_TYPE_LOCATION || $command == self::REQUEST_TYPE_LOCATION_ROLLBACK){
                     $is_valid = $this->validate($data_array);
+                    if ($command == 2) {
+                        $is_valid['time'] = Carbon::now('UTC')->format(self::DB_DATETIME_FORMAT);
+                    }
                     if (!$is_valid['status']){
                         return ["status" => false, "error" => $is_valid['error']];
                     }

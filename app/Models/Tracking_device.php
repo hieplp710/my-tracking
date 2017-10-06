@@ -205,9 +205,12 @@ class Tracking_device extends Model
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         //check if status is park
                         if ($location_device->status == "Đỗ" && !$is_roadmap){
-                            $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time'] : $location_device->created_at;
+                            $device = Tracking_device::find($location_device->device_id_main);
+                            $current_state = !empty($device->current_state) && $device->current_state != '{}' ? json_decode($device->current_state) : null;
+                            $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
+                                : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
                             $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
-                            $current_time_utc = Carbon::now('UTC');
+                            $current_time_utc = Carbon::now('UTC');                            
                             $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
                             $statusText = self::getDifferentTime($different);
@@ -285,8 +288,9 @@ class Tracking_device extends Model
                 if ($command == self::REQUEST_TYPE_LOCATION || $command == self::REQUEST_TYPE_LOCATION_ROLLBACK){
                     $is_valid = $this->validate($data_array);
                     if ($command == 2) {
-                        $is_valid['time'] = Carbon::now('UTC')->format(self::DB_DATETIME_FORMAT);
+                        $is_valid['data']['time'] = Carbon::now('UTC')->format('y-m-d H:i:s');
                     }
+                    
                     if (!$is_valid['status']){
                         return ["status" => false, "error" => $is_valid['error']];
                     }

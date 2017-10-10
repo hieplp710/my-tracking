@@ -290,7 +290,17 @@ class Tracking_device extends Model
                     if ($command == 2) {
                         $is_valid['data']['time'] = Carbon::now('UTC')->format('y-m-d H:i:s');
                     }
-                    
+
+                    //remove noise location status = 1 and duplicate time
+                    $time = $is_valid['data']['time'];
+                    $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');
+                    $query = "select l.* from device_locations as l where created_at = '$time_format' and l.device_id = '$device_id'";
+                    $locations = DB::select($query, []);
+                    if ($locations && count($locations) > 0) {
+                        //duplicate
+                        return ["status" => true, "error" => false];
+                    }
+
                     if (!$is_valid['status']){
                         return ["status" => false, "error" => $is_valid['error']];
                     }

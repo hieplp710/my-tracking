@@ -296,9 +296,16 @@ class Tracking_device extends Model
                     $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');
                     $query = "select l.* from device_locations as l where created_at = '$time_format' and l.device_id = '$device_id'";
                     $locations = DB::select($query, []);
+                    $current_obj = null;
                     if ($locations && count($locations) > 0) {
-                        //duplicate
-                        return ["status" => true, "error" => false];
+                        //duplicate                        
+                        $utc_now = Carbon::now('UTC');
+                        $location_dup = Carbon::createFromFormat('y-m-d H:i:s',$is_valid['data']['time'], 'UTC');
+                        $diff = $utc_now->diffInSeconds($location_dup);
+                        
+                        if ($diff >= 300){
+                            return ["status" => true, "error" => false];
+                        }
                     }
 
                     if (!$is_valid['status']){

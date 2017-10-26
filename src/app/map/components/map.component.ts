@@ -236,6 +236,9 @@ export class MapComponent implements OnInit {
             this.playRoadmapMarker.setMap(null);
             this.playRoadmapMarker = null;
             this.isRunningRoadmap = false;
+            if ($('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+                $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+            }
         } else {
             if (this.current_infowindow != null) {
                 this.current_infowindow.close();
@@ -534,9 +537,11 @@ export class MapComponent implements OnInit {
                 _this.isRunningRoadmap = false;
                 clearInterval(_this.interPlayRoadmap);
                 $('#play-roadmap').text('Xem lại lộ trình');
+                $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
             } else {
                 _this.isRunningRoadmap = true;
                 $('#play-roadmap').text('Tạm dừng');
+                $('#play-roadmap-mobile > i').addClass('fa-pause').removeClass('fa-play');
                 this.interPlayRoadmap = setInterval(function () {
                     if (_this.playRoadmapMarker !== null) {
                         _this.playRoadmapMarker.setMap(null);
@@ -564,6 +569,7 @@ export class MapComponent implements OnInit {
                         _this.playRoadmapMarker.setMap(null);
                         _this.playRoadmapMarker = null;
                         $('#play-roadmap').text('Xem lại lộ trình');
+                        $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
                         _this.isRunningRoadmap = false;
                         return false;
                     }
@@ -582,6 +588,9 @@ export class MapComponent implements OnInit {
         };
         this.isRunningRoadmap = false;
         $('#play-roadmap').text('Xem lại lộ trình');
+        if ($('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+            $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+        }
     };
 }
 

@@ -49,6 +49,10 @@
         </div>
     </div>
     <div id="control-section" class="col-md-3 col-sm-3">
+        <button class="btn btn-primary mobile-only" id="play-roadmap-mobile" (click)="onPlayRoadmap($event)" *ngIf="isRoadmap && canPlayRoadmap == true && !isPlayingRoadmap">
+            <i class="fa fa-play" aria-hidden="true"></i></button>
+        <button class="btn btn-primary mobile-only" id="stop-roadmap-mobile" (click)="onStopRoadmap($event)" *ngIf="isRoadmap && canPlayRoadmap == true">
+            <i class="fa fa-stop" aria-hidden="true"></i></button>
         <a href="#" id="control-device" class="mobile-toggle"><i class="fa fa-car" aria-hidden="true"></i></a>
         <div class="row">
             <div class="col-lg-12" id="tabs-wrapper">
@@ -89,8 +93,8 @@
                     </div>
                     <div class="form-group col-lg-12 col-md-12">
                         <button class="btn btn-primary" id="view-roadmap" (click)="onViewRoadmap($event)">Xem lộ trình</button>
-                        <button class="btn btn-primary" id="play-roadmap" (click)="onPlayRoadmap($event)" *ngIf="canPlayRoadmap == true && !isPlayingRoadmap">Xem lại lộ trình</button>
-                        <button class="btn btn-primary" id="stop-roadmap" (click)="onStopRoadmap($event)" *ngIf="canPlayRoadmap == true">Dừng</button>
+                        <button class="btn btn-primary web-only" id="play-roadmap" (click)="onPlayRoadmap($event)" *ngIf="canPlayRoadmap == true && !isPlayingRoadmap">Xem lại lộ trình</button>
+                        <button class="btn btn-primary web-only" id="stop-roadmap" (click)="onStopRoadmap($event)" *ngIf="canPlayRoadmap == true">Dừng</button>
                     </div>
                 </div>
             </div>

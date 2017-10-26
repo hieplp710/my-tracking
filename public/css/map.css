@@ -70,8 +70,11 @@ div#device-list {
 .marker-info span.time {
     padding-bottom: 10px;
 }
-.mobile-toggle{
+.mobile-toggle, .mobile-only{
     display: none;
+}
+.web-only{
+    display: block;
 }
 div#profile {
     position: absolute;
@@ -226,7 +229,7 @@ ul.lstDevices li i.fa {
         text-align: right;
         border-top: 1px solid #e5e5e5;
     }
-    .mobile-toggle{
+    .mobile-toggle, .mobile-only{
         display: block;
     }
     a#control-device {
@@ -296,6 +299,27 @@ ul.lstDevices li i.fa {
     @keyframes slide-right {
         0%   {right: 0;}
         100% {right: -33.3333%;}
+    }
+    button#play-roadmap-mobile, button#stop-roadmap-mobile {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #216a94;
+        padding: 8px 0;
+        text-align: center;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 99999;
+        top: 21px;
+        background: #f1f1f1;
+        color: #216a94;
+    }
+
+    button#play-roadmap-mobile {
+        left: -53%;
+    }
+
+    button#stop-roadmap-mobile {
+        left: -77%;
     }
 }
 
@@ -411,6 +435,27 @@ ul.lstDevices li i.fa {
         0%   {right: 0;}
         100% {right: -53.333%;}
     }
+    button#play-roadmap-mobile, button#stop-roadmap-mobile {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #216a94;
+        padding: 8px 0;
+        text-align: center;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 99999;
+        top: 21px;
+        background: #f1f1f1;
+        color: #216a94;
+    }
+
+    button#play-roadmap-mobile {
+        left: -63%;
+    }
+
+    button#stop-roadmap-mobile {
+        left: -88%;
+    }
 }
 @media (max-width: 400px) {
     ul.lstDevices li label{
@@ -473,6 +518,13 @@ ul.lstDevices li i.fa {
 
 }
 @media (max-width: 380px) {
+    button#play-roadmap-mobile {
+        left: -54%;
+    }
+
+    button#stop-roadmap-mobile {
+        left: -79%;
+    }
     ul.lstDevices li label{
         width: 80% !important;
         float: left;

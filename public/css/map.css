@@ -367,6 +367,9 @@ ul.lstDevices li i.fa {
     .mobile-toggle{
         display: block;
     }
+    .web-only{
+        display: none;
+    }
     a#control-device {
         width: 40px;
         height: 40px;

@@ -302,7 +302,7 @@ class Tracking_device extends Model
                         $utc_now = Carbon::now('UTC');
                         $location_dup = Carbon::createFromFormat('y-m-d H:i:s',$is_valid['data']['time'], 'UTC');
                         $diff = $utc_now->diffInSeconds($location_dup);
-                        
+
                         if ($diff >= 300){
                             return ["status" => true, "error" => false];
                         }

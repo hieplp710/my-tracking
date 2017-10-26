@@ -45,6 +45,10 @@ export class MapComponent implements OnInit {
     current_infowindow = null;
     current_roadmap_infowindow = null;
     deviceLatestLocation = {};
+    interPlayRoadmap = null;
+    canPlayRoadmap = false;
+    playRoadmapIndex = 0;
+    playRoadmapMarker = null;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -86,6 +90,7 @@ export class MapComponent implements OnInit {
     startRoadmapMarker = null;
     endRoadmapMarker = null;
     roadmapPolyline = null;
+    isPlayingRoadmap = false;
     requestLocation() {
         let _this = this;
         this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint,
@@ -225,6 +230,12 @@ export class MapComponent implements OnInit {
             this.isRoadmap = false;
             this.clearCluster();
             this.requestLocation();
+            clearInterval(this.interPlayRoadmap);
+            this.canPlayRoadmap = false;
+            this.playRoadmapIndex = 0;
+            this.playRoadmapMarker.setMap(null);
+            this.playRoadmapMarker = null;
+            this.isRunningRoadmap = false;
         } else {
             if (this.current_infowindow != null) {
                 this.current_infowindow.close();
@@ -238,6 +249,7 @@ export class MapComponent implements OnInit {
     onViewRoadmap($event) {
         let _this = this;
         _this.clearCluster();
+        this.canPlayRoadmap = false;
         let options = {
             "isRoadmap":true,
             "dateFrom": this.formatDateTime(this.date_from),
@@ -265,10 +277,11 @@ export class MapComponent implements OnInit {
             if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined
                 && context.roadmapMarkers.length === 0 && !context.isRunningRoadmap) {
                 alert("Không có thông tin lộ trình!");
-                context.isRunningRoadmap = false;
+                context.canPlayRoadmap = false;
                 return false;
             };
             if (locationObj.markers[context.roadmapSelectedMarker.deviceId] !== undefined) {
+                context.canPlayRoadmap = true;
                 context.roadmapMarkers = context.roadmapMarkers.concat(
                 locationObj.markers[context.roadmapSelectedMarker.deviceId].locations);
                 if (context.mapRoadmapBounds == null) {
@@ -292,7 +305,7 @@ export class MapComponent implements OnInit {
             if (locationObj.hasMore) {
                 let newoptions = options;
                 newoptions['nextLoc'] = locationObj.lastPoint.last_point;
-                context.isRunningRoadmap = true;
+                //context.isRunningRoadmap = true;
                 setTimeout(function() {
                     context.fetchRoadMap(url, newoptions, context);
                 }, 1000);
@@ -420,7 +433,7 @@ export class MapComponent implements OnInit {
             strokeOpacity: 0.8,
             strokeWeight: 2
         });
-
+        context.playRoadmapMarkers = coords;
         context.roadmapPolyline.setMap(context.map);
     }
     private formatDateTime(date : Date) {
@@ -513,7 +526,63 @@ export class MapComponent implements OnInit {
         this.lat = $event.currentLocation.lat;
         this.lng = $event.currentLocation.lng;
         this.map.setZoom(16);
-    }
+    };
+    onPlayRoadmap($event) {
+        if (this.roadmapMarkers !== null) {
+            let _this = this;
+            if (_this.isRunningRoadmap) {
+                _this.isRunningRoadmap = false;
+                clearInterval(_this.interPlayRoadmap);
+                $('#play-roadmap').text('Xem lại lộ trình');
+            } else {
+                _this.isRunningRoadmap = true;
+                $('#play-roadmap').text('Tạm dừng');
+                this.interPlayRoadmap = setInterval(function () {
+                    if (_this.playRoadmapMarker !== null) {
+                        _this.playRoadmapMarker.setMap(null);
+                    }
+                    if (_this.roadmapMarkers != null && _this.roadmapMarkers[_this.playRoadmapIndex] !== undefined
+                        && _this.playRoadmapIndex < _this.roadmapMarkers.length) {
+                        var tempMarker = _this.roadmapMarkers[_this.playRoadmapIndex];
+                        let coord = new google.maps.LatLng({"lat" : tempMarker.lat, "lng" : tempMarker.lng});
+                        _this.playRoadmapMarker = new google.maps.Marker({
+                            position: coord,
+                            map: _this.map,
+                            icon: {
+                                url: _this.getRoadmapPin(_this.playRoadmapIndex, tempMarker),
+                                anchor: new google.maps.Point(15, 15),
+                                scaledSize: new google.maps.Size(30, 30)
+                            }
+                        });
+                        if (!_this.map.getBounds().contains(_this.playRoadmapMarker.getPosition())) {
+                            _this.map.panTo(_this.playRoadmapMarker.getPosition());
+                        }
+                        _this.playRoadmapIndex++;
+                    } else {
+                        clearInterval(_this.interPlayRoadmap);
+                        _this.playRoadmapIndex = 0;
+                        _this.playRoadmapMarker.setMap(null);
+                        _this.playRoadmapMarker = null;
+                        $('#play-roadmap').text('Xem lại lộ trình');
+                        _this.isRunningRoadmap = false;
+                        return false;
+                    }
+                }, 200);
+            }
+        }
+    };
+    onStopRoadmap($event) {
+        if (this.interPlayRoadmap != null) {
+            clearInterval(this.interPlayRoadmap);
+        }
+        this.playRoadmapIndex = 0;
+        if (this.playRoadmapMarker != null) {
+            this.playRoadmapMarker.setMap(null);
+            this.playRoadmapMarker = null;
+        };
+        this.isRunningRoadmap = false;
+        $('#play-roadmap').text('Xem lại lộ trình');
+    };
 }
 
 // create new class to handle all change of marker called cluster

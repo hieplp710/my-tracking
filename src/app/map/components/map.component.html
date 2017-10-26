@@ -87,8 +87,10 @@
                                minute="59"
                                [close-on-select]="false"/>
                     </div>
-                    <div class="form-group col-lg-6 col-md-12">
+                    <div class="form-group col-lg-12 col-md-12">
                         <button class="btn btn-primary" id="view-roadmap" (click)="onViewRoadmap($event)">Xem lộ trình</button>
+                        <button class="btn btn-primary" id="play-roadmap" (click)="onPlayRoadmap($event)" *ngIf="canPlayRoadmap == true && !isPlayingRoadmap">Xem lại lộ trình</button>
+                        <button class="btn btn-primary" id="stop-roadmap" (click)="onStopRoadmap($event)" *ngIf="canPlayRoadmap == true">Dừng</button>
                     </div>
                 </div>
             </div>

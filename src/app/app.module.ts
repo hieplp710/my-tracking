@@ -11,6 +11,7 @@ import {DeviceComponent} from "./map/components/device.component";
 import {ProfileComponent} from "./map/components/profile.component";
 import $ from "jquery";
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
+import { NouisliderModule } from 'ng2-nouislider/src/nouislider';
 
 @NgModule({
     imports: [
@@ -22,13 +23,14 @@ import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
         AgmCoreModule.forRoot({
             apiKey: 'AIzaSyC6wjnpjfBcfyyQYpnuXDKEzKombAnFdjc',
             libraries: ['places']
-        })
+        }),
+        NouisliderModule
     ],
     declarations: [
         AppComponent,
         MapComponent,
         DeviceComponent,
-        ProfileComponent
+        ProfileComponent,
     ],
     providers: [
         HttpModule,

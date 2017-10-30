@@ -23,6 +23,8 @@
             'jquery': 'npm:jQuery/dist/jquery.js',
             'moment' : 'npm:moment/moment.js',
             '@ngui/datetime-picker' : 'npm:@ngui/datetime-picker/dist',
+            'nouislider': 'npm:nouislider',
+            'ng2-nouislider': 'npm:ng2-nouislider',
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -36,7 +38,14 @@
             '@ngui/datetime-picker' : {
                 main : './datetime-picker.umd.js',
                 defaultExtension : 'js'
-            }
+            },
+            'nouislider': {
+                main: 'distribute/nouislider.js',
+                defaultExtension: 'js' },
+            'ng2-nouislider': {
+                main: 'src/nouislider.js',
+                defaultExtension: 'js'
+            },
 
         }
     });

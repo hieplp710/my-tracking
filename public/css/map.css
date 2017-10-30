@@ -74,7 +74,7 @@ div#device-list {
     display: none;
 }
 .web-only{
-    display: block;
+    display: inline-block;
 }
 div#profile {
     position: absolute;
@@ -368,7 +368,7 @@ ul.lstDevices li i.fa {
         display: block;
     }
     .web-only{
-        display: none;
+        display: inline-block;
     }
     a#control-device {
         width: 40px;

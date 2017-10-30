@@ -61,7 +61,9 @@ gulp.task("libs", () => {
             'jQuery/**/**',
             'moment/**',
             'bootstrap/**',
-            '@ngui/datetime-picker/**'
+            '@ngui/datetime-picker/**',
+            'ng2-nouislider/**',
+            'nouislider/**'
         ], {cwd: "node_modules/**"}) /* Glob required here. */
         .pipe(gulp.dest("public/lib"));
 });

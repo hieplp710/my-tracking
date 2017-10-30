@@ -7,13 +7,18 @@ import moment from 'moment';
 import $ from 'jquery';
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 import {mapChildrenIntoArray} from "@angular/router/src/url_tree";
+import { NouisliderModule } from 'ng2-nouislider';
+
 
 declare var google: any;
 declare var MarkerClusterer: any;
 @Component({
     selector: 'map',
     templateUrl: './app/map/components/map.component.html',
-    styleUrls: ['./app/map/components/map.css']
+    styleUrls: [
+        './app/map/components/map.css',
+        './app/map/components/nouislider.css',
+    ]
 })
 
 export class MapComponent implements OnInit {
@@ -27,6 +32,7 @@ export class MapComponent implements OnInit {
     isRoadmap : boolean = false;
     map = null;
     zoom = 8;
+    rangeVel = 10;
     constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
         //this.options = new DatePickerOptions();
     };
@@ -233,10 +239,12 @@ export class MapComponent implements OnInit {
             clearInterval(this.interPlayRoadmap);
             this.canPlayRoadmap = false;
             this.playRoadmapIndex = 0;
-            this.playRoadmapMarker.setMap(null);
-            this.playRoadmapMarker = null;
+            if (this.playRoadmapMarker != null) {
+                this.playRoadmapMarker.setMap(null);
+                this.playRoadmapMarker = null;
+            };
             this.isRunningRoadmap = false;
-            if ($('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+            if ($('#play-roadmap-mobile > i')[0] !== undefined && $('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
                 $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
             }
         } else {

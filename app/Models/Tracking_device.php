@@ -304,6 +304,7 @@ class Tracking_device extends Model
                         $diff = $utc_now->diffInSeconds($location_dup);
 
                         if ($diff >= 300){
+                            Log::info($item . ' - duplicate');
                             return ["status" => true, "error" => false];
                         }
                     }

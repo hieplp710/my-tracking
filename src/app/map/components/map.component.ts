@@ -32,7 +32,7 @@ export class MapComponent implements OnInit {
     isRoadmap : boolean = false;
     map = null;
     zoom = 8;
-    rangeVel = 10;
+    rangeVel = 5;
     constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
         //this.options = new DatePickerOptions();
     };
@@ -217,7 +217,7 @@ export class MapComponent implements OnInit {
             $('agm-map').css({"height":height + "px"});
             $('#control-section div.row.tab-pane').css({"height":(height - 42) + "px"});
             $('#control-section #real-time div.device-list').css({"height":(height - 42) + "px"});
-            $('#control-section #roadmap div.device-list').css({"height":(height - 50 - 123) + "px"});
+            $('#control-section #roadmap div.device-list').css({"height":(height - 50 - 153) + "px"});
         };
         //init geocoder
         this.geoCoder = new google.maps.Geocoder();
@@ -539,6 +539,32 @@ export class MapComponent implements OnInit {
         this.map.setZoom(16);
     };
     onPlayRoadmap($event) {
+        this.doPlayRoadmap();
+    };
+    onStopRoadmap($event) {
+        if (this.interPlayRoadmap != null) {
+            clearInterval(this.interPlayRoadmap);
+        }
+        this.playRoadmapIndex = 0;
+        if (this.playRoadmapMarker != null) {
+            this.playRoadmapMarker.setMap(null);
+            this.playRoadmapMarker = null;
+        };
+        this.isRunningRoadmap = false;
+        $('#play-roadmap').text('Xem lại lộ trình');
+        if ($('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+            $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+        }
+    };
+    onChangeReviewSpeed($event) {
+        console.log($event);
+        if (this.isRunningRoadmap) {
+            this.isRunningRoadmap = false;
+            clearInterval(this.interPlayRoadmap);
+            this.doPlayRoadmap();
+        };
+    };
+    doPlayRoadmap() {
         if (this.roadmapMarkers !== null) {
             let _this = this;
             if (_this.isRunningRoadmap) {
@@ -581,25 +607,10 @@ export class MapComponent implements OnInit {
                         _this.isRunningRoadmap = false;
                         return false;
                     }
-                }, 200);
+                }, 400 - (_this.rangeVel * 30));
             }
         }
-    };
-    onStopRoadmap($event) {
-        if (this.interPlayRoadmap != null) {
-            clearInterval(this.interPlayRoadmap);
-        }
-        this.playRoadmapIndex = 0;
-        if (this.playRoadmapMarker != null) {
-            this.playRoadmapMarker.setMap(null);
-            this.playRoadmapMarker = null;
-        };
-        this.isRunningRoadmap = false;
-        $('#play-roadmap').text('Xem lại lộ trình');
-        if ($('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
-            $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
-        }
-    };
+    }
 }
 
 // create new class to handle all change of marker called cluster

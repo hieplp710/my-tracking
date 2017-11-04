@@ -49,6 +49,9 @@
         </div>
     </div>
     <div id="control-section" class="col-md-3 col-sm-3">
+        <nouislider [connect]="true" [min]="0" [max]="10" [step]="1"
+                    [(ngModel)]="rangeVel" *ngIf="canPlayRoadmap == true"
+                    (ngModelChange)="onChangeReviewSpeed($event)" class="mobile-only slider-mobile"></nouislider>
         <button class="btn btn-primary mobile-only" id="play-roadmap-mobile" (click)="onPlayRoadmap($event)" *ngIf="isRoadmap && canPlayRoadmap == true && !isPlayingRoadmap">
             <i class="fa fa-play" aria-hidden="true"></i></button>
         <button class="btn btn-primary mobile-only" id="stop-roadmap-mobile" (click)="onStopRoadmap($event)" *ngIf="isRoadmap && canPlayRoadmap == true">
@@ -91,9 +94,11 @@
                                minute="59"
                                [close-on-select]="false"/>
                     </div>
-                    <!--<div class="row">-->
-                        <!--<nouislider [connect]="true" [min]="0" [max]="15" [(ngModel)]="rangeVel"></nouislider>-->
-                    <!--</div>-->
+                    <div class="form-group col-lg-12 web-only">
+                        <nouislider [connect]="true" [min]="0" [max]="10" [step]="1"
+                                    [(ngModel)]="rangeVel" *ngIf="canPlayRoadmap == true"
+                                    (ngModelChange)="onChangeReviewSpeed($event)"></nouislider>
+                    </div>
                     <div class="form-group col-lg-12 col-md-12">
                         <button class="btn btn-primary" id="view-roadmap" (click)="onViewRoadmap($event)">Xem lộ trình</button>
                         <button class="btn btn-primary web-only" id="play-roadmap" (click)="onPlayRoadmap($event)" *ngIf="canPlayRoadmap == true && !isPlayingRoadmap">Xem lại lộ trình</button>

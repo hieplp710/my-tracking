@@ -187,6 +187,34 @@ ul.lstDevices li i.fa {
     display: none;
 
 }
+
+#roadmap nouislider {
+    width: 295px;
+    margin-left: 0px;
+    height: 5px;
+}
+
+#roadmap .noUi-horizontal {
+     height: 10px;
+ }
+#roadmap .noUi-horizontal .noUi-handle {
+    width: 34px;
+    height: 18px;
+    left: -17px;
+    top: -6px;
+}
+
+#roadmap .noUi-handle:before, #roadmap .noUi-handle:after {
+    content: "";
+    display: block;
+    position: absolute;
+    height: 7px;
+    width: 1px;
+    background: #E8E7E6;
+    left: 14px;
+    top: 5px;
+}
+
 @media (max-width: 800px) {
     ul.lstDevices li label{
         width: 80% !important;
@@ -321,9 +349,41 @@ ul.lstDevices li i.fa {
     button#stop-roadmap-mobile {
         left: -77%;
     }
+    .slider-mobile .noUi-target {
+        height: 10px;
+    }
+
+    .slider-mobile .noUi-horizontal .noUi-handle {
+        width: 20px;
+        height: 21px;
+        left: -10px;
+    }
+
+    .slider-mobile .noUi-handle:before,.slider-mobile .noUi-handle:after {
+        content: "";
+        display: block;
+        position: absolute;
+        height: 10px;
+        width: 1px;
+        background: #E8E7E6;
+        left: 8px;
+        top: 5px;
+    }
+    .slider-mobile {
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        position: absolute;
+        top: 25px;
+        width: 100px;
+        left: -280px;
+    }
 }
 
 @media (max-width: 450px) {
+    .slider-mobile {
+        left: -310px;
+    }
     ul.lstDevices li label{
         width: 80% !important;
         float: left;
@@ -461,6 +521,9 @@ ul.lstDevices li i.fa {
     }
 }
 @media (max-width: 400px) {
+    .slider-mobile {
+        left: -280px;
+    }
     ul.lstDevices li label{
         width: 80% !important;
         float: left;

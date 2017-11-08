@@ -425,6 +425,10 @@ class Tracking_device extends Model
             $different = 0;
             if ($current_time <= $location_time) {
                 //for normal location
+                if ($current_state_obj['status'] == 0 && $location['status'] == 1) {
+                    //not check the first run status
+                    $location['status'] = 2;
+                }
                 if ($current_state_obj['status'] == $location['status']) {
                     //expand status time in current status
                     $different = $current_time->diffInSeconds($location_time);

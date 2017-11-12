@@ -71,7 +71,7 @@ div#device-list {
     padding-bottom: 10px;
 }
 .mobile-toggle, .mobile-only{
-    display: none;
+    display: none !important;
 }
 .web-only{
     display: inline-block;

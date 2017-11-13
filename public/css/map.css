@@ -258,7 +258,7 @@ ul.lstDevices li i.fa {
         border-top: 1px solid #e5e5e5;
     }
     .mobile-toggle, .mobile-only{
-        display: block;
+        display: block !important;
     }
     a#control-device {
         width: 40px;
@@ -425,7 +425,7 @@ ul.lstDevices li i.fa {
         border-top: 1px solid #e5e5e5;
     }
     .mobile-toggle{
-        display: block;
+        display: block !important;
     }
     .web-only{
         display: inline-block;
@@ -566,7 +566,7 @@ ul.lstDevices li i.fa {
         border-top: 1px solid #e5e5e5;
     }
     .mobile-toggle{
-        display: block;
+        display: block !important;
     }
     a#control-device {
         width: 40px;
@@ -633,7 +633,7 @@ ul.lstDevices li i.fa {
         border-top: 1px solid #e5e5e5;
     }
     .mobile-toggle{
-        display: block;
+        display: block !important;
     }
     a#control-device {
         width: 40px;

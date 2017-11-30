@@ -48,8 +48,8 @@ var GoogleMapsAPIWrapper = (function () {
             if (options.icon){
                 var temp = {
                     url: options.icon,
-                    anchor: new google.maps.Point(10, 10),
-                    scaledSize: new google.maps.Size(20, 20)
+                    anchor: new google.maps.Point(32, 32),
+                    scaledSize: new google.maps.Size(64, 64)
                 }
                 options.icon = temp
             }

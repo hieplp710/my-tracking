@@ -46,6 +46,9 @@ export class MapComponent implements OnInit {
     icon_roadmap_end = window['APP_URL'] + "/assets/images/end_pin.png";
     icon_roadmap_stop = window['APP_URL'] + "/assets/images/stop.png";
     icon_roadmap_pause = window['APP_URL'] + "/assets/images/pause.png";
+    icon_status_park = window['APP_URL'] + "/assets/images/park.png";
+    icon_status_play = window['APP_URL'] + "/assets/images/play.png";
+    icon_status_stop = window['APP_URL'] + "/assets/images/stops.png";
     geoCoder: any;
     isRunningRoadmap = false;
     current_infowindow = null;
@@ -609,6 +612,15 @@ export class MapComponent implements OnInit {
                     }
                 }, 400 - (_this.rangeVel * 30));
             }
+        }
+    };
+    getStatusIcon(location : Location) {
+        if (location.status === 'Đỗ') {
+            return this.icon_status_stop;
+        } else if (location.status === 'Dừng') {
+            return this.icon_status_park;
+        } else {
+            return this.icon_status_play;
         }
     }
 }

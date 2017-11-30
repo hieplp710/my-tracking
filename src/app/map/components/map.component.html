@@ -8,8 +8,10 @@
                 <agm-marker class="marker-device {{ m.currentLocation.headingClass }}" *ngFor="let m of toArray()"
                             [visible]="m.visible && !isRoadmap"
                             [title]="m.deviceNumber"
+                            [label]="m.deviceNumber"
                             [latitude]="m.currentLocation != null ? m.currentLocation.lat : 0"
                             [longitude]="m.currentLocation != null ? m.currentLocation.lng : 0"
+                            [iconUrl]="getStatusIcon(m.currentLocation)"
                             [openInfoWindow]="false"
                             (markerClick)="onMarkerClick($event, m.currentLocation, infowindow)" #marker>
                     <agm-info-window hostMarker="marker" #infowindow>

@@ -47,7 +47,7 @@ class DeleteLocation extends Command
         if ($latest) {
             $date = $latest[0]->latest_date;
             $dateObj = Carbon::createFromFormat(Tracking_device::DB_DATETIME_FORMAT, $date, 'UTC');
-            $dateObj = $dateObj->subMonths(3)->startOfMonth();
+            $dateObj = $dateObj->subMonths(1)->startOfMonth();
             $deleteDate = $dateObj->format(Tracking_device::DB_DATETIME_FORMAT);
             $deleteQuery = "DELETE FROM device_locations WHERE created_at <= '$deleteDate'";
             $isDeleted = DB::delete($deleteQuery);

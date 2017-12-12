@@ -107,9 +107,10 @@ class Tracking_device extends Model
             $current_user = Auth::user()->getAuthIdentifier();
             $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
             $date_current = new Carbon();
-            $date_current->subDay(1);
+            $date_current->subDay(7);
             $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
+            $retrist_time = "and l.created_at >= '$yesterday'";
             if ($last_point == '') {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
@@ -117,7 +118,8 @@ class Tracking_device extends Model
                     where d.is_deleted = 0 and d.status = 1 $user_condition
                         and l.created_at >= (select MAX(l.created_at) 
                             from tracking_devices as d1
-                            left join device_locations as l on d1.id = l.device_id  where d1.id = d.id)
+                            left join device_locations as l on d1.id = l.device_id  
+                            where d1.id = d.id $retrist_time)
                     order by d.id, l.created_at desc, l.updated_at desc";
             } else {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
@@ -150,6 +152,10 @@ class Tracking_device extends Model
                 where d.is_deleted = 0 and d.status = 1 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id' $condition_next_loc
                 order by d.id, l.created_at, l.status limit $roadmapLimit";
         }
+        echo '<pre>';
+        print_r($query);
+        echo '</pre>';
+        exit();
         $locations = DB::select($query, []);
         $location_devices = [];
 
@@ -213,10 +219,21 @@ class Tracking_device extends Model
                             $current_time_utc = Carbon::now('UTC');                            
                             $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
+                            //if diff larger than 48h hours => lost gsm
+                            if ($different > 48 * 3600) {
+                                $location_device->status = "Mất GSM";
+                            }
                             $statusText = self::getDifferentTime($different);
                             $location_device->current_state = $statusText;
                         } else {
                             $location_device->created_at_org = $location_device->created_at;
+                            $current_time_utc = Carbon::now('UTC');
+                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
+                            $different = $current_time_utc->diffInSeconds($last_time_utc);
+                            //if diff larger than 48h hours => lost gsm
+                            if ($different > 48 * 3600) {
+                                $location_device->status = "Mất GSM";
+                            }
                             $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                             $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
                         }
@@ -237,6 +254,9 @@ class Tracking_device extends Model
                         $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options['lastLocation'][$devID]['time'], 'UTC');
                         $different = $current_time_utc->diffInSeconds($last_time_utc);
                         $statusText = self::getDifferentTime($different);
+                        if ($different > 48 * 3600) {
+                            $location_device->status = "Mất GSM";
+                        }
                         $location_device->current_state = $statusText;
                         $location_device->heading = $options["lastPoint"]['heading'];
                         if ($options['lastLocation'] && isset($options['lastLocation'][$devID])) {

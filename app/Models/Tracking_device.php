@@ -152,10 +152,6 @@ class Tracking_device extends Model
                 where d.is_deleted = 0 and d.status = 1 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id' $condition_next_loc
                 order by d.id, l.created_at, l.status limit $roadmapLimit";
         }
-        echo '<pre>';
-        print_r($query);
-        echo '</pre>';
-        exit();
         $locations = DB::select($query, []);
         $location_devices = [];
 

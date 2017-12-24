@@ -619,8 +619,10 @@ export class MapComponent implements OnInit {
             return this.icon_status_stop;
         } else if (location.status === 'Dừng') {
             return this.icon_status_park;
-        } else {
+        } else if (location.status === 'Đang chạy') {
             return this.icon_status_play;
+        }else {
+            return this.icon_status_stop;
         }
     }
 }

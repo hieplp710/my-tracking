@@ -4,7 +4,6 @@
 /public/src
 /public/storage
 /storage/*.key
-/public/lib
 /.idea
 /.vagrant
 Homestead.json

@@ -1,0 +1,149 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "ng2-nouislider",
+        "scope": null,
+        "escapedName": "ng2-nouislider",
+        "name": "ng2-nouislider",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "E:\\outsource\\my-tracking"
+    ]
+  ],
+  "_from": "ng2-nouislider@latest",
+  "_id": "ng2-nouislider@1.7.3",
+  "_inCache": true,
+  "_location": "/ng2-nouislider",
+  "_nodeVersion": "6.9.5",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/ng2-nouislider-1.7.3.tgz_1508620905831_0.4351970902644098"
+  },
+  "_npmUser": {
+    "name": "tomaszbak",
+    "email": "t.bak@selleo.com"
+  },
+  "_npmVersion": "3.10.10",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "ng2-nouislider",
+    "scope": null,
+    "escapedName": "ng2-nouislider",
+    "name": "ng2-nouislider",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ng2-nouislider/-/ng2-nouislider-1.7.3.tgz",
+  "_shasum": "7f402107c0b8390c642380946174bfcadb068bb5",
+  "_shrinkwrap": null,
+  "_spec": "ng2-nouislider",
+  "_where": "E:\\outsource\\my-tracking",
+  "author": {
+    "name": "Tomasz Bak",
+    "email": "t.bak@selleo.com"
+  },
+  "bugs": {
+    "url": "https://github.com/tb/ng2-nouislider/issues"
+  },
+  "dependencies": {},
+  "description": "Angular2 noUiSlider component",
+  "devDependencies": {
+    "@angular/animations": "4.4.1",
+    "@angular/common": "4.4.1",
+    "@angular/compiler": "4.4.1",
+    "@angular/compiler-cli": "^4.4.1",
+    "@angular/core": "4.4.1",
+    "@angular/forms": "4.4.1",
+    "@angular/platform-browser": "4.4.1",
+    "@angular/platform-browser-dynamic": "4.4.1",
+    "@angular/platform-server": "4.4.1",
+    "@types/jasmine": "^2.5.41",
+    "@types/node": "6.0.88",
+    "@types/nouislider": "^9.0.1",
+    "all-contributors-cli": "^4.4.0",
+    "css-loader": "^0.23.1",
+    "es6-shim": "^0.35.0",
+    "gh-pages": "^0.11.0",
+    "http-server": "^0.9.0",
+    "jasmine-core": "^2.4.1",
+    "karma": "1.1.2",
+    "karma-jasmine": "^1.0.2",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "1.7.0",
+    "node-sass": "^3.7.0",
+    "nouislider": "^10.0.0",
+    "raw-loader": "^0.5.1",
+    "reflect-metadata": "^0.1.3",
+    "rxjs": "5.0.1",
+    "sass-loader": "^3.2.0",
+    "style-loader": "^0.13.1",
+    "ts-helpers": "^1.1.1",
+    "ts-loader": "^0.8.2",
+    "tslint": "^3.9.0",
+    "tslint-loader": "^2.1.4",
+    "typescript": "2.3.1",
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1",
+    "zone.js": "0.8.17"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "7f402107c0b8390c642380946174bfcadb068bb5",
+    "tarball": "https://registry.npmjs.org/ng2-nouislider/-/ng2-nouislider-1.7.3.tgz"
+  },
+  "gitHead": "de66396b3feeddeaa0c7b72a9e3c108ddf0edcda",
+  "homepage": "https://github.com/tb/ng2-nouislider#readme",
+  "keywords": [
+    "angular2",
+    "ng2",
+    "nouislider",
+    "slider",
+    "range",
+    "component",
+    "directive"
+  ],
+  "license": "MIT",
+  "main": "src/nouislider.js",
+  "maintainers": [
+    {
+      "name": "gmazzamuto",
+      "email": "gmazzamuto+npm@gmail.com"
+    },
+    {
+      "name": "tomaszbak",
+      "email": "t.bak@selleo.com"
+    }
+  ],
+  "name": "ng2-nouislider",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "@angular/common": "^2.0.0 || ^4.0.0",
+    "@angular/core": "^2.0.0 || ^4.0.0",
+    "nouislider": "^9.0.0 || ^10.0.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tb/ng2-nouislider.git"
+  },
+  "scripts": {
+    "build": "npm run lint && ngc",
+    "contributors": "all-contributors generate",
+    "deploy": "NODE_ENV=prod npm run build && NODE_ENV=prod webpack && gh-pages -d demo",
+    "lint": "tslint src/nouislider.ts",
+    "start": "npm run build && webpack-dev-server --host 0.0.0.0",
+    "test": "NODE_ENV=test karma start",
+    "test:ci": "NODE_ENV=test karma start --singleRun"
+  },
+  "typings": "src/nouislider.d.ts",
+  "version": "1.7.3"
+}

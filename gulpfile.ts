@@ -58,7 +58,7 @@ gulp.task("libs", () => {
             'zone.js/dist/**',
             '@angular/**/bundles/**',
             '@agm/**/**',
-            'jQuery/**/**',
+            'jquery/**/**',
             'moment/**',
             'bootstrap/**',
             '@ngui/datetime-picker/**',

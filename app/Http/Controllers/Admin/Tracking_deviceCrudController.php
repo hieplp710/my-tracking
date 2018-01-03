@@ -12,6 +12,7 @@ use App\Http\Requests\Tracking_deviceRequest as UpdateRequest;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Tracking_deviceCrudController extends CrudController
 {
@@ -237,8 +238,12 @@ class Tracking_deviceCrudController extends CrudController
         // $this->crud->removeAllButtonsFromStack('line');
 
         // ------ CRUD ACCESS
-        // $this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
-        // $this->crud->denyAccess(['list', 'create', 'update', 'reorder', 'delete']);
+         //$this->crud->allowAccess(['list', 'create', 'update', 'reorder', 'delete']);
+        $user = Auth::user();
+        if (!$user->hasRole('Admin')){
+            $this->crud->denyAccess(['create', 'update', 'delete']);
+        }
+
 
         // ------ CRUD REORDER
         // $this->crud->enableReorder('label_name', MAX_TREE_LEVEL);

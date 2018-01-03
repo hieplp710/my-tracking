@@ -48,6 +48,7 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                     this.icon_status_park = window['APP_URL'] + "/assets/images/park.png";
                     this.icon_status_play = window['APP_URL'] + "/assets/images/play.png";
                     this.icon_status_stop = window['APP_URL'] + "/assets/images/stops.png";
+                    this.icon_status_lost_gsm = window['APP_URL'] + "/assets/images/lost_gsm.png";
                     this.isRunningRoadmap = false;
                     this.current_infowindow = null;
                     this.current_roadmap_infowindow = null;
@@ -655,7 +656,7 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                         return this.icon_status_play;
                     }
                     else {
-                        return this.icon_status_stop;
+                        return this.icon_status_lost_gsm;
                     }
                 };
                 MapComponent = __decorate([

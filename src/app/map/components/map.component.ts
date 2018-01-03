@@ -49,6 +49,7 @@ export class MapComponent implements OnInit {
     icon_status_park = window['APP_URL'] + "/assets/images/park.png";
     icon_status_play = window['APP_URL'] + "/assets/images/play.png";
     icon_status_stop = window['APP_URL'] + "/assets/images/stops.png";
+    icon_status_lost_gsm = window['APP_URL'] + "/assets/images/lost_gsm.png";
     geoCoder: any;
     isRunningRoadmap = false;
     current_infowindow = null;
@@ -622,7 +623,7 @@ export class MapComponent implements OnInit {
         } else if (location.status === 'Đang chạy') {
             return this.icon_status_play;
         }else {
-            return this.icon_status_stop;
+            return this.icon_status_lost_gsm;
         }
     }
 }

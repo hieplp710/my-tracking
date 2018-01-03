@@ -26,7 +26,7 @@ class Admin
             }
         }
         $user = Auth::user();
-        if (!$user->hasRole('Admin')){
+        if (!$user->hasRole('Admin') && !$user->hasRole('AdminReadonly')){
             return redirect('/home');
         }
         return $next($request);

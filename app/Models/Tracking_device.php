@@ -197,7 +197,15 @@ class Tracking_device extends Model
                         "locations" => []
                     ];
                 }
+
                 if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){
+                    $device_state = json_decode($location_device->current_state_device);
+                    $current_time_utc = Carbon::now('UTC');
+                    $different_gsm = 0;
+                    if (!empty($device_state) && !empty($device_state->time)){
+                        $last_gsm_state = Carbon::createFromFormat('y-m-d H:i:s', $device_state->time, 'UTC');
+                        $different_gsm = $current_time_utc->diffInSeconds($last_gsm_state);
+                    }
                     if (is_numeric($location_device->lat) && is_numeric($location_device->lng)) {
                         $location_device->last_point = $location_device->created_at;
                         $date_created = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location_device->created_at, 'UTC');
@@ -212,22 +220,21 @@ class Tracking_device extends Model
                             $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
                                 : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
                             $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
-                            $current_time_utc = Carbon::now('UTC');                            
+
                             $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
                             //if diff larger than 48h hours => lost gsm
-                            if ($different > 48 * 3600) {
+                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
                                 $location_device->status = "Mất GSM";
                             }
                             $statusText = self::getDifferentTime($different);
                             $location_device->current_state = $statusText;
                         } else {
                             $location_device->created_at_org = $location_device->created_at;
-                            $current_time_utc = Carbon::now('UTC');
                             $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
                             //if diff larger than 48h hours => lost gsm
-                            if ($different > 48 * 3600) {
+                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
                                 $location_device->status = "Mất GSM";
                             }
                             $location_device->created_at = $date_created->format('d-m-Y H:i:s');
@@ -246,11 +253,10 @@ class Tracking_device extends Model
                         $location_device->status = self::getStatusText(["status" => 0, 'velocity' => 0]);
                         //get the diffirence
                         //expand status time in current status
-                        $current_time_utc = Carbon::now('UTC');
                         $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $options['lastLocation'][$devID]['time'], 'UTC');
                         $different = $current_time_utc->diffInSeconds($last_time_utc);
                         $statusText = self::getDifferentTime($different);
-                        if ($different > 48 * 3600) {
+                        if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
                             $location_device->status = "Mất GSM";
                         }
                         $location_device->current_state = $statusText;

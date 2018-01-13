@@ -245,7 +245,14 @@ class Tracking_device extends Model
                     }
                 } else if (isset($location_devices[$location_device->device_id_main]) && !$is_roadmap) {
                     //get latest position of device
+                    $device_state = json_decode($location_device->current_state_device);
+                    $current_time_utc = Carbon::now('UTC');
                     $devID = $location_device->device_id_main;
+                    $different_gsm = 0;
+                    if (!empty($device_state) && !empty($device_state->time)){
+                        $last_gsm_state = Carbon::createFromFormat('y-m-d H:i:s', $device_state->time, 'UTC');
+                        $different_gsm = $current_time_utc->diffInSeconds($last_gsm_state);
+                    }
                     if ($options['lastLocation'][$devID]['status'] == 'Đỗ') {
                         $location_device->last_point = $options["lastPoint"]['last_point'];
                         $location_device->velocity = 0;

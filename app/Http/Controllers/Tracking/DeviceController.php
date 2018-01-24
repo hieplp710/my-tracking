@@ -11,7 +11,9 @@ use App\Models\Tracking_device;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Input;
+use Maatwebsite\Excel\Excel;
 
 class DeviceController extends BaseController
 {
@@ -71,5 +73,49 @@ class DeviceController extends BaseController
             return response()->json(["status" => true, "error" => false]);
         }
         return response()->json(["status" => false, "error" => "Not support method"], 500);
+    }
+
+    public function exportExport() {
+        $excelHandler = App::make('excel');
+        $filename = "Flock_DataAdmin_" . \Date::now()->format('Ymd');
+
+        $excelHandler->create($filename, function($excel) {
+            // Call writer methods here
+            // Set the title
+            $excel->setTitle('Danh sách thiết bị');
+            // Chain the setters
+            $excel->setCreator('Flock.vn')
+                ->setCompany('Flock.vn');
+            $excel->sheet('Sheetname', function($sheet) {
+                $sheet->mergeCells('A1:I1');
+                $sheet->cell('A1', function($cell) {
+                    // manipulate the cell
+                    $cell->setValue('DANH SÁCH THIẾT BỊ');
+                    // Set font size
+                    $cell->setFontSize(16);
+                    // Set font weight to bold
+                    $cell->setFontWeight('bold');
+                    // Set alignment to center
+                    $cell->setAlignment('center');
+                });
+                $data = Tracking_device::getExportDeviceData();
+
+                $len = count($data) + 2;
+                $sheet->cells("A2:I$len", function($cells) {
+                    // manipulate the range of cells
+                    // Set all borders (top, right, bottom, left)
+                    // Set borders with array
+                    $cells->setBorder(array(
+                        'top'   => array(
+                            'style' => 'solid'
+                        ),
+                    ));
+                });
+                $sheet->setBorder("A2:I$len", 'solid');
+                $sheet->fromArray($data, null, 'A2', true);
+
+            });
+
+        })->export('xlsx');
     }
 }

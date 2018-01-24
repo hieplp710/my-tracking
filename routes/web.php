@@ -39,3 +39,4 @@ Route::post('/user/save-profile', 'HomeController@saveUserProfile')->name('save-
 Route::post('/tracking/update-device-number', 'Tracking\DeviceController@updateDeviceName')->name('save-device-number');
 Route::get('/device/get-deviceid', 'Tracking\DeviceController@generateDeviceId')->name('get_device_id');
 Route::get('/user/profile', 'HomeController@getUserProfile')->name('get-profile');
+Route::get('/device/export', 'Tracking\DeviceController@exportExport')->name('export-device');

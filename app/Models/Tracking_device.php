@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Devicelocation;
 use App\Models\Mobile_Detect;
 use Illuminate\Support\Facades\Log;
+use Jenssegers\Date\Date;
 use Monolog\Logger;
 
 class Tracking_device extends Model
@@ -571,5 +572,33 @@ class Tracking_device extends Model
             $headingClass = "hd16";
         }
         return $headingClass;
+    }
+
+    public static function getExportDeviceData() {
+        $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
+                d.expired_at, d.created_at,u.username, u.name as owner, u.phone
+            from tracking_devices as d
+                inner join users as u on d.user_id = u.id
+            where d.is_deleted = 0
+            order by d.activated_at asc;";
+        $result = DB::select($query, []);
+        $resp = [];
+        if ($result) {
+            foreach ($result as $item) {
+                $temp = [
+                    "Device Id" => $item->device_id,
+                    "Device Number" => $item->device_number,
+                    "SIM Info" => $item->sim_infor,
+                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('d-m-Y') : 'N/A',
+                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('d-m-Y') : 'N/A',
+                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('d-m-Y') : 'N/A',
+                    "Username" => $item->username,
+                    "Owner" => $item->owner,
+                    "Phone" => $item->phone
+                ];
+                $resp[] = $temp;
+            }
+        }
+        return $resp;
     }
 }

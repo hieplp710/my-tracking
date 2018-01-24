@@ -19,7 +19,7 @@ return [
     'logo_mini' => '<b>B</b>p',
 
     // Developer or company name. Shown in footer.
-    'developer_name' => 'HiepQuach',
+    'developer_name' => 'Flock.vn',
 
     // Developer website. Link in footer.
     'developer_link' => 'http://flock.vn',

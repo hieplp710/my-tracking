@@ -34,7 +34,9 @@
         @if ($crud->filtersEnabled())
           @include('crud::inc.filters_navbar')
         @endif
-
+        @if ($crud->entity_name == 'tracking_device')
+        <a href="/device/export" class="btn btn-primary ladda-button" id="exportData">Export Device</a>
+        @endif
         <table id="crudTable" class="table table-bordered table-striped display">
             <thead>
               <tr>
@@ -126,7 +128,15 @@
   <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/crud.css') }}">
   <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/form.css') }}">
   <link rel="stylesheet" href="{{ asset('vendor/backpack/crud/css/list.css') }}">
-
+<style>
+    a#exportData {
+        position: absolute;
+        right: 0;
+        z-index: 999999;
+        top: 10px;
+        right: 15px;
+    }
+</style>
   <!-- CRUD LIST CONTENT - crud_list_styles stack -->
   @stack('crud_list_styles')
 @endsection

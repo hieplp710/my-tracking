@@ -576,9 +576,9 @@ class Tracking_device extends Model
 
     public static function getExportDeviceData() {
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
-                d.expired_at, d.created_at,u.username, u.name as owner, u.phone
+                d.expired_at, d.created_at, IFNULL(u.username, 'N/A') as username, IFNULL(u.name,'N/A') as owner, IFNULL(u.phone, 'N/A') as phone
             from tracking_devices as d
-                inner join users as u on d.user_id = u.id
+                LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0
             order by d.activated_at asc;";
         $result = DB::select($query, []);

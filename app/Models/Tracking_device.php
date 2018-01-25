@@ -576,7 +576,7 @@ class Tracking_device extends Model
 
     public static function getExportDeviceData() {
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
-                d.expired_at, d.created_at, IFNULL(u.username, 'N/A') as username, IFNULL(u.name,'N/A') as owner, IFNULL(u.phone, 'N/A') as phone
+                d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0
@@ -589,9 +589,9 @@ class Tracking_device extends Model
                     "Device Id" => $item->device_id,
                     "Device Number" => $item->device_number,
                     "SIM Info" => $item->sim_infor,
-                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('d-m-Y') : 'N/A',
-                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('d-m-Y') : 'N/A',
-                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('d-m-Y') : 'N/A',
+                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/Y') : '',
+                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/Y') : '',
+                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/Y') : '',
                     "Username" => $item->username,
                     "Owner" => $item->owner,
                     "Phone" => $item->phone

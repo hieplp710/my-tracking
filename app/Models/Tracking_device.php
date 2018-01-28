@@ -589,9 +589,9 @@ class Tracking_device extends Model
                     "Device Id" => $item->device_id,
                     "Device Number" => $item->device_number,
                     "SIM Info" => $item->sim_infor,
-                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/Y') : '',
-                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/Y') : '',
-                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/Y') : '',
+                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/y') : '',
+                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/y') : '',
+                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/y') : '',
                     "Username" => $item->username,
                     "Owner" => $item->owner,
                     "Phone" => $item->phone

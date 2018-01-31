@@ -646,6 +646,9 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                 };
                 ;
                 MapComponent.prototype.getStatusIcon = function (location) {
+                    if (location === undefined || location == null) {
+                        return this.icon_status_stop;
+                    }
                     if (location.status === 'Đỗ') {
                         return this.icon_status_stop;
                     }

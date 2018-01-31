@@ -616,6 +616,9 @@ export class MapComponent implements OnInit {
         }
     };
     getStatusIcon(location : Location) {
+        if (location === undefined || location == null) {
+            return this.icon_status_stop;
+        }
         if (location.status === 'Đỗ') {
             return this.icon_status_stop;
         } else if (location.status === 'Dừng') {

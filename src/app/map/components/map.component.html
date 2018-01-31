@@ -15,7 +15,7 @@
                             [openInfoWindow]="false"
                             (markerClick)="onMarkerClick($event, m.currentLocation, infowindow)" #marker>
                     <agm-info-window hostMarker="marker" #infowindow>
-                        <div class="marker-info row">
+                        <div class="marker-info row" *ngIf="m.currentLocation != null">
                             <span class="col-xs-12 time"><strong>{{ m.currentLocation.time }}</strong></span>
                             <span class="col-xs-4 label">Trạng thái:</span><span class="col-xs-8 content">{{ m.currentLocation.status }}</span>
                             <span *ngIf="m.currentLocation.state != ''"  class="col-xs-4 label">Thời gian:</span><span class="col-xs-8 content">{{ m.currentLocation.state }}</span>

@@ -112,6 +112,7 @@ class Tracking_device extends Model
             $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
             $retrist_time = "and l.created_at >= '$yesterday'";
+            $retrist_time = '';
             if ($last_point == '') {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d

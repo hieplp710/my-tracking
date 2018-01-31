@@ -76,7 +76,6 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                     });
                 };
                 MapComponent.prototype.ngOnInit = function () {
-                    this.requestLocation();
                     document.addEventListener('visibilitychange', function () {
                         document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
                     });
@@ -99,6 +98,10 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                             jquery_1.default('#control-section').removeClass('slide-right').addClass('slide-left');
                         }
                     });
+                    var _this = this;
+                    setTimeout(function () {
+                        _this.requestLocation();
+                    }, 1000);
                 };
                 ;
                 MapComponent.prototype.requestLocation = function () {

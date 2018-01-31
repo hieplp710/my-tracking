@@ -67,7 +67,6 @@ export class MapComponent implements OnInit {
         });
     }
     ngOnInit(): void {
-        this.requestLocation();
         document.addEventListener('visibilitychange', function(){
             document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
         });
@@ -90,6 +89,10 @@ export class MapComponent implements OnInit {
                 $('#control-section').removeClass('slide-right').addClass('slide-left');
             }
         });
+        var _this = this;
+        setTimeout( function (){
+            _this.requestLocation();
+        }, 1000);
     };
     mapBounds : LatLngBounds;
     mapRoadmapBounds : LatLngBounds;

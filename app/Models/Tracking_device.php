@@ -116,7 +116,7 @@ class Tracking_device extends Model
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
                         left join device_locations as l on d.id = l.device_id
-                    where d.is_deleted = 0 and d.status = 1 $user_condition
+                    where d.is_deleted = 0 and d.status = 1 $user_condition $retrist_time
                         and l.created_at >= (select MAX(l.created_at) 
                             from tracking_devices as d1
                             left join device_locations as l on d1.id = l.device_id  
@@ -226,7 +226,11 @@ class Tracking_device extends Model
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
                             //if diff larger than 48h hours => lost gsm
                             if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
-                                $location_device->status = "Mất GSM";
+                                //only check if park time > 2 days
+                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+                                if ($is_lostGSM) {
+                                    $location_device->status = "Mất GSM";
+                                }
                             }
                             $statusText = self::getDifferentTime($different);
                             $location_device->current_state = $statusText;
@@ -236,7 +240,11 @@ class Tracking_device extends Model
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
                             //if diff larger than 48h hours => lost gsm
                             if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
-                                $location_device->status = "Mất GSM";
+                                //only check if park time > 2 days
+                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+                                if ($is_lostGSM) {
+                                    $location_device->status = "Mất GSM";
+                                }
                             }
                             $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                             $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
@@ -265,7 +273,11 @@ class Tracking_device extends Model
                         $different = $current_time_utc->diffInSeconds($last_time_utc);
                         $statusText = self::getDifferentTime($different);
                         if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
-                            $location_device->status = "Mất GSM";
+                            //only check if park time > 2 days
+                            $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+                            if ($is_lostGSM) {
+                                $location_device->status = "Mất GSM";
+                            }
                         }
                         $location_device->current_state = $statusText;
                         $location_device->heading = $options["lastPoint"]['heading'];
@@ -288,6 +300,45 @@ class Tracking_device extends Model
 
     public function locations(){
         return $this->hasMany('App\Models\DeviceLocation');
+    }
+
+    //check the device if lost gsm
+    public static function checkLostGSM($device_id) {
+        $date_current = new Carbon();
+        $date_current->subDay(2);
+        $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
+        // and l.created_at >= '$yesterday'
+        $devices = Tracking_device::where('id', $device_id)->get();
+        if ($devices && ($devices[0] instanceof Tracking_device)) {
+            $device = $devices[0];
+            $current_status = json_decode($device->current_state, true);
+            if ($current_status && isset($current_status['isLostGSM'])) {
+                //not to check
+                return true;
+            }
+
+            $retrist_time = " l.created_at >= '$yesterday'";
+            $query = "select l.created_at, l.device_id
+                    from device_locations as l 
+                where $retrist_time and l.device_id = $device_id order by l.created_at desc limit 1";
+            //check the last location
+            $locations = DB::select($query, []);
+            if ($locations && count($locations) > 0) {
+                return false;
+            } else {
+                //mark as lost gsm so that on next time, not to check
+                if ($current_status) {
+                    $current_status['isLostGSM'] = 1;
+                    $device->current_state = json_encode($current_status);
+                } else {
+                    $device->current_state = json_encode(['isLostGSM' => 1]);
+                }
+                $device->save();
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
     /**

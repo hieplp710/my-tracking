@@ -40,3 +40,5 @@ Route::post('/tracking/update-device-number', 'Tracking\DeviceController@updateD
 Route::get('/device/get-deviceid', 'Tracking\DeviceController@generateDeviceId')->name('get_device_id');
 Route::get('/user/profile', 'HomeController@getUserProfile')->name('get-profile');
 Route::get('/device/export', 'Tracking\DeviceController@exportExport')->name('export-device');
+Route::get('/admin/delete-location', 'Admin\ToolController@deleteLocation')->name('delete-location');
+Route::post('/admin/handle-delete-location', 'Admin\ToolController@doDeleteLocation')->name('handle-delete-location');

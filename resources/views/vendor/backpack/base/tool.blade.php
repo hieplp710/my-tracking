@@ -175,6 +175,9 @@
                 }
                 $.post(url, {"time": $('.input-group.date input').val()}, function (resp) {
                     console.log(resp);
+                    if (!resp.status) {
+                        alert(resp.error);
+                    }
                     $this.button('reset');
                 });
             })

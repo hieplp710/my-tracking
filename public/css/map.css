@@ -220,6 +220,7 @@ ul.lstDevices li i.fa {
         width: 80% !important;
         float: left;
     }
+
     ul.lstDevices li i.fa {
         display: inline-block;
         margin : 0 5px;
@@ -286,6 +287,7 @@ ul.lstDevices li i.fa {
         background: #f1f1f1;
         max-width:33.333%;
     }
+
     .content-wrapper {
         position: relative;
         overflow: hidden;
@@ -377,6 +379,11 @@ ul.lstDevices li i.fa {
         top: 25px;
         width: 100px;
         left: -280px;
+    }
+}
+@media (min-width: 768px) {
+    div#control-section.col-sm-3{
+        width: 30%;
     }
 }
 

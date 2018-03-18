@@ -213,7 +213,13 @@ export class MapComponent implements OnInit {
         }
         this.map = $event;
         let width = $(window).width();
-        if (width < 800) {
+        if (width < 770) {
+            let height = $(window).height() - 55;
+            $('agm-map').css({"height":height + "px"});
+            $('#control-section div.row.tab-pane').css({"height":(height - 38 + "px")});
+            $('#control-section #real-time div.device-list').css({"height":(height - 60) + "px"});
+            $('#control-section #roadmap div.device-list').css({"height":(height - 260) + "px"});
+        } else if (width < 800) {
             let height = $(window).height() - 55;
             $('agm-map').css({"height":height + "px"});
             $('#control-section div.row.tab-pane').css({"height":(height - 38 + "px")});

@@ -216,7 +216,14 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                     }
                     this.map = $event;
                     var width = jquery_1.default(window).width();
-                    if (width < 800) {
+                    if (width < 770) {
+                        var height = jquery_1.default(window).height() - 55;
+                        jquery_1.default('agm-map').css({ "height": height + "px" });
+                        jquery_1.default('#control-section div.row.tab-pane').css({ "height": (height - 38 + "px") });
+                        jquery_1.default('#control-section #real-time div.device-list').css({ "height": (height - 60) + "px" });
+                        jquery_1.default('#control-section #roadmap div.device-list').css({ "height": (height - 260) + "px" });
+                    }
+                    else if (width < 800) {
                         var height = jquery_1.default(window).height() - 55;
                         jquery_1.default('agm-map').css({ "height": height + "px" });
                         jquery_1.default('#control-section div.row.tab-pane').css({ "height": (height - 38 + "px") });

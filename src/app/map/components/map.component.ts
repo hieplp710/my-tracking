@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, ViewChild} from '@angular/core';
 import {Location} from "../models/location";
 import { MyMarker } from '../models/marker';
 import { TrackingService } from "../../services/TrackingService";
@@ -8,7 +8,8 @@ import $ from 'jquery';
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 import {mapChildrenIntoArray} from "@angular/router/src/url_tree";
 import { NouisliderModule } from 'ng2-nouislider';
-
+import {PopupComponent} from "./widgets/popup.component";
+import {CookieService} from 'angular2-cookie/core';
 
 declare var google: any;
 declare var MarkerClusterer: any;
@@ -33,7 +34,7 @@ export class MapComponent implements OnInit {
     map = null;
     zoom = 8;
     rangeVel = 5;
-    constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader) {
+    constructor(private trackingService: TrackingService, private _mapsAPILoader: MapsAPILoader, private _cookie: CookieService) {
         //this.options = new DatePickerOptions();
     };
     allMarkers : any;
@@ -59,6 +60,7 @@ export class MapComponent implements OnInit {
     canPlayRoadmap = false;
     playRoadmapIndex = 0;
     playRoadmapMarker = null;
+    @ViewChild(PopupComponent) devicePopup: PopupComponent;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -93,6 +95,11 @@ export class MapComponent implements OnInit {
         setTimeout( function (){
             _this.requestLocation();
         }, 1000);
+        $('#btnLogout').on('click', function (e) {
+            e.preventDefault();
+            let username = $.trim($('#app-navbar-collapse a.dropdown-toggle').text());
+            _this._cookie.remove(username);
+        });
     };
     mapBounds : LatLngBounds;
     mapRoadmapBounds : LatLngBounds;
@@ -149,12 +156,21 @@ export class MapComponent implements OnInit {
         //handler to markers
         let _this = context;
         _this.internalInterval = setInterval(function(){
+            let deviceWarning = [];
             let keys = Object.keys(_this.allMarkers);
             for (let i = 0; i < keys.length; i++) {
                 let marker = _this.allMarkers[keys[i]];
+                if (marker.isExpired) {
+                    deviceWarning.push(marker);
+                }
                 _this.handleLocation(marker, _this);
+            };
+            let username = $.trim($('#app-navbar-collapse a.dropdown-toggle').text());
+            if (deviceWarning.length > 0 && _this._cookie.get(username) === undefined) {
+                // if exist warning device, show the popup
+                _this.devicePopup.contentBuilder({"title": 'Thiết bị sắp hết hạn', 'devices':deviceWarning});
+                _this.devicePopup.togglePopup();
             }
-
         }, 5000);
     };
     handleLocation(marker : MyMarker, context) : void {

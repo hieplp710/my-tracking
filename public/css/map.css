@@ -215,6 +215,9 @@ ul.lstDevices li i.fa {
     top: 5px;
 }
 
+ul.lstDevices li .warning i.fa{
+    display: inline-block;
+}
 @media (max-width: 800px) {
     ul.lstDevices li label{
         width: 80% !important;

@@ -113,7 +113,7 @@ class Tracking_device extends Model
             // and l.created_at >= '$yesterday'
             $retrist_time = "and l.created_at >= '$yesterday'";
             if ($last_point == '') {
-                $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
+                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
                         left join device_locations as l on d.id = l.device_id
                     where d.is_deleted = 0 and d.status = 1 $user_condition $retrist_time
@@ -123,7 +123,7 @@ class Tracking_device extends Model
                             where d1.id = d.id $retrist_time)
                     order by d.id, l.created_at desc, l.updated_at desc";
             } else {
-                $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
+                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                   left join tracking_devices as d on u.id = d.user_id
                   left join device_locations as l on (d.id = l.device_id $last_point)
@@ -195,8 +195,21 @@ class Tracking_device extends Model
                     $location_devices[$location_device->device_id_main] = [
                         "device_id" => $location_device->device_id_main,
                         "device_number" => $location_device->device_number,
+                        "expired_date" => isset($location_device->expired_at)
+                            ? Carbon::createFromFormat('Y-m-d H:i:s', $location_device->expired_at)->format('d-m-Y') : '',
+                        "is_expired" => 0,
                         "locations" => []
                     ];
+                    //check if over expired
+                    if (isset($location_device->expired_at)) {
+                        //nếu ngày hến hạn lớn hơn không quá 1 tháng so với ngày hiện tại
+                        //thông báo cho user biết
+                        $current_date = Carbon::now('utc');
+                        $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->expired_at);
+                        if ($expired_date->diffInMonths($current_date) <= 1){
+                            $location_devices[$location_device->device_id_main]['is_expired'] = 1;
+                        }
+                    }
                 }
 
                 if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)){

@@ -63,7 +63,8 @@ gulp.task("libs", () => {
             'bootstrap/**',
             '@ngui/datetime-picker/**',
             'ng2-nouislider/**',
-            'nouislider/**'
+            'nouislider/**',
+            'angular2-cookie/**'
         ], {cwd: "node_modules/**"}) /* Glob required here. */
         .pipe(gulp.dest("public/lib"));
 });

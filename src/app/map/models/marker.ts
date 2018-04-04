@@ -7,6 +7,8 @@ export interface MyMarker {
     deviceId: number;
     deviceNumber: string;
     currentLocation : Location;
+    isExpired: boolean;
+    expiredDate: string;
     locations: Location[];
     visible? : boolean;
     isEdit? : boolean;

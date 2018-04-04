@@ -25,6 +25,7 @@
             '@ngui/datetime-picker' : 'npm:@ngui/datetime-picker/dist',
             'nouislider': 'npm:nouislider',
             'ng2-nouislider': 'npm:ng2-nouislider',
+            'angular2-cookie': 'npm:angular2-cookie'
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
@@ -46,6 +47,10 @@
                 main: 'src/nouislider.js',
                 defaultExtension: 'js'
             },
+            'angular2-cookie': {
+                main: './core.js',
+                defaultExtension: 'js'
+            }
 
         }
     });

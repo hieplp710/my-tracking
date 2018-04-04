@@ -12,6 +12,8 @@ import {ProfileComponent} from "./map/components/profile.component";
 import $ from "jquery";
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 import { NouisliderModule } from 'ng2-nouislider/src/nouislider';
+import {PopupComponent} from "./map/components/widgets/popup.component";
+import { CookieService } from 'angular2-cookie/services/cookies.service';
 
 @NgModule({
     imports: [
@@ -31,10 +33,12 @@ import { NouisliderModule } from 'ng2-nouislider/src/nouislider';
         MapComponent,
         DeviceComponent,
         ProfileComponent,
+        PopupComponent
     ],
     providers: [
         HttpModule,
-        TrackingService
+        TrackingService,
+        CookieService
     ],
     bootstrap: [AppComponent]
 })

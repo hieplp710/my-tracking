@@ -53,6 +53,8 @@ export class TrackingService {
                 let marker : MyMarker = {
                     deviceId : temp.device_id,
                     deviceNumber : temp.device_number,
+                    isExpired: temp.is_expired ? temp.is_expired : false,
+                    expiredDate: temp.expired_date,
                     currentLocation : null,
                     visible : true,
                     isEdit : false,

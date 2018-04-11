@@ -42,32 +42,29 @@ System.register(["@angular/core", "angular2-cookie/core", "jquery"], function (e
                 ;
                 PopupComponent.prototype.ngAfterViewInit = function () { };
                 ;
-                PopupComponent.prototype.contentBuilder = function (data) {
-                    if (data) {
+                PopupComponent.prototype.contentBuilder = function (title, list) {
+                    if (list) {
                         //build data for popup
-                        if (data.title) {
-                            this.title = data.title;
+                        if (title) {
+                            this.title = title;
                         }
                         //this.popupBody.nativeElement.innerHTML = '<h1>bla bla bla</h1>';
-                        if (data.devices) {
-                            this.dataPopup = data.devices;
+                        if (list) {
+                            this.deviceList = list;
                         }
                     }
                 };
                 ;
                 PopupComponent.prototype.togglePopup = function (isHide) {
                     var isHidden = isHide ? isHide : false;
-                    this.isShow = !isHidden;
                     var username = jquery_1.default.trim(jquery_1.default('#app-navbar-collapse a.dropdown-toggle').text());
                     console.log(this._cookieService.get(username), 'this._cookieService.get(username)');
-                    if (this.isShow && this.popupContent !== undefined && this._cookieService.get(username) === undefined) {
-                        var dom = '';
-                        for (var i = 0; i < this.dataPopup.length; i++) {
-                            var marker = this.dataPopup[i];
-                            dom += '<li class="warning-text">Thiết bị ' + marker.deviceNumber + ' sẽ hết hạn vào ngày ' + marker.expiredDate + '</li>';
-                        }
-                        this.popupContent.nativeElement.innerHTML = '<ul>' + dom + '</ul>';
+                    if (this._cookieService.get(username) === undefined && !isHidden) {
+                        this.isShow = true;
                         this._cookieService.put(username, 'shown');
+                    }
+                    else if (isHidden) {
+                        this.isShow = false;
                     }
                 };
                 PopupComponent.prototype.onToggleModal = function () {
@@ -92,7 +89,7 @@ System.register(["@angular/core", "angular2-cookie/core", "jquery"], function (e
                 PopupComponent = __decorate([
                     core_1.Component({
                         selector: 'popup',
-                        templateUrl: './app/map/components/widgets/popup.component.html'
+                        templateUrl: './app/map/components/widgets/popup-device/popup.component.html'
                     }),
                     __metadata("design:paramtypes", [core_2.CookieService])
                 ], PopupComponent);

@@ -12,8 +12,9 @@ import {ProfileComponent} from "./map/components/profile.component";
 import $ from "jquery";
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 import { NouisliderModule } from 'ng2-nouislider/src/nouislider';
-import {PopupComponent} from "./map/components/widgets/popup.component";
+import {PopupComponent} from "./map/components/widgets/popup-device/popup.component";
 import { CookieService } from 'angular2-cookie/services/cookies.service';
+import {RoadmapInfoComponent} from "./map/components/widgets/roadmap-info/roadmap_info.component";
 
 @NgModule({
     imports: [
@@ -33,7 +34,8 @@ import { CookieService } from 'angular2-cookie/services/cookies.service';
         MapComponent,
         DeviceComponent,
         ProfileComponent,
-        PopupComponent
+        PopupComponent,
+        RoadmapInfoComponent
     ],
     providers: [
         HttpModule,

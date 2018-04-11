@@ -218,6 +218,19 @@ ul.lstDevices li i.fa {
 ul.lstDevices li .warning i.fa{
     display: inline-block;
 }
+div#roadmap-info-wrapper {
+    position: absolute;
+    bottom: 0;
+    background: #ffffff;
+    border-radius: 0 2px 0 0;
+    box-shadow: 2px -1px 2px #cccccc;
+}
+div#roadmap-info-wrapper > div{
+    margin: 0 5px;
+}
+table.roadmap-info td, table.roadmap-info th {
+    padding: 5px;
+}
 @media (max-width: 800px) {
     ul.lstDevices li label{
         width: 80% !important;

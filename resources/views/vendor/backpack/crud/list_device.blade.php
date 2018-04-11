@@ -34,6 +34,8 @@
         @if ($crud->filtersEnabled())
           @include('crud::inc.filters_navbar')
         @endif
+        <a href="/device/export" class="btn btn-primary ladda-button" id="exportData">Export Device</a>
+
         <table id="crudTable" class="table table-bordered table-striped display">
             <thead>
               <tr>
@@ -55,7 +57,20 @@
 
               @if (!$crud->ajaxTable())
                 @foreach ($entries as $k => $entry)
-                <tr data-entry-id="{{ $entry->getKey() }}">
+                    <?php
+                    $classEx = false;
+                    if (!empty($entry->expired_at)) {
+                        $current_date = \Carbon\Carbon::now('utc');
+                        $expired_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $entry->expired_at);
+
+                        if ($current_date->diffInMonths($expired_date, false) <= 1){
+                            $classEx = true;
+                        }
+
+                    }
+
+                    ?>
+                    <tr data-entry-id="{{ $entry->getKey() }}" @if($classEx) class="expired" @endif>
 
                   @if ($crud->details_row)
                     @include('crud::columns.details_row_button')
@@ -132,6 +147,9 @@
         z-index: 999999;
         top: 10px;
         right: 15px;
+    }
+    tr.expired {
+        color: red;
     }
 </style>
   <!-- CRUD LIST CONTENT - crud_list_styles stack -->

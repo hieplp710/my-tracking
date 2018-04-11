@@ -29,6 +29,7 @@ class Tracking_deviceCrudController extends CrudController
         $this->crud->setModel('App\Models\Tracking_device');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/tracking_device');
         $this->crud->setEntityNameStrings('tracking_device', 'Devices');
+        $this->crud->setListView('crud::list_device');
 
         /*
         |--------------------------------------------------------------------------
@@ -214,7 +215,23 @@ class Tracking_deviceCrudController extends CrudController
             'options' => ['0' => "In-Active", '1' => "Active", '2' => 'Extend expired'],
             'allows_null' => false,
         ]);
-
+        //filters
+        $this->crud->addFilter([ // add a "simple" filter called Draft
+            'type' => 'simple',
+            'name' => 'expired',
+            'label'=> 'Sắp hết hạn'
+        ],
+            false, // the simple filter has no values, just the "Draft" label specified above
+            function() { // if the filter is active (the GET parameter "draft" exits)
+                $current_date = Carbon::now('utc')->addMonth(1);
+                $strDate = $current_date->format('Y-m-d H:i:s');
+                $this->crud->addClause('where', 'expired_at', '<=', "$strDate");
+                // we've added a clause to the CRUD so that only elements with draft=1 are shown in the table
+                // an alternative syntax to this would have been
+                // $this->crud->query = $this->crud->query->where('draft', '1');
+                // another alternative syntax, in case you had a scopeDraft() on your model:
+                // $this->crud->addClause('draft');
+            });
         // ------ CRUD FIELDS
         // $this->crud->addField($options, 'update/create/both');
         // $this->crud->addFields($array_of_arrays, 'update/create/both');

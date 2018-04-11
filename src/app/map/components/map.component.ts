@@ -8,8 +8,11 @@ import $ from 'jquery';
 import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 import {mapChildrenIntoArray} from "@angular/router/src/url_tree";
 import { NouisliderModule } from 'ng2-nouislider';
-import {PopupComponent} from "./widgets/popup.component";
+import {PopupComponent} from "./widgets/popup-device/popup.component";
 import {CookieService} from 'angular2-cookie/core';
+import {RoadmapInfoComponent} from "./widgets/roadmap-info/roadmap_info.component";
+import {RoadmapInfo} from "../models/roadmap_info";
+import {isUndefined} from "util";
 
 declare var google: any;
 declare var MarkerClusterer: any;
@@ -61,6 +64,7 @@ export class MapComponent implements OnInit {
     playRoadmapIndex = 0;
     playRoadmapMarker = null;
     @ViewChild(PopupComponent) devicePopup: PopupComponent;
+    @ViewChild('roadmapInfo') roadmapInfo : RoadmapInfoComponent;
     ngAfterViewInit() {
         let _this = this;
         this._mapsAPILoader.load().then(() => {
@@ -111,6 +115,9 @@ export class MapComponent implements OnInit {
     endRoadmapMarker = null;
     roadmapPolyline = null;
     isPlayingRoadmap = false;
+    deviceWarning = [];
+    startPointRoadmap: any;
+    totalKmRoadmap: number = 0;
     requestLocation() {
         let _this = this;
         this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint,
@@ -142,9 +149,19 @@ export class MapComponent implements OnInit {
                             //init the marker that choiceonDeviceSelected($event) on roadmap mode
                             _this.roadmapSelectedMarker = marker;
                         }
+                        if (marker.isExpired) {
+                            _this.deviceWarning.push(marker);
+                        }
+                    }
+                    let username = $.trim($('#app-navbar-collapse a.dropdown-toggle').text());
+                    if (_this.deviceWarning.length > 0 && _this._cookie.get(username) === undefined && !_this.isInit) {
+                        // if exist warning device, show the popup
+                        _this.devicePopup.contentBuilder('Thiết bị sắp hết hạn', _this.deviceWarning);
+                        _this.devicePopup.togglePopup();
                     }
                     _this.isInit = true;
                 }
+
                 if (_this.internalInterval == null) {
                     _this.fetchMarkers(_this);
                 }
@@ -155,22 +172,12 @@ export class MapComponent implements OnInit {
     fetchMarkers(context) {
         //handler to markers
         let _this = context;
-        _this.internalInterval = setInterval(function(){
-            let deviceWarning = [];
+        _this.internalInterval = setInterval(function() {
             let keys = Object.keys(_this.allMarkers);
             for (let i = 0; i < keys.length; i++) {
                 let marker = _this.allMarkers[keys[i]];
-                if (marker.isExpired) {
-                    deviceWarning.push(marker);
-                }
                 _this.handleLocation(marker, _this);
             };
-            let username = $.trim($('#app-navbar-collapse a.dropdown-toggle').text());
-            if (deviceWarning.length > 0 && _this._cookie.get(username) === undefined) {
-                // if exist warning device, show the popup
-                _this.devicePopup.contentBuilder({"title": 'Thiết bị sắp hết hạn', 'devices':deviceWarning});
-                _this.devicePopup.togglePopup();
-            }
         }, 5000);
     };
     handleLocation(marker : MyMarker, context) : void {
@@ -276,6 +283,8 @@ export class MapComponent implements OnInit {
             if ($('#play-roadmap-mobile > i')[0] !== undefined && $('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
                 $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
             }
+            //hide the roadmap info
+            this.roadmapInfo.hideInfo();
         } else {
             if (this.current_infowindow != null) {
                 this.current_infowindow.close();
@@ -584,6 +593,8 @@ export class MapComponent implements OnInit {
         if ($('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
             $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
         }
+        this.startPointRoadmap = null;
+        this.totalKmRoadmap = 0;
     };
     onChangeReviewSpeed($event) {
         console.log($event);
@@ -626,6 +637,25 @@ export class MapComponent implements OnInit {
                             _this.map.panTo(_this.playRoadmapMarker.getPosition());
                         }
                         _this.playRoadmapIndex++;
+                        //set data for roadmap info
+                        console.log(tempMarker, 'tempMarker');
+                        console.log(google.maps.geometry, 'dddd');
+                        let km = 0;
+                        let strKm = '';
+                        if (_this.startPointRoadmap) {
+                            let locA = new google.maps.LatLng({"lat" : _this.startPointRoadmap.lat, "lng" : _this.startPointRoadmap.lng});
+                            km = google.maps.geometry.spherical.computeDistanceBetween(locA, coord);
+                            strKm = (km / 1000).toFixed(2);
+                        }
+                        _this.startPointRoadmap = tempMarker;
+                        _this.totalKmRoadmap += (km / 1000);
+                        let info : RoadmapInfo = {
+                            km: strKm,
+                            kmph: tempMarker.velocity,
+                            time: tempMarker.time,
+                            totalKm: _this.totalKmRoadmap.toFixed(2)
+                        };
+                        _this.roadmapInfo.showInfo(info);
                     } else {
                         clearInterval(_this.interPlayRoadmap);
                         _this.playRoadmapIndex = 0;
@@ -634,6 +664,8 @@ export class MapComponent implements OnInit {
                         $('#play-roadmap').text('Xem lại lộ trình');
                         $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
                         _this.isRunningRoadmap = false;
+                        _this.startPointRoadmap = null;
+                        _this.totalKmRoadmap = 0;
                         return false;
                     }
                 }, 400 - (_this.rangeVel * 30));

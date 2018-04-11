@@ -206,7 +206,7 @@ class Tracking_device extends Model
                         //thông báo cho user biết
                         $current_date = Carbon::now('utc');
                         $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->expired_at);
-                        if ($expired_date->diffInMonths($current_date) <= 1){
+                        if ($current_date->diffInMonths($expired_date, false) <= 1){
                             $location_devices[$location_device->device_id_main]['is_expired'] = 1;
                         }
                     }

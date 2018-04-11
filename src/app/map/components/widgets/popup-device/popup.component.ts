@@ -6,11 +6,12 @@ import {Component, ElementRef, OnInit, ViewChild, AfterViewInit} from '@angular/
 import {CookieService} from 'angular2-cookie/core';
 
 import $ from 'jquery';
+import {MyMarker} from "../../../models/marker";
 
 
 @Component({
     selector: 'popup',
-    templateUrl: './app/map/components/widgets/popup.component.html'
+    templateUrl: './app/map/components/widgets/popup-device/popup.component.html'
 })
 
 
@@ -20,37 +21,34 @@ export class PopupComponent implements OnInit, AfterViewInit {
     isShow: boolean = false;
     error? : any = null;
     dataPopup: any;
+    deviceList: MyMarker[];
     constructor(private _cookieService:CookieService) {
         //this.options = new DatePickerOptions();
         this.title = 'Popup';
     };
     ngOnInit() {};
     ngAfterViewInit() {};
-    contentBuilder(data: any) {
-        if (data) {
+    contentBuilder(title: string, list: MyMarker[]) {
+        if (list) {
             //build data for popup
-            if (data.title) {
-                this.title = data.title;
+            if (title) {
+                this.title = title;
             }
             //this.popupBody.nativeElement.innerHTML = '<h1>bla bla bla</h1>';
-            if (data.devices) {
-                this.dataPopup = data.devices;
+            if (list) {
+                this.deviceList = list;
             }
         }
     };
     togglePopup(isHide?: boolean) {
         let isHidden = isHide ? isHide : false;
-        this.isShow = !isHidden;
         let username = $.trim($('#app-navbar-collapse a.dropdown-toggle').text());
         console.log(this._cookieService.get(username), 'this._cookieService.get(username)');
-        if (this.isShow && this.popupContent !== undefined && this._cookieService.get(username) === undefined) {
-            var dom = '';
-            for (var i = 0; i < this.dataPopup.length; i++) {
-                var marker = this.dataPopup[i];
-                dom += '<li class="warning-text">Thiết bị ' + marker.deviceNumber + ' sẽ hết hạn vào ngày ' + marker.expiredDate + '</li>';
-            }
-            this.popupContent.nativeElement.innerHTML = '<ul>' + dom + '</ul>';
+        if (this._cookieService.get(username) === undefined && !isHidden) {
+            this.isShow = true;
             this._cookieService.put(username, 'shown');
+        } else if (isHidden) {
+            this.isShow = false;
         }
     }
     onToggleModal() {

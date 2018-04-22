@@ -236,6 +236,9 @@ table.roadmap-info td, table.roadmap-info th {
     list-style: none;
     padding: 0;
 }
+.col-md-12.no-padding {
+    padding: 0;
+}
 @media (max-width: 800px) {
     ul.tabs li {
         padding: 10px 2px;
@@ -571,6 +574,10 @@ table.roadmap-info td, table.roadmap-info th {
     button#stop-roadmap-mobile {
         left: -88%;
     }
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
+    }
 }
 @media (max-width: 400px) {
     .slider-mobile {
@@ -604,6 +611,10 @@ table.roadmap-info td, table.roadmap-info th {
     div#profile {
         max-width: 92%;
         top: -18%;
+    }
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
     }
     .modal-header {
         padding: 0 15px;
@@ -755,6 +766,10 @@ table.roadmap-info td, table.roadmap-info th {
         0%   {right: 0;}
         100% {right: -56%;}
     }
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
+    }
 }
 @media (max-width: 340px) {
     ul.lstDevices li label{
@@ -868,5 +883,9 @@ table.roadmap-info td, table.roadmap-info th {
     @keyframes slide-right {
         0%   {right: 0;}
         100% {right: -63%;}
+    }
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
     }
 }

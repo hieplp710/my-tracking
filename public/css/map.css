@@ -151,7 +151,8 @@ div#tabs-wrapper {
 
 div#tabs-wrapper li {
     color: #4267b2;
-    width: 50%;
+    width: 33.33%;
+    border-right: 1px solid #cccccc;
     background: #ffffff;
 }
 
@@ -231,7 +232,18 @@ div#roadmap-info-wrapper > div{
 table.roadmap-info td, table.roadmap-info th {
     padding: 5px;
 }
+.modal-body ul.list-warning {
+    list-style: none;
+    padding: 0;
+}
 @media (max-width: 800px) {
+    ul.tabs li {
+        padding: 10px 2px;
+    }
+    ul.tabs li.tab {
+        min-width: 73px;
+        text-align: center;
+    }
     ul.lstDevices li label{
         width: 80% !important;
         float: left;
@@ -407,6 +419,16 @@ table.roadmap-info td, table.roadmap-info th {
 @media (min-width:1024px) {
     div#control-section.col-sm-3{
         width: 25%;
+    }
+}
+@media (max-width: 650px) {
+    ul.tabs li {
+        padding: 10px 2px;
+    }
+    ul.tabs li.tab {
+        min-width: 65px;
+        text-align: center;
+        font-size: 10px;
     }
 }
 

@@ -65,6 +65,7 @@
                 <ul class="tabs">
                     <li id="real-time-tab" class="tab active" data-target="#real-time" (click)="onChangeTab($event)">Trạng thái</li>
                     <li id="roadmap-tab" class="tab" data-target="#roadmap" (click)="onChangeTab($event)">Lộ trình</li>
+                    <li id="report-tab" class="tab" data-target="#report" (click)="onChangeTab($event)">Báo cáo</li>
                 </ul>
             </div>
         </div>
@@ -109,6 +110,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row tab-pane hide" id="report">
+            <general-report [listDevice]="toArray()">Loading Component</general-report>
         </div>
     </div>
     <popup #devicePopup></popup>

@@ -15,6 +15,8 @@ import { NouisliderModule } from 'ng2-nouislider/src/nouislider';
 import {PopupComponent} from "./map/components/widgets/popup-device/popup.component";
 import { CookieService } from 'angular2-cookie/services/cookies.service';
 import {RoadmapInfoComponent} from "./map/components/widgets/roadmap-info/roadmap_info.component";
+import {HelperService} from "./services/Helper";
+import {GeneralReportComponent} from "./map/components/partials/generalreport.component";
 
 @NgModule({
     imports: [
@@ -35,12 +37,14 @@ import {RoadmapInfoComponent} from "./map/components/widgets/roadmap-info/roadma
         DeviceComponent,
         ProfileComponent,
         PopupComponent,
-        RoadmapInfoComponent
+        RoadmapInfoComponent,
+        GeneralReportComponent
     ],
     providers: [
         HttpModule,
         TrackingService,
-        CookieService
+        CookieService,
+        HelperService
     ],
     bootstrap: [AppComponent]
 })

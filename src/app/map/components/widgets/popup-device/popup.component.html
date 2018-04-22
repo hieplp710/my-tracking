@@ -9,7 +9,7 @@
                 <h4 style="color:red;"><span class="glyphicon glyphicon-lock"></span>{{ title }}</h4>
             </div>
             <div class="modal-body">
-                <ul *ngIf="deviceList.length > 0">
+                <ul *ngIf="deviceList.length > 0" class="list-warning">
                     <li *ngFor="let marker of deviceList">
                         <span class="warning-text">Thiết bị {{ marker.deviceNumber }} sẽ hết hạn vào ngày {{ marker.expiredDate}}</span>
                     </li>

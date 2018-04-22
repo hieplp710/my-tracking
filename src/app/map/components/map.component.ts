@@ -85,6 +85,8 @@ export class MapComponent implements OnInit {
         this.date_to.setHours(23);
         this.date_to.setMinutes(59);
         this.date_to.setSeconds(59);
+
+
         $('#control-device').on('click', function(e) {
             e.preventDefault();
             //$('#control-section').animate();
@@ -285,7 +287,7 @@ export class MapComponent implements OnInit {
             }
             //hide the roadmap info
             this.roadmapInfo.hideInfo();
-        } else {
+        } else if ($target === '#roadmap') {
             if (this.current_infowindow != null) {
                 this.current_infowindow.close();
                 this.current_infowindow = null;
@@ -293,6 +295,21 @@ export class MapComponent implements OnInit {
             clearInterval(this.internalInterval);
             this.internalInterval = null;
             this.isRoadmap = true;
+        } else {
+            clearInterval(this.interPlayRoadmap);
+            this.canPlayRoadmap = false;
+            this.playRoadmapIndex = 0;
+            if (this.playRoadmapMarker != null) {
+                this.playRoadmapMarker.setMap(null);
+                this.playRoadmapMarker = null;
+            };
+            this.isRunningRoadmap = false;
+            if ($('#play-roadmap-mobile > i')[0] !== undefined && $('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+                $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+            }
+            //hide the roadmap info
+            this.roadmapInfo.hideInfo();
+            this.isRoadmap = false;
         }
     }
     onViewRoadmap($event) {

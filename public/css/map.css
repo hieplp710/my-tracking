@@ -415,6 +415,9 @@ table.roadmap-info td, table.roadmap-info th {
         width: 100px;
         left: -280px;
     }
+    button#view-report {
+        margin-top: 10px;
+    }
 }
 
 
@@ -440,6 +443,9 @@ table.roadmap-info td, table.roadmap-info th {
         min-width: 65px;
         text-align: center;
         font-size: 10px;
+    }
+    button#view-report {
+        margin-top: 10px;
     }
 }
 
@@ -590,6 +596,9 @@ table.roadmap-info td, table.roadmap-info th {
         max-width: 100%;
         top: 10%;
     }
+    button#view-report {
+        margin-top: 10px;
+    }
 }
 @media (max-width: 400px) {
     .slider-mobile {
@@ -655,6 +664,9 @@ table.roadmap-info td, table.roadmap-info th {
         left: -29%;
         top: 21px;
         background: #f1f1f1;
+    }
+    button#view-report {
+        margin-top: 10px;
     }
 
 }
@@ -782,6 +794,9 @@ table.roadmap-info td, table.roadmap-info th {
         max-width: 100%;
         top: 10%;
     }
+    button#view-report {
+        margin-top: 10px;
+    }
 }
 @media (max-width: 340px) {
     ul.lstDevices li label{
@@ -899,5 +914,8 @@ table.roadmap-info td, table.roadmap-info th {
     div#profile.warning-dialog{
         max-width: 100%;
         top: 10%;
+    }
+    button#view-report {
+        margin-top: 10px;
     }
 }

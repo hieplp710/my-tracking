@@ -240,6 +240,10 @@ table.roadmap-info td, table.roadmap-info th {
     padding: 0;
 }
 @media (max-width: 800px) {
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
+    }
     ul.tabs li {
         padding: 10px 2px;
     }
@@ -425,6 +429,10 @@ table.roadmap-info td, table.roadmap-info th {
     }
 }
 @media (max-width: 650px) {
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
+    }
     ul.tabs li {
         padding: 10px 2px;
     }
@@ -436,6 +444,10 @@ table.roadmap-info td, table.roadmap-info th {
 }
 
 @media (max-width: 450px) {
+    div#profile.warning-dialog{
+        max-width: 100%;
+        top: 10%;
+    }
     .slider-mobile {
         left: -310px;
     }

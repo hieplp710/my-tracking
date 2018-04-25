@@ -206,7 +206,24 @@ class Tracking_device extends Model
                         //thông báo cho user biết
                         $current_date = Carbon::now('utc');
                         $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->expired_at);
-                        if ($current_date->diffInMonths($expired_date, false) <= 1){
+                        if ($current_date->diffInMonths($expired_date, false) < 0 && $current_date->diffInDays($expired_date, false) < -7) {
+                            //update date as invalid device as set null for user_id
+                            $device = Tracking_device::find($location_device->device_id_main);
+                            if ($device instanceof Tracking_device) {
+                                $device->user_id = null;
+                                $device->save();
+                            }
+                            //remove device on array
+                            unset($location_devices[$location_device->device_id_main]);
+                            continue; //end execute and loop to another device
+                        }
+
+                        if ($current_date->diffInMonths($expired_date, false) <= 0 && $current_date->diffInDays($expired_date, false) < 0) {
+                            //extend expired date
+                            $new_expired = $expired_date->addDay(7);
+                            $location_devices[$location_device->device_id_main]['is_expired'] = 2;
+                            $location_devices[$location_device->device_id_main] ['expired_date'] = $new_expired->format('d-m-Y');
+                        } else if ($current_date->diffInMonths($expired_date, false) <= 1){
                             $location_devices[$location_device->device_id_main]['is_expired'] = 1;
                         }
                     }

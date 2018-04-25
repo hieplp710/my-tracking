@@ -28,6 +28,9 @@ class Tracking_device extends Model
     const ROADMAP_LIMIT = 1000;
     const ROADMAP_LIMIT_MOBILE = 1000;
     const VELOCITY_RATIO = 1.85;
+    const STATUS_ACTIVE = 1;
+    const STATUS_IN_ACTIVE = 0;
+    const STATUS_EXTEND_EXPIRED = 2;
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -210,7 +213,7 @@ class Tracking_device extends Model
                             //update date as invalid device as set null for user_id
                             $device = Tracking_device::find($location_device->device_id_main);
                             if ($device instanceof Tracking_device) {
-                                $device->user_id = null;
+                                $device->status = self::STATUS_EXTEND_EXPIRED;
                                 $device->save();
                             }
                             //remove device on array
@@ -661,6 +664,37 @@ class Tracking_device extends Model
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0
+            order by d.activated_at asc;";
+        $result = DB::select($query, []);
+        $resp = [];
+        if ($result) {
+            foreach ($result as $item) {
+                $temp = [
+                    "Device Id" => $item->device_id,
+                    "Device Number" => $item->device_number,
+                    "SIM Info" => $item->sim_infor,
+                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/y') : '',
+                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/y') : '',
+                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/y') : '',
+                    "Username" => $item->username,
+                    "Owner" => $item->owner,
+                    "Phone" => $item->phone
+                ];
+                $resp[] = $temp;
+            }
+        }
+        return $resp;
+    }
+
+    public static function getWarningDevices() {
+        $current_date = Carbon::now('utc');
+        //calculate the valid time
+        $valid_date = $current_date->subMonth(1)->format('Y-m-d H:i:s');
+        $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
+                d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone
+            from tracking_devices as d
+                LEFT join users as u on d.user_id = u.id
+            where d.is_deleted = 0 AND d.expired_at <= '$valid_date'
             order by d.activated_at asc;";
         $result = DB::select($query, []);
         $resp = [];

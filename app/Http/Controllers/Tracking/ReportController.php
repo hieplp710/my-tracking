@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Excel;
 
 class ReportController extends BaseController
 {
+    const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
     public function __construct()
     {
         $this->middleware('auth');
@@ -28,11 +29,15 @@ class ReportController extends BaseController
         $start_date = Input::get('startDate');
         $end_date = Input::get('endDate');
         $device_id = Input::get('deviceId');
-        $start_date = !empty($start_date) ? $start_date : '';
-        $end_date = !empty($end_date) ? $end_date : '';
+        $from_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $start_date, 'Asia/Ho_Chi_Minh');
+        $from_date_obj->setTimezone('UTC');
+        $to_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $end_date, 'Asia/Ho_Chi_Minh');
+        $to_date_obj->setTimezone('UTC');
+        $from_date = $from_date_obj->format(self::DB_DATETIME_FORMAT);
+        $to_date = $to_date_obj->format(self::DB_DATETIME_FORMAT);
         $device_id = !empty($device_id) ? $device_id : '0';
         $filename = "Flock_Bao_Cao_Tong_Hop_" . \Date::now()->format('Ymd');
-        $data = GeneralReport::getGeneralReportData($device_id, $start_date, $end_date);
+        $data = GeneralReport::getGeneralReportData($device_id, $from_date, $to_date);
 //        return ['status' => true, "data" => $data];
         $excelHandler->create($filename, function($excel) use ($data, $device_id){
             // Call writer methods here

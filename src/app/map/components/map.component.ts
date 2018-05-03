@@ -640,6 +640,7 @@ export class MapComponent implements OnInit {
                     if (_this.roadmapMarkers != null && _this.roadmapMarkers[_this.playRoadmapIndex] !== undefined
                         && _this.playRoadmapIndex < _this.roadmapMarkers.length) {
                         var tempMarker = _this.roadmapMarkers[_this.playRoadmapIndex];
+                        console.log(tempMarker, 'tempmark');
                         let coord = new google.maps.LatLng({"lat" : tempMarker.lat, "lng" : tempMarker.lng});
                         _this.playRoadmapMarker = new google.maps.Marker({
                             position: coord,
@@ -655,14 +656,12 @@ export class MapComponent implements OnInit {
                         }
                         _this.playRoadmapIndex++;
                         //set data for roadmap info
-                        console.log(tempMarker, 'tempMarker');
-                        console.log(google.maps.geometry, 'dddd');
                         let km = 0;
                         let strKm = '';
-                        if (_this.startPointRoadmap) {
+                        if (_this.startPointRoadmap && (tempMarker.status === "Đang chạy" || _this.startPointRoadmap === "Đang chạy")) {
                             let locA = new google.maps.LatLng({"lat" : _this.startPointRoadmap.lat, "lng" : _this.startPointRoadmap.lng});
                             km = google.maps.geometry.spherical.computeDistanceBetween(locA, coord);
-                            strKm = (km / 1000).toFixed(2);
+                            strKm = (km / 1000).toFixed(1);
                         }
                         _this.startPointRoadmap = tempMarker;
                         _this.totalKmRoadmap += (km / 1000);
@@ -670,7 +669,7 @@ export class MapComponent implements OnInit {
                             km: strKm,
                             kmph: tempMarker.velocity,
                             time: tempMarker.time,
-                            totalKm: _this.totalKmRoadmap.toFixed(2)
+                            totalKm: _this.totalKmRoadmap.toFixed(1)
                         };
                         _this.roadmapInfo.showInfo(info);
                     } else {

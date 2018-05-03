@@ -59,18 +59,24 @@
                 @foreach ($entries as $k => $entry)
                     <?php
                     $classEx = false;
+                    $classOverdue = false;
                     if (!empty($entry->expired_at)) {
                         $current_date = \Carbon\Carbon::now('utc');
                         $expired_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $entry->expired_at);
 
-                        if ($current_date->diffInMonths($expired_date, false) <= 1){
+                        if ($current_date->diffInMonths($expired_date, false) <= 1 && $expired_date > $current_date){
                             $classEx = true;
                         }
+
+                        if ($expired_date < $current_date){
+                            $classOverdue = true;
+                        }
+
 
                     }
 
                     ?>
-                    <tr data-entry-id="{{ $entry->getKey() }}" @if($classEx) class="expired" @endif>
+                    <tr data-entry-id="{{ $entry->getKey() }}" @if($classEx) class="expired" @endif @if($classOverdue) class="overdue" @endif>
 
                   @if ($crud->details_row)
                     @include('crud::columns.details_row_button')
@@ -149,6 +155,9 @@
         right: 15px;
     }
     tr.expired {
+        color: yellow;
+    }
+    tr.overdue{
         color: red;
     }
 </style>

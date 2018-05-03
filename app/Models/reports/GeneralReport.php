@@ -26,10 +26,7 @@ class GeneralReport {
                     where d.is_deleted = 0 and d.status = 1 and d.id = '$device_id'
                         and l.created_at >= '$start_date_str' and l.created_at <= '$end_date_str'
                     order by d.id, l.created_at, l.status asc, l.updated_at desc";
-//        echo '<pre>';
-//        print_r($query);
-//        echo '</pre>';
-//        exit();
+        //change code 
         $locations = DB::select($query, []);
         $report_data = self::executeReportData($locations);
         //data for report

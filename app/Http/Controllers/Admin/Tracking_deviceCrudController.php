@@ -235,6 +235,7 @@ class Tracking_deviceCrudController extends CrudController
                 // another alternative syntax, in case you had a scopeDraft() on your model:
                 // $this->crud->addClause('draft');
             });
+        //new filter
         $this->crud->addFilter([ // add a "simple" filter called Draft
             'type' => 'simple',
             'name' => 'overdue',

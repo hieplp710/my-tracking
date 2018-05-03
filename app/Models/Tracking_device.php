@@ -98,6 +98,7 @@ class Tracking_device extends Model
     }
 
     public static function getUserDeviceLocation($user_id = 0, $options = []){
+        //check user device
         $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;
         $query = '';
         $roadmapLimit = self::ROADMAP_LIMIT;

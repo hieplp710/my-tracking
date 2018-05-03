@@ -20,6 +20,7 @@ class DeviceController extends BaseController
     public function __construct()
     {
         //$this->middleware('auth');
+        //test
     }
 
     public function getDeviceLocations(Request $request, $user_id = 0){

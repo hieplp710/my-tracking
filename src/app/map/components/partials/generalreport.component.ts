@@ -52,9 +52,10 @@ export class GeneralReportComponent implements OnInit {
 
         let url = '/report/general-report?startDate=' + startDate + "&endDate=" + endDate + "&deviceId=" + deviceId;
         this.download_url = url;
-        $('#aDownload').attr('href', url);
-        setTimeout(function(){
-            $('#aDownload')[0].click();
-        }, 200);
+        // $('#aDownload').attr('href', url);
+        // setTimeout(function(){
+        //     $('#aDownload')[0].click();
+        // }, 200);
+        window.location.href = url;
     }
 }

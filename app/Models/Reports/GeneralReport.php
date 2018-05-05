@@ -26,7 +26,7 @@ class GeneralReport {
                     where d.is_deleted = 0 and d.status = 1 and d.id = '$device_id'
                         and l.created_at >= '$start_date_str' and l.created_at <= '$end_date_str'
                     order by d.id, l.created_at, l.status asc, l.updated_at desc";
-        //change code 
+        //change code
         $locations = DB::select($query, []);
         $report_data = self::executeReportData($locations);
         //data for report
@@ -42,43 +42,50 @@ class GeneralReport {
                 //compose data
                 //group by date
                 $item_date = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('d/m/Y');
+                if ($idx == 0){
+                    $temp = array();
+                    $temp["Stt"] = (count($data_by_date) + 1);
+                    $temp["Ngày"] = $item_date;
+                    $temp["Tg Bắt Đầu"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
+                }
                 if ($item_date != $report_date || $idx == count($report_data) - 1) {
-                    if ($idx == 0){
-                        $temp = array();
-                        $temp["Stt"] = (count($data_by_date) + 1);
-                        $temp["Ngày"] = $item_date;
-                        $temp["Tg Bắt Đầu"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
+
+                    //normal, finish the before block and init the new block
+                    //complete old location and start new location
+                    $last_loc = null;
+                    if ($idx == (count($report_data) - 1)) {
+                        //end of locations
+                        $last_loc = $item;
                     } else {
-                        //normal, finish the before block and init the new block
-                        //complete old location and start new location
-                        $last_loc = null;
-                        if ($idx == (count($locations) - 1)) {
-                            //end of locations
-                            $last_loc = $item;
-                        } else {
-                            //change of status
-                            $last_loc = $report_data[$idx - 1];
-                        }
-                        $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('H:i:s');
-                        if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
-                            $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['start_time'])->format('H:i:s');
-                        }
-                        $temp["Tổng Km"] = round($totalDistance / 1000, 0). 'km';
-                        $temp['VT Tối Đa'] = $maxSpeed . 'km/h';
-                        $temp["VT Trung Bình"] = round($totalSpeed / $idx_date, 1) . 'km/h';
-                        $data_by_date[] = array_merge([], $temp);
-                        //init new block
-                        $temp = array();
-                        $temp["Stt"] = (count($data_by_date) + 1);
-                        $temp["Ngày"] = $item_date;
-                        $temp["Tg Bắt Đầu"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
-                        $totalDistance = 0;
-                        $maxSpeed = 0;
-                        $totalSpeed = 0;
-                        $idx_date = 0;
+                        //change of status
+                        $last_loc = $report_data[$idx - 1];
                     }
+                    $totalDistance += $item['km'];
+                    $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
+                    $totalSpeed += $item['avg_vel'];
+                    if ($item['avg_vel'] != 0)
+                        $idx_date++;
+                    $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('H:i:s');
+                    if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
+                        $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['start_time'])->format('H:i:s');
+                    }
+                    $temp["Tổng Km"] = round($totalDistance / 1000, 0). 'km';
+                    $temp['VT Tối Đa'] = $maxSpeed . 'km/h';
+                    $temp["VT Trung Bình"] = $idx_date != 0 ? round($totalSpeed / $idx_date, 1) . 'km/h' : "0km/h";
+                    $data_by_date[] = array_merge([], $temp);
+                    //init new block
+                    $temp = array();
+                    $temp["Stt"] = (count($data_by_date) + 1);
+                    $temp["Ngày"] = $item_date;
+                    $temp["Tg Bắt Đầu"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
+                    $totalDistance = 0;
+                    $maxSpeed = 0;
+                    $totalSpeed = 0;
+                    $idx_date = 0;
+
                     $report_date = $item_date;
                 }
+                //sum * count
                 $totalDistance += $item['km'];
                 $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
                 $totalSpeed += $item['avg_vel'];
@@ -103,16 +110,20 @@ class GeneralReport {
         $max_vel = 0;
         //$resp = self::getDistance($original, $destination);
         $current_loc = null;
+        $first_loop_location = null;
+        $debug_array = array();
+        $tem = 0;
         foreach($locations as $index => $loc) {
             $date_created = Carbon::createFromFormat('Y-m-d H:i:s', $loc->created_at, 'UTC');
             $date_created->setTimezone('Asia/Ho_Chi_Minh');
             $loc->created_at = $date_created->format('Y-m-d H:i:s');
             if ($index == 0) {
                 //begin scan the list
-                $current_loc = ['status' => $loc->status];
+                $current_loc = ['status' => $loc->status, "km" => 0];
                 $startCoord = round(floatval($loc->lat), 6) . ',' . round(floatval($loc->lng), 6);
                 $beginTime = $loc->created_at;
                 $current_status = $loc->status;
+                $first_loop_location = $loc;
             }
             if ($loc->status != $current_status || $index == (count($locations) - 1)) {
                 //complete old location and start new location
@@ -124,23 +135,43 @@ class GeneralReport {
                     $last_loc = $locations[$index - 1];
                 }
                 $current_loc['start_coord'] = $startCoord;
+                //count & sum continue
+                //for last of block location
+                $vel += floatval($loc->velocity);
+                $max_vel = $loc->velocity > $max_vel ? $loc->velocity : $max_vel;
+                $count_loc++;
                 //tính từ điểm bắt đầu đến điểm thay đổi trạng thái
                 $current_loc['end_coord'] = round(floatval($loc->lat), 6) . ',' . round(floatval($loc->lng), 6);
                 $current_loc['start_time'] = $beginTime;
                 $current_loc['end_time'] = $loc->created_at;
-                $current_loc['km'] = ($last_loc->status != 0) ? self::getDistance($current_loc['start_coord'], $current_loc['end_coord']): 0;
+                $debug_array[] = ["start_time" => $first_loop_location->created_at, "end_time"=> $loc->created_at,
+                    "start_pos" => ($first_loop_location->lat . ',' . $first_loop_location->lng), "end_pos" => ($loc->lat . ',' . $loc->lng)];
+                $current_loc['km'] += floatval(self::getDistanceLocal($first_loop_location, $loc));
                 $current_loc['max_vel'] = $current_loc['status'] > 0 ? $max_vel * Tracking_device::VELOCITY_RATIO : 0;
                 $current_loc['avg_vel'] = $current_loc['status'] > 0 ? round($vel / $count_loc, 2) * Tracking_device::VELOCITY_RATIO : 0;
                 $report_data[] = array_merge([], $current_loc);
                 $current_status = $loc->status;
                 //begin coordinate
                 $current_loc = null;
-                $current_loc = ['status' => $loc->status];
+                $current_loc = ['status' => $loc->status, "km" => 0];
                 $startCoord = round(floatval($loc->lat), 6) . ',' . round(floatval($loc->lng), 6);
                 $beginTime = $loc->created_at;
                 $vel = 0;
                 $max_vel = 0;
                 $count_loc = 0;
+                $first_loop_location = null;
+            }
+            //mark as start point to calculate distance
+            if ($first_loop_location == null){
+                $first_loop_location = $loc;
+            }
+            if (isset($current_loc['km']) ){
+                if ($loc->status != 0 || $first_loop_location->status != 0) {
+                    $current_loc['km'] += floatval(self::getDistanceLocal($first_loop_location, $loc));
+                    $debug_array[] = ["start_time" => $first_loop_location->created_at, "end_time"=> $loc->created_at,
+                        "start_pos" => ($first_loop_location->lat . ',' . $first_loop_location->lng), "end_pos" => ($loc->lat . ',' . $loc->lng)];
+                }
+                $first_loop_location = $loc;
             }
             //count & sum continue
             $vel += floatval($loc->velocity);
@@ -165,5 +196,65 @@ class GeneralReport {
             return $response_a['rows'][0]['elements'][0]['distance']['value'];
         }
         return 0;
+    }
+
+    /**
+     * @param $original
+     * @param $destination
+     * @return float|int return distance by meters
+     */
+    private static function getDistanceLocal($original, $destination){
+        $latOrg = floatval($original->lat);
+        $latDest = floatval($destination->lat);
+        $lngOrg = floatval($original->lng);
+        $lngDest = floatval($destination->lng);
+        return self::distance($latOrg, $lngOrg, $latDest, $lngDest);
+    }
+
+    /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    /*::                                                                         :*/
+    /*::  This routine calculates the distance between two points (given the     :*/
+    /*::  latitude/longitude of those points). It is being used to calculate     :*/
+    /*::  the distance between two locations using GeoDataSource(TM) Products    :*/
+    /*::                                                                         :*/
+    /*::  Definitions:                                                           :*/
+    /*::    South latitudes are negative, east longitudes are positive           :*/
+    /*::                                                                         :*/
+    /*::  Passed to function:                                                    :*/
+    /*::    lat1, lon1 = Latitude and Longitude of point 1 (in decimal degrees)  :*/
+    /*::    lat2, lon2 = Latitude and Longitude of point 2 (in decimal degrees)  :*/
+    /*::    unit = the unit you desire for results                               :*/
+    /*::           where: 'M' is statute miles (default)                         :*/
+    /*::                  'K' is kilometers                                      :*/
+    /*::                  'N' is nautical miles
+                          'm'  is meters                           :*/
+    /*::  Worldwide cities and other features databases with latitude longitude  :*/
+    /*::  are available at https://www.geodatasource.com                          :*/
+    /*::                                                                         :*/
+    /*::  For enquiries, please contact sales@geodatasource.com                  :*/
+    /*::                                                                         :*/
+    /*::  Official Web site: https://www.geodatasource.com                        :*/
+    /*::                                                                         :*/
+    /*::         GeoDataSource.com (C) All Rights Reserved 2017		   		     :*/
+    /*::                                                                         :*/
+    /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    private static function distance($lat1, $lon1, $lat2, $lon2, $unit = 'm') {
+
+        $theta = $lon1 - $lon2;
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+        $dist = acos($dist);
+        $dist = rad2deg($dist);
+        $miles = $dist * 60 * 1.1515;
+        //$unit = strtoupper($unit);
+
+        if ($unit == "K") {
+            return ($miles * 1.609344);
+        } else if ($unit == "N") {
+            return ($miles * 0.8684);
+        } else if ($unit == "m"){
+            return ($miles * 1.609344) * 1000;
+        }else {
+            return $miles;
+        }
     }
 }

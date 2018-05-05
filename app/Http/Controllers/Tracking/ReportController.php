@@ -38,6 +38,7 @@ class ReportController extends BaseController
         $device_id = !empty($device_id) ? $device_id : '0';
         $filename = "Flock_Bao_Cao_Tong_Hop_" . \Date::now()->format('Ymd');
         $data = GeneralReport::getGeneralReportData($device_id, $from_date, $to_date);
+
 //        return ['status' => true, "data" => $data];
         //check the report
         $excelHandler->create($filename, function($excel) use ($data, $device_id){

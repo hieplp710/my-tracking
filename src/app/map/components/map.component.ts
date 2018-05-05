@@ -640,7 +640,6 @@ export class MapComponent implements OnInit {
                     if (_this.roadmapMarkers != null && _this.roadmapMarkers[_this.playRoadmapIndex] !== undefined
                         && _this.playRoadmapIndex < _this.roadmapMarkers.length) {
                         var tempMarker = _this.roadmapMarkers[_this.playRoadmapIndex];
-                        console.log(tempMarker, 'tempmark');
                         let coord = new google.maps.LatLng({"lat" : tempMarker.lat, "lng" : tempMarker.lng});
                         _this.playRoadmapMarker = new google.maps.Marker({
                             position: coord,
@@ -658,7 +657,7 @@ export class MapComponent implements OnInit {
                         //set data for roadmap info
                         let km = 0;
                         let strKm = '';
-                        if (_this.startPointRoadmap && (tempMarker.status === "Đang chạy" || _this.startPointRoadmap === "Đang chạy")) {
+                        if (_this.startPointRoadmap) {
                             let locA = new google.maps.LatLng({"lat" : _this.startPointRoadmap.lat, "lng" : _this.startPointRoadmap.lng});
                             km = google.maps.geometry.spherical.computeDistanceBetween(locA, coord);
                             strKm = (km / 1000).toFixed(1);

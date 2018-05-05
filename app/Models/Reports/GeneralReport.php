@@ -28,6 +28,10 @@ class GeneralReport {
                     order by d.id, l.created_at, l.status asc, l.updated_at desc";
         //change code
         $locations = DB::select($query, []);
+//        echo '<pre>';
+//        print_r($query);
+//        echo '</pre>';
+//        exit();
         $report_data = self::executeReportData($locations);
         //data for report
         $data_final = [];
@@ -47,6 +51,7 @@ class GeneralReport {
                     $temp["Stt"] = (count($data_by_date) + 1);
                     $temp["Ngày"] = $item_date;
                     $temp["Tg Bắt Đầu"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
+                    $report_date = $item_date;
                 }
                 if ($item_date != $report_date || $idx == count($report_data) - 1) {
 
@@ -69,7 +74,7 @@ class GeneralReport {
                     if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
                         $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['start_time'])->format('H:i:s');
                     }
-                    $temp["Tổng Km"] = round($totalDistance / 1000, 0). 'km';
+                    $temp["Tổng Km"] = round($totalDistance / 1000, 1). 'km';
                     $temp['VT Tối Đa'] = $maxSpeed . 'km/h';
                     $temp["VT Trung Bình"] = $idx_date != 0 ? round($totalSpeed / $idx_date, 1) . 'km/h' : "0km/h";
                     $data_by_date[] = array_merge([], $temp);
@@ -245,6 +250,7 @@ class GeneralReport {
         $dist = acos($dist);
         $dist = rad2deg($dist);
         $miles = $dist * 60 * 1.1515;
+        $miles = is_nan($miles) ? 0 : $miles;
         //$unit = strtoupper($unit);
 
         if ($unit == "K") {

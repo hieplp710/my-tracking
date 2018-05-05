@@ -158,10 +158,6 @@ class Tracking_device extends Model
                 order by d.id, l.created_at, l.status limit $roadmapLimit";
         }
         $locations = DB::select($query, []);
-        echo '<pre>';
-        print_r($query);
-        echo '</pre>';
-        exit();
         $location_devices = [];
 
         $result = ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];

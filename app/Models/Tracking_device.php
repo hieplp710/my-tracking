@@ -690,7 +690,7 @@ class Tracking_device extends Model
     public static function getWarningDevices() {
         $current_date = Carbon::now('utc');
         //calculate the valid time
-        $valid_date = $current_date->subMonth(1)->format('Y-m-d H:i:s');
+        $valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
                 d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone
             from tracking_devices as d

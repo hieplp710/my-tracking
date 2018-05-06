@@ -64,7 +64,7 @@
                         $current_date = \Carbon\Carbon::now('utc');
                         $expired_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $entry->expired_at);
 
-                        if ($current_date->diffInMonths($expired_date, false) <= 1 && $expired_date > $current_date){
+                        if ($current_date->diffInMonths($expired_date, false) <= 0 && $expired_date > $current_date){
                             $classEx = true;
                         }
 
@@ -155,7 +155,7 @@
         right: 15px;
     }
     tr.expired {
-        color: yellow;
+        color: coral;
     }
     tr.overdue{
         color: red;

@@ -222,12 +222,13 @@ class Tracking_device extends Model
                             continue; //end execute and loop to another device
                         }
 
+
                         if ($current_date->diffInMonths($expired_date, false) <= 0 && $current_date->diffInDays($expired_date, false) < 0) {
                             //extend expired date
                             $new_expired = $expired_date->addDay(7);
                             $location_devices[$location_device->device_id_main]['is_expired'] = 2;
                             $location_devices[$location_device->device_id_main] ['expired_date'] = $new_expired->format('d-m-Y');
-                        } else if ($current_date->diffInMonths($expired_date, false) <= 1){
+                        } else if ($current_date->diffInMonths($expired_date, false) <= 0){
                             $location_devices[$location_device->device_id_main]['is_expired'] = 1;
                         }
                     }

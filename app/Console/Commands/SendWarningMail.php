@@ -97,7 +97,7 @@ class SendWarningMail extends Command
             $filename = $pathToFile . DIRECTORY_SEPARATOR . "exports" . DIRECTORY_SEPARATOR . $filename . '.xlsx';
             $message->from('Flock.vn', 'Laravel');
             $message->to($receiver)->subject('Danh sách thiết bị');
-            $message->attach($filename);
+            //$message->attach($filename);
         });
         echo 'Sent Mail';
     }

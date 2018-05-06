@@ -92,11 +92,12 @@ class SendWarningMail extends Command
         })->store('xlsx');
         //send mail
         Mail::send('emails.test', [], function ($message) use ($filename){
-            $receiver = env('MAIL_WARNING_TO');
+            $receivers = env('MAIL_WARNING_TO');
+            $receiver_array = explode(';', $receivers);
             $pathToFile = storage_path();
             $filename = $pathToFile . DIRECTORY_SEPARATOR . "exports" . DIRECTORY_SEPARATOR . $filename . '.xlsx';
             $message->from('mail.thsgroup@gmail.com', 'Flock.vn');
-            $message->to($receiver)->subject('Danh sách thiết bị');
+            $message->to($receiver_array)->subject('Danh sách thiết bị');
             $message->attach($filename);
         });
         echo 'Sent Mail';

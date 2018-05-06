@@ -91,10 +91,14 @@ class SendWarningMail extends Command
             });
         })->store('xlsx');
         //send mail
-        Mail::send('emails.test', [], function ($message) {
-            $message->from('hieplp710@gmail.com', 'Laravel');
-            $message->to('hieplp710@gmail.com');
+        Mail::send('emails.test', [], function ($message) use ($filename){
+            $receiver = env('MAIL_WARNING_TO');
+            $pathToFile = storage_path();
+            $filename = $pathToFile . DIRECTORY_SEPARATOR . "exports" . DIRECTORY_SEPARATOR . $filename . '.xlsx';
+            $message->from('Flock.vn', 'Laravel');
+            $message->to($receiver)->subject('Danh sách thiết bị');
+            $message->attach($filename);
         });
-        echo 'hello world!!!!';
+        echo 'Sent Mail';
     }
 }

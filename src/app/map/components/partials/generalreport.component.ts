@@ -15,7 +15,7 @@ import { NguiDatetimePickerModule } from '@ngui/datetime-picker';
 
 export class GeneralReportComponent implements OnInit {
     @Input() listDevice : MyMarker[];
-    @Output() onSelectedDevice = new EventEmitter();
+    @Output() onViewReportEvent = new EventEmitter();
     selectedDevice : MyMarker;
     date_from_report : Date;
     date_to_report: Date;
@@ -42,7 +42,7 @@ export class GeneralReportComponent implements OnInit {
     onDeviceSelected($event) {
         this.selectedDevice = $event;
     }
-    onViewReport($event) {
+    onExportReport($event) {
         if (this.selectedDevice == null) {
             this.selectedDevice = this.listDevice[0];
         }
@@ -57,5 +57,18 @@ export class GeneralReportComponent implements OnInit {
         //     $('#aDownload')[0].click();
         // }, 200);
         window.location.href = url;
+    }
+    onViewReport($event) {
+        if (this.selectedDevice == null) {
+            this.selectedDevice = this.listDevice[0];
+        }
+        let startDate = this.helper.formatDateTime(this.date_from_report);
+        let endDate = this.helper.formatDateTime(this.date_to_report);
+        let deviceId = this.selectedDevice.deviceId;
+        this.onViewReportEvent.emit({
+            startDate: startDate,
+            endDate: endDate,
+            deviceId: deviceId
+        });
     }
 }

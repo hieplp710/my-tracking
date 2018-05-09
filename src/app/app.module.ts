@@ -17,6 +17,7 @@ import { CookieService } from 'angular2-cookie/services/cookies.service';
 import {RoadmapInfoComponent} from "./map/components/widgets/roadmap-info/roadmap_info.component";
 import {HelperService} from "./services/Helper";
 import {GeneralReportComponent} from "./map/components/partials/generalreport.component";
+import {ReportViewComponent} from "./map/components/partials/reportview.component";
 
 @NgModule({
     imports: [
@@ -38,7 +39,8 @@ import {GeneralReportComponent} from "./map/components/partials/generalreport.co
         ProfileComponent,
         PopupComponent,
         RoadmapInfoComponent,
-        GeneralReportComponent
+        GeneralReportComponent,
+        ReportViewComponent,
     ],
     providers: [
         HttpModule,

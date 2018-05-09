@@ -29,6 +29,7 @@ class ReportController extends BaseController
         $start_date = Input::get('startDate');
         $end_date = Input::get('endDate');
         $device_id = Input::get('deviceId');
+        $toJson = Input::get('tojson', false);
         $from_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $start_date, 'Asia/Ho_Chi_Minh');
         $from_date_obj->setTimezone('UTC');
         $to_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $end_date, 'Asia/Ho_Chi_Minh');
@@ -38,7 +39,10 @@ class ReportController extends BaseController
         $device_id = !empty($device_id) ? $device_id : '0';
         $filename = "Flock_Bao_Cao_Tong_Hop_" . \Date::now()->format('Ymd');
         $data = GeneralReport::getGeneralReportData($device_id, $from_date, $to_date);
-
+        if ($toJson){
+            //to json for view on web
+            return response()->json(["status" => true, "data" => $data]);
+        }
 //        return ['status' => true, "data" => $data];
         //check the report
         $excelHandler->create($filename, function($excel) use ($data, $device_id){

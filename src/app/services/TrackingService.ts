@@ -124,10 +124,24 @@ export class TrackingService {
         }
         return false;
     }
+    responseGetRequest(value) {
+        let body = value.json();
+        if (body.status) {
+            return body.data;
+        } else {
+            return body.error;
+        };
+    }
     saveUserProfile(data: any): Promise<any> {
         let _this = this;
         return this.http.post('/user/save-profile', data).toPromise().then(function(value){
             return _this.responseProfile(value);
         }).catch(this.handleError);
     }
+    getRequest(url): Promise<any> {
+        let _this = this;
+        return this.http.get(url).toPromise().then(function(value){
+            return _this.responseGetRequest(value);
+        }).catch(this.handleError);
+    };
 }

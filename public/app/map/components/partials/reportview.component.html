@@ -1,0 +1,38 @@
+<div class="col-md-12">
+    <div class="report-content" #reportContent>
+        <h2 class="report-title" *ngIf="reportData != null">{{reportData.title}}</h2>
+        <h2 class="report-date" *ngIf="reportData != null">{{reportData.reportDay}}</h2>
+        <div class="table-content">
+            <div class="table-header">
+                <table class="table-report" *ngIf="reportData != null">
+                    <thead>
+                        <tr>
+                            <th *ngFor="let item of reportData.columns; let i = index" width="{{ reportData.columnSize[i] + '%'}}">{{ item }}</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="table-body">
+                <table class="table-report" *ngIf="reportData != null">
+                    <tbody *ngIf="reportData.data.length > 0">
+                        <tr *ngFor="let row of reportData.data">
+                            <td *ngFor="let itemData of row, let i = index" width="{{ reportData.columnSize[i] + '%'}}">{{ itemData }}</td>
+                        </tr>
+                        <tr class="resume-row">
+                            <td>Tổng</td>
+                            <td [colSpan]="(getResume()).resumeIndex - 1"></td>
+                            <td>{{ (getResume()).resumeValue }}km</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="reportData.data.length == 0">
+                        <tr>
+                            <td [colSpan]="reportData.columns.length">Không có dữ liệu</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="col-md-12">
+    <div class="list-device-roadmap">
+        <device-control [listDevice]="listDevice" (onSelectedDevice)="onDeviceSelected($event)" [is_radio]="true">Control device</device-control>
+    </div>
+    <div class="row">
+        <div class="form-group col-lg-6 col-md-6 col-sm-12">
+            <label>Từ:</label>
+            <input [(ngModel)]="date_from_report"
+                   ngui-datetime-picker
+                   date-format="DD-MM-YYYY HH:mm"
+                   hour="23"
+                   minute="59"
+                   [close-on-select]="false"/>
+        </div>
+        <div class="form-group col-lg-6 col-md-6 col-sm-12">
+            <label>Đến:</label>
+            <input [(ngModel)]="date_to_report"
+                   ngui-datetime-picker
+                   date-format="DD-MM-YYYY HH:mm"
+                   hour="23"
+                   minute="59"
+                   [close-on-select]="false"/>
+        </div>
+        <div class="form-group col-lg-12 col-md-12">
+            <button class="btn btn-primary" id="view-report" (click)="onViewReport($event)">Xem báo cáo</button>&nbsp;&nbsp;
+            <button class="btn btn-primary" id="export-report" (click)="onExportReport($event)">Xuất báo cáo</button>
+            <a href="#" class="hide" target="_blank" id="aDownload">download</a>
+        </div>
+    </div>
+</div>

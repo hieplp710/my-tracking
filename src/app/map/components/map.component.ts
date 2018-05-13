@@ -63,6 +63,8 @@ export class MapComponent implements OnInit {
     canPlayRoadmap = false;
     playRoadmapIndex = 0;
     playRoadmapMarker = null;
+    reportData : any;
+    isReportView = false;
     @ViewChild(PopupComponent) devicePopup: PopupComponent;
     @ViewChild('roadmapInfo') roadmapInfo : RoadmapInfoComponent;
     ngAfterViewInit() {
@@ -225,7 +227,10 @@ export class MapComponent implements OnInit {
                 if (_this.roadmapSelectedMarker == null) {
                     _this.roadmapSelectedMarker = temp;
                 }
-                arrs.push(temp);
+                if (temp.expiredType !== 2) {
+                    arrs.push(temp);
+                }
+
             }
             return arrs;
         } else {
@@ -287,6 +292,7 @@ export class MapComponent implements OnInit {
             }
             //hide the roadmap info
             this.roadmapInfo.hideInfo();
+            this.isReportView = false;
         } else if ($target === '#roadmap') {
             if (this.current_infowindow != null) {
                 this.current_infowindow.close();
@@ -295,8 +301,26 @@ export class MapComponent implements OnInit {
             clearInterval(this.internalInterval);
             this.internalInterval = null;
             this.isRoadmap = true;
-        } else {
+            this.isReportView = false;
+        } else if ($target === '#report') {
             clearInterval(this.interPlayRoadmap);
+            this.canPlayRoadmap = false;
+            this.playRoadmapIndex = 0;
+            if (this.playRoadmapMarker != null) {
+                this.playRoadmapMarker.setMap(null);
+                this.playRoadmapMarker = null;
+            };
+            this.isRunningRoadmap = false;
+            if ($('#play-roadmap-mobile > i')[0] !== undefined && $('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+                $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+            }
+            //hide the roadmap info
+            this.roadmapInfo.hideInfo();
+            this.isRoadmap = false;
+            this.isReportView = true;
+        }else {
+            clearInterval(this.interPlayRoadmap);
+            this.isReportView = false;
             this.canPlayRoadmap = false;
             this.playRoadmapIndex = 0;
             if (this.playRoadmapMarker != null) {
@@ -700,6 +724,20 @@ export class MapComponent implements OnInit {
         }else {
             return this.icon_status_lost_gsm;
         }
+    }
+    onViewGeneralReport(data) {
+        console.log(data, 'data for report');
+        //request for data
+        let startDate = data.startDate;
+        let endDate = data.endDate ;
+        let deviceId = data.deviceId;
+        let url = '/report/general-report?startDate=' + startDate + "&endDate=" + endDate + "&deviceId=" + deviceId + "&tojson=1";
+        let _this = this;
+        this.trackingService.getRequest(url).then(function(data){
+            //handle here
+            console.log(data, 'data');
+            _this.reportData = data;
+        }, function(error){});
     }
 }
 

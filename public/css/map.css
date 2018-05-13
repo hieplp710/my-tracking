@@ -239,6 +239,35 @@ table.roadmap-info td, table.roadmap-info th {
 .col-md-12.no-padding {
     padding: 0;
 }
+report-view {
+    position: absolute;
+    top: 0px;
+    background: #ffffff;
+    width: 100%;
+    height: 100%;
+    margin-left: -15px;
+}
+table.table-report {
+    width: 100%;
+    border: 1px solid #cccccc;
+}
+
+h2.report-time {
+    text-transform: uppercase;
+}
+
+table.table-report tr th, table.table-report tr td {
+    padding: 2px 5px;
+    border-bottom: 1px solid #cccccc !important;
+}
+
+table.table-report tr.resume-row td{
+    font-weight: bold;
+}
+.report-content h2.report-date{
+    margin: 10px 0;
+    font-size: 16px;
+}
 @media (max-width: 800px) {
     div#profile.warning-dialog{
         max-width: 100%;
@@ -415,8 +444,16 @@ table.roadmap-info td, table.roadmap-info th {
         width: 100px;
         left: -280px;
     }
-    button#view-report {
+    button#export-report {
         margin-top: 10px;
+        margin-left: -10px ;
+    }
+    /** for report view mobile **/
+    button#view-report {
+        display: none;
+    }
+    report-view{
+        display: none;
     }
 }
 

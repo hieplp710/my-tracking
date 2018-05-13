@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class GeneralReport {
-    public static function getGeneralReportData($device_id, $start_data, $end_date) {
+    public static function getGeneralReportData($device_id, $start_data, $end_date, $tojson = false) {
 
         if (empty($start_data) || empty($end_date)) {
             return ["status" => false, "error" => "Empty input data"];
@@ -97,6 +97,36 @@ class GeneralReport {
                 if ($item['avg_vel'] != 0)
                     $idx_date++;
             }
+        }
+        if ($tojson) {
+            //build to view report on web
+            $dataJson = new ReportJsonData();
+            $dataJson->title = "Báo cáo tổng hợp";
+            $dataJson->columns = ["Stt", "Ngày", "Tg Bắt Đầu", "Tg Kết Thúc", "Tổng Km", 'VT Tối Đa', "VT Trung Bình"];
+            $dataJson->columnSize = [5, 20, 15, 15 , 10, 15, 20];
+            $resultJson = [];
+            $report_total_km = 0;
+            $start_date_obj = Carbon::createFromFormat('Y-m-d H:i:s', $start_data);
+            $end_date_obj = Carbon::createFromFormat('Y-m-d H:i:s', $end_date);
+            $date_report = "Ngày " . $start_date_obj->format('d/m/Y');
+            if ($start_date_obj->diffInDays($end_date_obj, false) > 0) {
+                $date_report = "Từ " . $start_date_obj->format('d/m/Y') . " đến " . $end_date_obj->format('d/m/Y');
+            }
+            $dataJson->reportDay = $date_report;
+            foreach($data_by_date as $item) {
+                $temp = [];
+                foreach ($dataJson->columns as $col => $field) {
+                    if (isset($item[$field])) {
+                        $temp[] = $item[$field];
+
+                    }
+                }
+                $report_total_km += floatval(preg_replace('/[^0-9\.]+/', '',$item["Tổng Km"]));
+                $resultJson[] = $temp;
+            }
+            $dataJson->data = $resultJson;
+            $dataJson->resume = ["Tổng Km" => $report_total_km];
+            return $dataJson;
         }
         return $data_by_date;
     }

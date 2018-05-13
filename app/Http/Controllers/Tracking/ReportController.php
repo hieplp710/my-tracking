@@ -38,7 +38,7 @@ class ReportController extends BaseController
         $to_date = $to_date_obj->format(self::DB_DATETIME_FORMAT);
         $device_id = !empty($device_id) ? $device_id : '0';
         $filename = "Flock_Bao_Cao_Tong_Hop_" . \Date::now()->format('Ymd');
-        $data = GeneralReport::getGeneralReportData($device_id, $from_date, $to_date);
+        $data = GeneralReport::getGeneralReportData($device_id, $from_date, $to_date, $toJson);
         if ($toJson){
             //to json for view on web
             return response()->json(["status" => true, "data" => $data]);

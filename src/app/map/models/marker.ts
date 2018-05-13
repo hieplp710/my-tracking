@@ -12,6 +12,7 @@ export interface MyMarker {
     locations: Location[];
     visible? : boolean;
     isEdit? : boolean;
+    expiredType? : number;
 }
 
 export interface LocationObj {

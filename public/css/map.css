@@ -46,8 +46,8 @@ div#device-list {
     overflow: auto;
 }
 .marker-info.row {
-    max-width: 500px;
-    width: 90%;
+    max-width: 350px;
+    width: 100%;
     min-width: 250px;
 }
 .marker-info span.label {
@@ -65,6 +65,7 @@ div#device-list {
 .marker-info span.content {
     line-height: 24px;
     font-weight: 600;
+    padding-right: 0;
 }
 
 .marker-info span.time {
@@ -417,6 +418,13 @@ table.roadmap-info td, table.roadmap-info th {
     }
     button#view-report {
         margin-top: 10px;
+    }
+    table.roadmap-info td, table.roadmap-info th {
+        padding: 2px 5px;
+        line-height: 14px;
+    }
+    table.roadmap-info th {
+        font-size: 12px;
     }
 }
 

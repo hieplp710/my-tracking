@@ -58,6 +58,7 @@ export class TrackingService {
                     currentLocation : null,
                     visible : true,
                     isEdit : false,
+                    expiredType : temp.is_expired,
                     locations : []
                 };
                 let locs : Location[] = [];

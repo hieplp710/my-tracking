@@ -1,4 +1,4 @@
-System.register(["@angular/core", "@angular/platform-browser", "@angular/common", "@angular/forms", "./app.component", "@agm/core", "./map/components/map.component", "@angular/http", "./services/TrackingService", "./map/components/device.component", "./map/components/profile.component", "@ngui/datetime-picker", "ng2-nouislider/src/nouislider", "./map/components/widgets/popup-device/popup.component", "angular2-cookie/services/cookies.service", "./map/components/widgets/roadmap-info/roadmap_info.component", "./services/Helper", "./map/components/partials/generalreport.component"], function (exports_1, context_1) {
+System.register(["@angular/core", "@angular/platform-browser", "@angular/common", "@angular/forms", "./app.component", "@agm/core", "./map/components/map.component", "@angular/http", "./services/TrackingService", "./map/components/device.component", "./map/components/profile.component", "@ngui/datetime-picker", "ng2-nouislider/src/nouislider", "./map/components/widgets/popup-device/popup.component", "angular2-cookie/services/cookies.service", "./map/components/widgets/roadmap-info/roadmap_info.component", "./services/Helper", "./map/components/partials/generalreport.component", "./map/components/partials/reportview.component"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7,7 +7,7 @@ System.register(["@angular/core", "@angular/platform-browser", "@angular/common"
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __moduleName = context_1 && context_1.id;
-    var core_1, platform_browser_1, common_1, forms_1, app_component_1, core_2, map_component_1, http_1, TrackingService_1, device_component_1, profile_component_1, datetime_picker_1, nouislider_1, popup_component_1, cookies_service_1, roadmap_info_component_1, Helper_1, generalreport_component_1, AppModule;
+    var core_1, platform_browser_1, common_1, forms_1, app_component_1, core_2, map_component_1, http_1, TrackingService_1, device_component_1, profile_component_1, datetime_picker_1, nouislider_1, popup_component_1, cookies_service_1, roadmap_info_component_1, Helper_1, generalreport_component_1, reportview_component_1, AppModule;
     return {
         setters: [
             function (core_1_1) {
@@ -63,6 +63,9 @@ System.register(["@angular/core", "@angular/platform-browser", "@angular/common"
             },
             function (generalreport_component_1_1) {
                 generalreport_component_1 = generalreport_component_1_1;
+            },
+            function (reportview_component_1_1) {
+                reportview_component_1 = reportview_component_1_1;
             }
         ],
         execute: function () {
@@ -90,7 +93,8 @@ System.register(["@angular/core", "@angular/platform-browser", "@angular/common"
                             profile_component_1.ProfileComponent,
                             popup_component_1.PopupComponent,
                             roadmap_info_component_1.RoadmapInfoComponent,
-                            generalreport_component_1.GeneralReportComponent
+                            generalreport_component_1.GeneralReportComponent,
+                            reportview_component_1.ReportViewComponent,
                         ],
                         providers: [
                             http_1.HttpModule,

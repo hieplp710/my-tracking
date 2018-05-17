@@ -50,7 +50,7 @@
             </agm-map>
         </div>
         <roadmap-info #roadmapInfo></roadmap-info>
-
+        <report-view [reportData]="reportData" *ngIf="isReportView">loading...</report-view>
     </div>
     <div id="control-section" class="col-md-3 col-sm-3">
         <nouislider [connect]="true" [min]="0" [max]="10" [step]="1"
@@ -113,7 +113,7 @@
             </div>
         </div>
         <div class="row tab-pane hide" id="report">
-            <general-report [listDevice]="toArray()">Loading Component</general-report>
+            <general-report [listDevice]="toArray()" (onViewReportEvent)="onViewGeneralReport($event)">Loading Component</general-report>
         </div>
     </div>
     <popup #devicePopup></popup>

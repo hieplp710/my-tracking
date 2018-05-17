@@ -28,7 +28,7 @@ System.register(["@angular/core", "../../../services/TrackingService", "../../..
                 function GeneralReportComponent(trackingService, helper) {
                     this.trackingService = trackingService;
                     this.helper = helper;
-                    this.onSelectedDevice = new core_1.EventEmitter();
+                    this.onViewReportEvent = new core_1.EventEmitter();
                     //this.options = new DatePickerOptions();
                 }
                 ;
@@ -50,7 +50,7 @@ System.register(["@angular/core", "../../../services/TrackingService", "../../..
                 GeneralReportComponent.prototype.onDeviceSelected = function ($event) {
                     this.selectedDevice = $event;
                 };
-                GeneralReportComponent.prototype.onViewReport = function ($event) {
+                GeneralReportComponent.prototype.onExportReport = function ($event) {
                     if (this.selectedDevice == null) {
                         this.selectedDevice = this.listDevice[0];
                     }
@@ -65,6 +65,19 @@ System.register(["@angular/core", "../../../services/TrackingService", "../../..
                     // }, 200);
                     window.location.href = url;
                 };
+                GeneralReportComponent.prototype.onViewReport = function ($event) {
+                    if (this.selectedDevice == null) {
+                        this.selectedDevice = this.listDevice[0];
+                    }
+                    var startDate = this.helper.formatDateTime(this.date_from_report);
+                    var endDate = this.helper.formatDateTime(this.date_to_report);
+                    var deviceId = this.selectedDevice.deviceId;
+                    this.onViewReportEvent.emit({
+                        startDate: startDate,
+                        endDate: endDate,
+                        deviceId: deviceId
+                    });
+                };
                 __decorate([
                     core_1.Input(),
                     __metadata("design:type", Array)
@@ -72,7 +85,7 @@ System.register(["@angular/core", "../../../services/TrackingService", "../../..
                 __decorate([
                     core_1.Output(),
                     __metadata("design:type", Object)
-                ], GeneralReportComponent.prototype, "onSelectedDevice", void 0);
+                ], GeneralReportComponent.prototype, "onViewReportEvent", void 0);
                 GeneralReportComponent = __decorate([
                     core_1.Component({
                         selector: 'general-report',

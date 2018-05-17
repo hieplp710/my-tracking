@@ -10,7 +10,7 @@ System.register(["@angular/core", "../../../services/Helper"], function (exports
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var __moduleName = context_1 && context_1.id;
-    var core_1, Helper_1, GeneralReportComponent;
+    var core_1, Helper_1, ReportViewComponent;
     return {
         setters: [
             function (core_1_1) {
@@ -21,35 +21,55 @@ System.register(["@angular/core", "../../../services/Helper"], function (exports
             }
         ],
         execute: function () {
-            GeneralReportComponent = (function () {
-                function GeneralReportComponent(helper) {
+            ReportViewComponent = (function () {
+                function ReportViewComponent(helper) {
                     this.helper = helper;
                     this.onSelectedDevice = new core_1.EventEmitter();
                     //this.options = new DatePickerOptions();
                 }
                 ;
-                GeneralReportComponent.prototype.ngOnInit = function () {
-                    console.log("report view init");
+                ReportViewComponent.prototype.ngOnInit = function () {
+                    console.log(this.reportContent, "report view init");
                     //for report
+                };
+                ReportViewComponent.prototype.getResume = function () {
+                    if (!this.reportData.resume === undefined || this.reportData.data === undefined || this.reportData.data.length === 0) {
+                        return false;
+                    }
+                    //check colspan
+                    var index = 0;
+                    var resumeCol = Object.keys(this.reportData.resume);
+                    for (var i = 0; i < this.reportData.columns.length; i++) {
+                        if (this.reportData.columns[i] === resumeCol[0]) {
+                            //first check 1 resume
+                            index = i;
+                            break;
+                        }
+                    }
+                    return { "resumeIndex": index, "resumeValue": this.reportData.resume[resumeCol[0]] };
                 };
                 __decorate([
                     core_1.Input(),
                     __metadata("design:type", Object)
-                ], GeneralReportComponent.prototype, "reportData", void 0);
+                ], ReportViewComponent.prototype, "reportData", void 0);
                 __decorate([
                     core_1.Output(),
                     __metadata("design:type", Object)
-                ], GeneralReportComponent.prototype, "onSelectedDevice", void 0);
-                GeneralReportComponent = __decorate([
+                ], ReportViewComponent.prototype, "onSelectedDevice", void 0);
+                __decorate([
+                    core_1.ViewChild('reportContent'),
+                    __metadata("design:type", core_1.ElementRef)
+                ], ReportViewComponent.prototype, "reportContent", void 0);
+                ReportViewComponent = __decorate([
                     core_1.Component({
                         selector: 'report-view',
-                        templateUrl: './app/map/components/partials/generalreport.component.html',
+                        templateUrl: './app/map/components/partials/reportview.component.html',
                     }),
                     __metadata("design:paramtypes", [Helper_1.HelperService])
-                ], GeneralReportComponent);
-                return GeneralReportComponent;
+                ], ReportViewComponent);
+                return ReportViewComponent;
             }());
-            exports_1("GeneralReportComponent", GeneralReportComponent);
+            exports_1("ReportViewComponent", ReportViewComponent);
         }
     };
 });

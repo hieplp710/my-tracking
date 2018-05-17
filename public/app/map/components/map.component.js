@@ -67,6 +67,7 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                     this.canPlayRoadmap = false;
                     this.playRoadmapIndex = 0;
                     this.playRoadmapMarker = null;
+                    this.isReportView = false;
                     this.isSending = false;
                     this.markerClusterer = null;
                     this.stopMarkers = [];
@@ -229,7 +230,9 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                             if (_this.roadmapSelectedMarker == null) {
                                 _this.roadmapSelectedMarker = temp;
                             }
-                            arrs.push(temp);
+                            if (temp.expiredType !== 2) {
+                                arrs.push(temp);
+                            }
                         }
                         return arrs;
                     }
@@ -296,6 +299,7 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                         }
                         //hide the roadmap info
                         this.roadmapInfo.hideInfo();
+                        this.isReportView = false;
                     }
                     else if ($target === '#roadmap') {
                         if (this.current_infowindow != null) {
@@ -306,9 +310,29 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                         clearInterval(this.internalInterval);
                         this.internalInterval = null;
                         this.isRoadmap = true;
+                        this.isReportView = false;
+                    }
+                    else if ($target === '#report') {
+                        clearInterval(this.interPlayRoadmap);
+                        this.canPlayRoadmap = false;
+                        this.playRoadmapIndex = 0;
+                        if (this.playRoadmapMarker != null) {
+                            this.playRoadmapMarker.setMap(null);
+                            this.playRoadmapMarker = null;
+                        }
+                        ;
+                        this.isRunningRoadmap = false;
+                        if (jquery_1.default('#play-roadmap-mobile > i')[0] !== undefined && jquery_1.default('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+                            jquery_1.default('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+                        }
+                        //hide the roadmap info
+                        this.roadmapInfo.hideInfo();
+                        this.isRoadmap = false;
+                        this.isReportView = true;
                     }
                     else {
                         clearInterval(this.interPlayRoadmap);
+                        this.isReportView = false;
                         this.canPlayRoadmap = false;
                         this.playRoadmapIndex = 0;
                         if (this.playRoadmapMarker != null) {
@@ -738,6 +762,20 @@ System.register(["@angular/core", "../../services/TrackingService", "@agm/core",
                     else {
                         return this.icon_status_lost_gsm;
                     }
+                };
+                MapComponent.prototype.onViewGeneralReport = function (data) {
+                    console.log(data, 'data for report');
+                    //request for data
+                    var startDate = data.startDate;
+                    var endDate = data.endDate;
+                    var deviceId = data.deviceId;
+                    var url = '/report/general-report?startDate=' + startDate + "&endDate=" + endDate + "&deviceId=" + deviceId + "&tojson=1";
+                    var _this = this;
+                    this.trackingService.getRequest(url).then(function (data) {
+                        //handle here
+                        console.log(data, 'data');
+                        _this.reportData = data;
+                    }, function (error) { });
                 };
                 __decorate([
                     core_1.ViewChild(popup_component_1.PopupComponent),

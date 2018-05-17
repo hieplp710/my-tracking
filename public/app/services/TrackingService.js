@@ -76,6 +76,7 @@ System.register(["@angular/core", "@angular/http", "rxjs/add/operator/toPromise"
                                 currentLocation: null,
                                 visible: true,
                                 isEdit: false,
+                                expiredType: temp.is_expired,
                                 locations: []
                             };
                             var locs = [];
@@ -146,12 +147,29 @@ System.register(["@angular/core", "@angular/http", "rxjs/add/operator/toPromise"
                     }
                     return false;
                 };
+                TrackingService.prototype.responseGetRequest = function (value) {
+                    var body = value.json();
+                    if (body.status) {
+                        return body.data;
+                    }
+                    else {
+                        return body.error;
+                    }
+                    ;
+                };
                 TrackingService.prototype.saveUserProfile = function (data) {
                     var _this = this;
                     return this.http.post('/user/save-profile', data).toPromise().then(function (value) {
                         return _this.responseProfile(value);
                     }).catch(this.handleError);
                 };
+                TrackingService.prototype.getRequest = function (url) {
+                    var _this = this;
+                    return this.http.get(url).toPromise().then(function (value) {
+                        return _this.responseGetRequest(value);
+                    }).catch(this.handleError);
+                };
+                ;
                 TrackingService = __decorate([
                     core_1.Injectable(),
                     __metadata("design:paramtypes", [http_1.Http])

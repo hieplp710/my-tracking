@@ -45,11 +45,18 @@ li.tab {
 div#device-list {
     overflow: auto;
 }
+.gm-style-iw {
+    max-width: 280px !important;
+}
 .marker-info.row {
     max-width: 350px;
     width: 100%;
     min-width: 250px;
+    margin: 0 !important;
 }
+
+
+.marker-info.row > span {padding-left: 0px !important;padding-right: 0px !important;}
 .marker-info span.label {
     font-size: 14px;
     color: #999999;

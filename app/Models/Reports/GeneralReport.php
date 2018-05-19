@@ -54,7 +54,6 @@ class GeneralReport {
                     $report_date = $item_date;
                 }
                 if ($item_date != $report_date || $idx == count($report_data) - 1) {
-
                     //normal, finish the before block and init the new block
                     //complete old location and start new location
                     $last_loc = null;
@@ -67,6 +66,18 @@ class GeneralReport {
                     $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('H:i:s');
                     if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
                         $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['start_time'])->format('H:i:s');
+                    }
+                    if ($idx == count($report_data) - 1 && $item_date == $report_date) {
+                        //nếu location thay đổi tại element cuối cùng, tính toán và thêm vào element cuối
+                        $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['end_time'])->format('H:i:s');
+                        if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
+                            $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
+                        }
+                        $totalDistance += $item['km'];
+                        $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
+                        $totalSpeed += $item['avg_vel'];
+                        if ($item['avg_vel'] != 0)
+                            $idx_date++;
                     }
                     $temp["Tổng Km"] = round($totalDistance / 1000, 1). 'km';
                     $temp['VT Tối Đa'] = $maxSpeed . 'km/h';
@@ -81,7 +92,7 @@ class GeneralReport {
                     $maxSpeed = 0;
                     $totalSpeed = 0;
                     $idx_date = 0;
-                    if ($idx == count($report_data) - 1) {
+                    if ($idx == count($report_data) - 1 && $item_date != $report_date) {
                         //nếu location thay đổi tại element cuối cùng, tính toán và thêm vào element cuối
                         $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['end_time'])->format('H:i:s');
                         if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){

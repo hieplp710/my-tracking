@@ -80,7 +80,7 @@ class GeneralReport {
                             $idx_date++;
                     }
                     $temp["Tổng Km"] = round($totalDistance / 1000, 1). 'km';
-                    $temp['VT Tối Đa'] = $maxSpeed . 'km/h';
+                    $temp['VT Tối Đa'] = round($maxSpeed , 1). 'km/h';
                     $temp["VT Trung Bình"] = $idx_date != 0 ? round($totalSpeed / $idx_date, 1) . 'km/h' : "0km/h";
                     $data_by_date[] = array_merge([], $temp);
                     //init new block

@@ -17,4 +17,5 @@ class ReportJsonData
     public $resume = [];
     public $columnSize = [];
     public $reportDay = '';
+    public $deviceName = '';
 }

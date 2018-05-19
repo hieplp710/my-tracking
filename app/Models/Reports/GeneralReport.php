@@ -58,13 +58,7 @@ class GeneralReport {
                     //normal, finish the before block and init the new block
                     //complete old location and start new location
                     $last_loc = null;
-                    if ($idx == (count($report_data) - 1)) {
-                        //end of locations
-                        $last_loc = $item;
-                    } else {
-                        //change of status
-                        $last_loc = $report_data[$idx - 1];
-                    }
+                    $last_loc = $report_data[$idx - 1];
                     $totalDistance += $item['km'];
                     $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
                     $totalSpeed += $item['avg_vel'];
@@ -87,7 +81,17 @@ class GeneralReport {
                     $maxSpeed = 0;
                     $totalSpeed = 0;
                     $idx_date = 0;
-
+                    if ($idx == count($report_data) - 1) {
+                        //nếu location thay đổi tại element cuối cùng, tính toán và thêm vào element cuối
+                        $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['end_time'])->format('H:i:s');
+                        if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
+                            $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
+                        }
+                        $temp["Tổng Km"] = round($item['km'] / 1000, 1). 'km';
+                        $temp['VT Tối Đa'] = $item['max_vel'] . 'km/h';
+                        $temp["VT Trung Bình"] = $item['avg_vel'] . 'km/h';
+                        $data_by_date[] = array_merge([], $temp);
+                    }
                     $report_date = $item_date;
                 }
                 //sum * count
@@ -100,10 +104,12 @@ class GeneralReport {
         }
         if ($tojson) {
             //build to view report on web
+            $device = Tracking_device::find($device_id);
             $dataJson = new ReportJsonData();
             $dataJson->title = "Báo cáo tổng hợp";
             $dataJson->columns = ["Stt", "Ngày", "Tg Bắt Đầu", "Tg Kết Thúc", "Tổng Km", 'VT Tối Đa', "VT Trung Bình"];
             $dataJson->columnSize = [5, 20, 15, 15 , 10, 15, 20];
+            $dataJson->deviceName = $device->device_number;
             $resultJson = [];
             $report_total_km = 0;
             $start_date_obj = Carbon::createFromFormat('Y-m-d H:i:s', $start_data);

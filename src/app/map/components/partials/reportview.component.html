@@ -1,7 +1,7 @@
 <div class="col-md-12">
     <div class="report-content" #reportContent>
         <h2 class="report-title" *ngIf="reportData != null">{{reportData.title}}</h2>
-        <h2 class="report-date" *ngIf="reportData != null">{{reportData.reportDay}}</h2>
+        <h2 class="report-date" *ngIf="reportData != null">Xe: {{reportData.deviceName}}</h2>
         <div class="table-content">
             <div class="table-header">
                 <table class="table-report" *ngIf="reportData != null">

@@ -99,7 +99,7 @@ class GeneralReport {
                             $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
                         }
                         $temp["Tổng Km"] = round($item['km'] / 1000, 1). 'km';
-                        $temp['VT Tối Đa'] = $item['max_vel'] . 'km/h';
+                        $temp['VT Tối Đa'] = round($item['max_vel'], 1) . 'km/h';
                         $temp["VT Trung Bình"] = $item['avg_vel'] . 'km/h';
                         $data_by_date[] = array_merge([], $temp);
                     }

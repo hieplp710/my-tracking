@@ -45,6 +45,7 @@ class ReportController extends BaseController
         }
 //        return ['status' => true, "data" => $data];
         //check the report
+
         $excelHandler->create($filename, function($excel) use ($data, $device_id){
             // Call writer methods here
             // Set the title
@@ -80,6 +81,7 @@ class ReportController extends BaseController
                         $cell->setAlignment('left');
                     });
                     $len = count($data) + 3;
+                    $resume = count($data) + 4;
                     $sheet->cells("A3:G$len", function($cells) {
                         // manipulate the range of cells
                         // Set all borders (top, right, bottom, left)
@@ -92,6 +94,17 @@ class ReportController extends BaseController
                     });
                     $sheet->setBorder("A3:G$len", 'solid');
                     $sheet->fromArray($data, null, 'A3', true);
+                    $sumKm = 0;
+                    foreach($data as $row) {
+                        $sumKm += floatval(preg_replace('/[^0-9\.]+/', '',$row["Tổng Km"]));
+                    }
+                    $sheet->cells("A$resume", function($cell) {
+                        $cell->setValue('Tổng:');
+                    });
+                    $sheet->mergeCells("A$resume:D$resume");
+                    $sheet->cells("E$resume", function($cell) use ($sumKm){
+                        $cell->setValue($sumKm . 'km');
+                    });
                 } else {
                     $sheet->mergeCells('A2:G2');
                     $sheet->cell('A2', function($cell) use ($device) {

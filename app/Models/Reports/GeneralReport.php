@@ -57,7 +57,7 @@ class GeneralReport {
                     //normal, finish the before block and init the new block
                     //complete old location and start new location
                     $last_loc = null;
-                    $last_loc = $report_data[$idx - 1];
+                    $last_loc = isset($report_data[$idx - 1]) ? $report_data[$idx - 1] : $report_data[$idx];
                     $totalDistance += $item['km'];
                     $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
                     $totalSpeed += $item['avg_vel'];

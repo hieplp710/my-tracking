@@ -13,6 +13,8 @@
                 <span class="warning" *ngIf="item.isExpired && !item.isEdit" tooltip-hide-trigger="touchstart">
                     <i class="fa fa-info-circle" title="Thiết bị này sắp hết hạn vào {{ item.expiredDate }}"></i>
                 </span>
+                <input type="text" class="edit-device-new-id" [(ngModel)]="item.deviceNewId" *ngIf="!is_radio && item.isEdit"
+                       (keypress)="onSave(item, $event)" value="{{ item.deviceNewId }}"/>
                 <input type="text" class="edit-device-number" [(ngModel)]="item.deviceNumber" *ngIf="!is_radio && item.isEdit"
                        (keypress)="onSave(item, $event)" value="{{ item.deviceNumber }}"/>
             </label>

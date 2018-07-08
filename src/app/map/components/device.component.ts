@@ -39,10 +39,16 @@ export class DeviceComponent implements OnInit {
             $.ajax({
                 "url" :'/tracking/update-device-number',
                 "method" : 'POST',
-                "data" : {"device_id": item.deviceId, "name" : item.deviceNumber},
+                "data" : {"device_id": item.deviceId, "name" : item.deviceNumber, "deviceNewId": item.deviceNewId},
                 "success": function(resp) {
                     if (resp.status) {
+                        if (resp.reload) {
+                            window.location.reload();
+                        }
                         item.isEdit = false;
+                    } else {
+                        alert(resp.error);
+                        item.deviceNewId = item.deviceId;
                     }
                 }
             });
@@ -54,10 +60,16 @@ export class DeviceComponent implements OnInit {
         $.ajax({
             "url" :'/tracking/update-device-number',
             "method" : 'POST',
-            "data" : {"device_id": item.deviceId, "name" : item.deviceNumber},
+            "data" : {"device_id": item.deviceId, "name" : item.deviceNumber, "deviceNewId": item.deviceNewId},
             "success": function(resp) {
                 if (resp.status) {
+                    if (resp.reload) {
+                        window.location.reload();
+                    }
                     item.isEdit = false;
+                } else {
+                    alert(resp.error);
+                    item.deviceNewId = item.deviceId;
                 }
             }
         });

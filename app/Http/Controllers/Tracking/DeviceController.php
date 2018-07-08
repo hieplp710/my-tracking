@@ -67,13 +67,39 @@ class DeviceController extends BaseController
         $this->middleware('auth');
         $deviceId = $request->get('device_id');
         $deviceName = $request->get('name');
+        $deviceNewId = $request->get('deviceNewId');
         $device = Tracking_device::find($deviceId);
-        if ($device instanceof Tracking_device) {
-            $device->device_number = $deviceName;
+        //check if id is changed
+        if ($deviceNewId != $deviceId) {
+            $newDevice = Tracking_device::find($deviceNewId);
+            if (!($newDevice instanceof Tracking_device) || !empty($newDevice->user_id) || $newDevice->status != Tracking_device::STATUS_ACTIVE){
+                return response()->json(["status" => false, "error" => "Thiết bị không có thật hoặc đã có chủ"], 200);
+            }
+            //copy information from old device to new device
+            $newDevice->activated_at = $device->activated_at;
+            $newDevice->updated_at =  $device->updated_at;
+            $newDevice->expired_at =  $device->expired_at;
+            $newDevice->current_state =  $device->current_state;
+            $newDevice->user_id = $device->user_id;
+            $newDevice->device_number = $deviceName;
+            $newDevice->save();
+            //set old device to in-active
+            $device->status = Tracking_device::STATUS_IN_ACTIVE;
             $device->save();
+            return response()->json(["status" => true, "error" => false, "reload" => true]);
+        } else {
+            //change only device's name
+            $this->changeDeviceName($device, $deviceName);
             return response()->json(["status" => true, "error" => false]);
         }
         return response()->json(["status" => false, "error" => "Not support method"], 500);
+    }
+
+    private function changeDeviceName(Tracking_device $device, $deviceName) {
+        if ($device instanceof Tracking_device) {
+            $device->device_number = $deviceName;
+            $device->save();
+        }
     }
 
     public function exportExport() {

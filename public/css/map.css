@@ -186,7 +186,7 @@ ul.nav.navbar-nav.navbar-right {
 button#saveProfile {
     margin-left: 20px;
 }
-.edit-device-number{
+.edit-device-number, .edit-device-new-id{
     color: #444444;
     height: 20px;
     font-size: 14px;

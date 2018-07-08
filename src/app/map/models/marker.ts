@@ -5,6 +5,7 @@ import { Location } from './Location';
 
 export interface MyMarker {
     deviceId: number;
+    deviceNewId: number;
     deviceNumber: string;
     currentLocation : Location;
     isExpired: boolean;

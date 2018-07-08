@@ -22,7 +22,7 @@ export class TrackingService {
         let _this = this;
         let opts = options ? options : {"isRoadmap":false};
         let is_roadmap = opts.isRoadmap;
-        console.log(options, 'options');
+        //console.log(options, 'options');
         let data = {"options":{
             "lastPoint":lastPoint,
             "isRoadmap":false
@@ -53,6 +53,7 @@ export class TrackingService {
                 let marker : MyMarker = {
                     deviceId : temp.device_id,
                     deviceNumber : temp.device_number,
+                    deviceNewId: temp.device_id,
                     isExpired: temp.is_expired ? temp.is_expired : false,
                     expiredDate: temp.expired_date,
                     currentLocation : null,

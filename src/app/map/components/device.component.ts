@@ -26,7 +26,9 @@ export class DeviceComponent implements OnInit {
         // var isChecked = $(ev.target).is(':checked');
         // marker.visible = isChecked;
         //pan to marker
-        this.onSelectedDevice.emit(marker);
+        if (!marker.isEdit) {
+            this.onSelectedDevice.emit(marker);
+        }
     };
     onEditDeviceName(item, $event) {
         $event.preventDefault();

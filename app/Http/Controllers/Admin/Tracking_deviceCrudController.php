@@ -61,19 +61,19 @@ class Tracking_deviceCrudController extends CrudController
         ]);
         $this->crud->addColumn([
             'name' => 'activated_at', // The db column name
-            'label' => "Activated At", // Table column heading
+            'label' => "Activated Date", // Table column heading
             'type' => 'model_function',
             'function_name' => 'displayActivatedAt',
         ]);
         $this->crud->addColumn([
             'name' => 'expired_at', // The db column name
-            'label' => "Expired At", // Table column heading
+            'label' => "Expired Date", // Table column heading
             'type' => 'model_function',
             'function_name' => 'displayExpiredAt',
         ]);
         $this->crud->addColumn([
             'name' => 'created_at', // The db column name
-            'label' => "Created At", // Table column heading
+            'label' => "Created Date", // Table column heading
             'type' => 'model_function',
             'function_name' => 'displayCreatedAt',
         ]);
@@ -149,7 +149,7 @@ class Tracking_deviceCrudController extends CrudController
         $this->crud->addField([
             // MANDATORY
             'name'  => 'activated_at', // DB column name (will also be the name of the input)
-            'label' => 'Activated At', // the human-readable label for the input
+            'label' => 'Activated Date', // the human-readable label for the input
             'type'  => 'date_picker', // the field type (text, number, select, checkbox, etc)
 
             // OPTIONAL + example values
@@ -165,13 +165,13 @@ class Tracking_deviceCrudController extends CrudController
         $this->crud->addField([
             // MANDATORY
             'name'  => 'expired_at', // DB column name (will also be the name of the input)
-            'label' => 'Expired At', // the human-readable label for the input
+            'label' => 'Expired Date', // the human-readable label for the input
             'type'  => 'date_picker', // the field type (text, number, select, checkbox, etc)
 
             // OPTIONAL + example values
             'hint'       => 'Expired date', // helpful text, show up after input
             'attributes' => [
-                'placeholder' => 'Expired At',
+                'placeholder' => 'Expired Date',
                 'class' => 'form-control some-class'
             ], // extra HTML attributes and values your input might need
             'wrapperAttributes' => [

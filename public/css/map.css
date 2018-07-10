@@ -494,7 +494,7 @@ table.table-report tr.resume-row td{
     ul.tabs li.tab {
         min-width: 65px;
         text-align: center;
-        font-size: 10px;
+        font-size: 12px;
     }
     button#view-report {
         margin-top: 10px;

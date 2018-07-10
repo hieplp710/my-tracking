@@ -131,7 +131,7 @@ class Tracking_device extends Model
                 from users as u 
                   left join tracking_devices as d on u.id = d.user_id
                   left join device_locations as l on (d.id = l.device_id $last_point)
-                where d.is_deleted = 0 and d.status = 1 $user_condition
+                where d.is_deleted = 0 and d.status = 1 $user_condition $retrist_time
                 order by d.id, l.created_at desc, l.updated_at desc";
             }
         } else {

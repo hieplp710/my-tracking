@@ -19,7 +19,7 @@
                        (keypress)="onSave(item, $event)" value="{{ item.deviceNumber }}"/>
             </label>
             <span class="control">
-                <i *ngIf="!item.isEdit" class="fa fa-pencil edit-device-toggle" (click)="onEditDeviceName(item, $event)" aria-hidden="true"></i>
+                <i *ngIf="!item.isEdit && isEdit" class="fa fa-pencil edit-device-toggle" (click)="onEditDeviceName(item, $event)" aria-hidden="true"></i>
                 <i *ngIf="item.isEdit" class="fa fa-check btn-save" (click)="onSaveClick(item, $event)" aria-hidden="true"></i>
                 <i *ngIf="item.isEdit" class="fa fa-times btn-cancel" (click)="onCancel(item, $event)"aria-hidden="true"></i>
             </span>

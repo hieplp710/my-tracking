@@ -16,6 +16,7 @@ import $ from 'jquery';
 export class DeviceComponent implements OnInit {
     @Input() listDevice : MyMarker[];
     @Input() is_radio? : boolean;
+    @Input() isEdit? : boolean;
     @Output() onSelectedDevice = new EventEmitter();
     ngOnInit() {
         console.log("control is init");

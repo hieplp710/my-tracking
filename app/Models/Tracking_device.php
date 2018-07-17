@@ -274,7 +274,7 @@ class Tracking_device extends Model
                             $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
                             //if diff larger than 48h hours => lost gsm
-                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
+                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
                                 //only check if park time > 2 days
                                 $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
                                 if ($is_lostGSM) {

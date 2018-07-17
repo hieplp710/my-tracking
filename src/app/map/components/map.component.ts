@@ -423,8 +423,16 @@ export class MapComponent implements OnInit {
             }
         });
         coords.push(firstPoint);
+        var stopState = null;
         for (let i = 1; i < (context.roadmapMarkers.length - 1); i++) {
             let lt = context.roadmapMarkers[i];
+            if (i !== (context.roadmapMarkers.length - 2) && (lt.status === 'Dừng' || lt.status === 'Đỗ')) {
+                //get next location
+                let nextLoc = context.roadmapMarkers[i + 1] !== undefined ? context.roadmapMarkers[i + 1] : null;
+                if (nextLoc && nextLoc.status === lt.status) {
+                    continue; //only show the last park/stop marker
+                }
+            }
             let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
             if (context.mapRoadmapBounds !== undefined ) {
                 context.mapRoadmapBounds.extend(coord);

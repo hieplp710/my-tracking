@@ -470,6 +470,12 @@ table.table-report tr.resume-row td{
     table.roadmap-info th {
         font-size: 12px;
     }
+    .edit-device-number, .edit-device-new-id {
+        color: #444444;
+        height: 20px;
+        font-size: 13px;
+        padding: 0px 5px;
+    }
 }
 
 

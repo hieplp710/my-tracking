@@ -361,7 +361,6 @@ export class MapComponent implements OnInit {
             //last time where not thing to load
             if (!locationObj.hasMore && context.roadmapMarkers.length !== 0
                 && locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined) {
-                console.log('no more on last request');
                 context.displayRoapmap(context);
             }
             if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined
@@ -423,16 +422,30 @@ export class MapComponent implements OnInit {
             }
         });
         coords.push(firstPoint);
-        var stopState = null;
+        var beginMarker = null;
+        var tempRoadmapMarkers = [];
         for (let i = 1; i < (context.roadmapMarkers.length - 1); i++) {
             let lt = context.roadmapMarkers[i];
+            if (beginMarker == null) {
+                beginMarker = lt;
+            }
             if (i !== (context.roadmapMarkers.length - 2) && (lt.status === 'Dừng' || lt.status === 'Đỗ')) {
                 //get next location
+                let distance = 0;
+                if (beginMarker !== lt) {
+                    var beginCood = new google.maps.LatLng({"lat" : beginMarker.lat, "lng" : beginMarker.lng});
+                    var currentCood = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
+                    if (google.maps.geometry !== undefined) {
+                        distance = google.maps.geometry.spherical.computeDistanceBetween(beginCood, currentCood);
+                    }
+                }
                 let nextLoc = context.roadmapMarkers[i + 1] !== undefined ? context.roadmapMarkers[i + 1] : null;
-                if (nextLoc && nextLoc.status === lt.status) {
+                if (nextLoc && nextLoc.status === lt.status && distance < 50) {
                     continue; //only show the last park/stop marker
                 }
             }
+            tempRoadmapMarkers.push(lt); // for buffer to play roadmap
+            beginMarker = lt;
             let coord = new google.maps.LatLng({"lat" : lt.lat, "lng" : lt.lng});
             if (context.mapRoadmapBounds !== undefined ) {
                 context.mapRoadmapBounds.extend(coord);
@@ -533,6 +546,7 @@ export class MapComponent implements OnInit {
         });
         context.playRoadmapMarkers = coords;
         context.roadmapPolyline.setMap(context.map);
+        context.roadmapMarkers = tempRoadmapMarkers; // assign removed park/stop markers array to roadmapMarker
     }
     private formatDateTime(date : Date) {
         var datetimeStr = "";
@@ -560,7 +574,6 @@ export class MapComponent implements OnInit {
                 location.address = 'N/A';
             }
         });
-        console.log(infowindow, 'infowindow');
         if ( this.current_infowindow != null ) {
             this.current_infowindow.close();
         }
@@ -734,7 +747,6 @@ export class MapComponent implements OnInit {
         }
     }
     onViewGeneralReport(data) {
-        console.log(data, 'data for report');
         //request for data
         let startDate = data.startDate;
         let endDate = data.endDate ;
@@ -743,7 +755,6 @@ export class MapComponent implements OnInit {
         let _this = this;
         this.trackingService.getRequest(url).then(function(data){
             //handle here
-            console.log(data, 'data');
             _this.reportData = data;
         }, function(error){});
     }

@@ -122,6 +122,7 @@ export class MapComponent implements OnInit {
     deviceWarning = [];
     startPointRoadmap: any;
     totalKmRoadmap: number = 0;
+    allMarkerRoadmap = [];
     requestLocation() {
         let _this = this;
         this.trackingService.getLocations(this.trackingService.urlLocation, this.lastPoint,
@@ -293,6 +294,7 @@ export class MapComponent implements OnInit {
             //hide the roadmap info
             this.roadmapInfo.hideInfo();
             this.isReportView = false;
+            this.totalKmRoadmap = 0;
         } else if ($target === '#roadmap') {
             if (this.current_infowindow != null) {
                 this.current_infowindow.close();
@@ -318,6 +320,7 @@ export class MapComponent implements OnInit {
             this.roadmapInfo.hideInfo();
             this.isRoadmap = false;
             this.isReportView = true;
+            this.totalKmRoadmap = 0;
         }else {
             clearInterval(this.interPlayRoadmap);
             this.isReportView = false;
@@ -334,6 +337,7 @@ export class MapComponent implements OnInit {
             //hide the roadmap info
             this.roadmapInfo.hideInfo();
             this.isRoadmap = false;
+            this.totalKmRoadmap = 0;
         }
     }
     onViewRoadmap($event) {
@@ -424,8 +428,10 @@ export class MapComponent implements OnInit {
         coords.push(firstPoint);
         var beginMarker = null;
         var tempRoadmapMarkers = [];
+        context.allMarkerRoadmap = [firstLoc];
         for (let i = 1; i < (context.roadmapMarkers.length - 1); i++) {
             let lt = context.roadmapMarkers[i];
+            context.allMarkerRoadmap.push(lt); //store the markers for calculate total roadmap kms
             if (beginMarker == null) {
                 beginMarker = lt;
             }
@@ -508,7 +514,6 @@ export class MapComponent implements OnInit {
                 markers.push(mk);
             };
         }
-
         let lastLoc = context.roadmapMarkers[(context.roadmapMarkers.length - 1)];
         let lastPoint = new google.maps.LatLng({"lat" : lastLoc.lat, "lng" : lastLoc.lng});
         coords.push(lastPoint);
@@ -547,6 +552,23 @@ export class MapComponent implements OnInit {
         context.playRoadmapMarkers = coords;
         context.roadmapPolyline.setMap(context.map);
         context.roadmapMarkers = tempRoadmapMarkers; // assign removed park/stop markers array to roadmapMarker
+    }
+    private getTotalRoadmapKm(roadmapMarkers) {
+        let km = 0;
+        if (roadmapMarkers.length <= 1) {
+            return 0;
+        };
+        let startPoint = roadmapMarkers[0];
+        for (let i = 1; i < roadmapMarkers.length; i++) {
+            let tempMarker = roadmapMarkers[i];
+            let coord = new google.maps.LatLng({"lat" : tempMarker.lat, "lng" : tempMarker.lng});
+            let locA = new google.maps.LatLng({"lat" : startPoint.lat, "lng" : startPoint.lng});
+            if (google.maps.geometry !== undefined) {
+                km += google.maps.geometry.spherical.computeDistanceBetween(locA, coord);
+                startPoint = tempMarker;
+            }
+        }
+        return (km / 1000);
     }
     private formatDateTime(date : Date) {
         var datetimeStr = "";
@@ -656,7 +678,7 @@ export class MapComponent implements OnInit {
             $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
         }
         this.startPointRoadmap = null;
-        this.totalKmRoadmap = 0;
+        //this.totalKmRoadmap = 0;
     };
     onChangeReviewSpeed($event) {
         console.log($event);
@@ -708,7 +730,10 @@ export class MapComponent implements OnInit {
                             strKm = (km / 1000).toFixed(1);
                         }
                         _this.startPointRoadmap = tempMarker;
-                        _this.totalKmRoadmap += (km / 1000);
+                        //_this.totalKmRoadmap += (km / 1000);
+                        if (_this.totalKmRoadmap === 0) {
+                            _this.totalKmRoadmap = _this.getTotalRoadmapKm(_this.allMarkerRoadmap);
+                        }
                         let info : RoadmapInfo = {
                             km: strKm,
                             kmph: tempMarker.velocity,
@@ -725,7 +750,7 @@ export class MapComponent implements OnInit {
                         $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
                         _this.isRunningRoadmap = false;
                         _this.startPointRoadmap = null;
-                        _this.totalKmRoadmap = 0;
+                        //_this.totalKmRoadmap = 0;
                         return false;
                     }
                 }, 400 - (_this.rangeVel * 30));

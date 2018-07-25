@@ -661,6 +661,7 @@ export class MapComponent implements OnInit {
         this.map.setZoom(16);
     };
     onPlayRoadmap($event) {
+        this.totalKmRoadmap = 0;
         this.doPlayRoadmap();
     };
     onStopRoadmap($event) {

@@ -107,12 +107,13 @@ class Tracking_device extends Model
             $roadmapLimit = self::ROADMAP_LIMIT_MOBILE;
         }
         $last_point = '';
+        $num_of_day = env('NUMBER_DAY_QUERY', 7);
         if (!$is_roadmap) {
             $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
             $current_user = Auth::user()->getAuthIdentifier();
             $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
             $date_current = new Carbon();
-            $date_current->subDay(5);
+            $date_current->subDay($num_of_day);
             $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
             $retrist_time = "and l.created_at >= '$yesterday'";

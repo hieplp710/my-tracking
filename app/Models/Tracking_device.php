@@ -108,6 +108,7 @@ class Tracking_device extends Model
         }
         $last_point = '';
         $num_of_day = env('NUMBER_DAY_QUERY', 7);
+        $locations = [];
         if (!$is_roadmap) {
             $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
             $current_user = Auth::user()->getAuthIdentifier();
@@ -117,6 +118,12 @@ class Tracking_device extends Model
             $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
             $retrist_time = "and l.created_at >= '$yesterday'";
+            $deviceQuery = "select d.id as device_id_main,d.current_state as current_state_device, 
+                      d.expired_at, IFNULL(d.device_number,'N/A') as device_number
+                    from tracking_devices as d
+                    where d.is_deleted = 0 and d.status = 1 $user_condition";
+            $devices = DB::select($deviceQuery, []);
+
             if ($last_point == '') {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                     from tracking_devices as d
@@ -127,6 +134,43 @@ class Tracking_device extends Model
                             left join device_locations as l on d1.id = l.device_id  
                             where d1.id = d.id $retrist_time)
                     order by d.id, l.created_at desc, l.updated_at desc";
+                if ($devices) {
+                    for($i = 0; $i < count($devices); $i++){
+                        $devices[$i]->command = '';
+                        $devices[$i]->lat = '';
+                        $devices[$i]->lng = '';
+                        $devices[$i]->status = '';
+                        $devices[$i]->heading = '';
+                        $devices[$i]->created_at = '';
+                        $devices[$i]->updated_at = '';
+                        $devices[$i]->current_state = '';
+                        $devices[$i]->velocity = '';
+                        $devices[$i]->reverser = '';
+                        $devices[$i]->checksum = '';
+                        $devices[$i]->id = '';
+                        $devId = $devices[$i]->device_id_main;
+                        $queryLoc = "select l.* from device_locations as l where l.device_id = '$devId' order by l.created_at desc limit 1";
+                        $dev_loc = DB::select($queryLoc, []);
+                        if ($dev_loc && count($dev_loc) > 0) {
+                            $dev_loc = $dev_loc[0];
+                            $devices[$i]->command = $dev_loc->command;
+                            $devices[$i]->lat = $dev_loc->lat;
+                            $devices[$i]->lng = $dev_loc->lng;
+                            $devices[$i]->status = $dev_loc->status;
+                            $devices[$i]->heading = $dev_loc->heading;
+                            $devices[$i]->created_at = $dev_loc->created_at;
+                            $devices[$i]->updated_at = $dev_loc->updated_at;
+                            $devices[$i]->current_state = $dev_loc->current_state;
+                            $devices[$i]->velocity = $dev_loc->velocity;
+                            $devices[$i]->reverser = $dev_loc->reverser;
+                            $devices[$i]->checksum = $dev_loc->checksum;
+                            $devices[$i]->id = $dev_loc->id;
+                        } else {
+                            continue;
+                        }
+                        $locations[] = $devices[$i];
+                    }
+                }
             } else {
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
@@ -135,6 +179,7 @@ class Tracking_device extends Model
                 where d.is_deleted = 0 and d.status = 1 $user_condition 
                 order by d.id, l.created_at desc, l.updated_at desc";
             }
+
         } else {
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
             $to_date = $options['dateTo'] ? $options['dateTo'] : '';
@@ -157,10 +202,9 @@ class Tracking_device extends Model
                 inner join device_locations as l on d.id = l.device_id
                 where d.is_deleted = 0 and d.status = 1 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id' $condition_next_loc
                 order by d.id, l.created_at, l.status limit $roadmapLimit";
+            $locations = DB::select($query, []);
         }
-        $locations = DB::select($query, []);
         $location_devices = [];
-
         $result = ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];
         $has_more = false;
         if ($is_roadmap) {

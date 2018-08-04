@@ -125,15 +125,15 @@ class Tracking_device extends Model
             $devices = DB::select($deviceQuery, []);
 
             if ($last_point == '') {
-                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
-                    from tracking_devices as d
-                        left join device_locations as l on d.id = l.device_id
-                    where d.is_deleted = 0 and d.status = 1 $user_condition $retrist_time
-                        and l.created_at >= (select MAX(l.created_at) 
-                            from tracking_devices as d1
-                            left join device_locations as l on d1.id = l.device_id  
-                            where d1.id = d.id $retrist_time)
-                    order by d.id, l.created_at desc, l.updated_at desc";
+//                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.*
+//                    from tracking_devices as d
+//                        left join device_locations as l on d.id = l.device_id
+//                    where d.is_deleted = 0 and d.status = 1 $user_condition $retrist_time
+//                        and l.created_at >= (select MAX(l.created_at)
+//                            from tracking_devices as d1
+//                            left join device_locations as l on d1.id = l.device_id
+//                            where d1.id = d.id $retrist_time)
+//                    order by d.id, l.created_at desc, l.updated_at desc";
                 if ($devices) {
                     for($i = 0; $i < count($devices); $i++){
                         $devices[$i]->command = '';
@@ -149,7 +149,7 @@ class Tracking_device extends Model
                         $devices[$i]->checksum = '';
                         $devices[$i]->id = '';
                         $devId = $devices[$i]->device_id_main;
-                        $queryLoc = "select l.* from device_locations as l where l.device_id = '$devId' order by l.created_at desc limit 1";
+                        $queryLoc = "select l.* from device_locations as l where l.device_id = '$devId' $retrist_time order by l.created_at desc limit 1";
                         $dev_loc = DB::select($queryLoc, []);
                         if ($dev_loc && count($dev_loc) > 0) {
                             $dev_loc = $dev_loc[0];

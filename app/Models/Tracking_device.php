@@ -178,6 +178,7 @@ class Tracking_device extends Model
                   left join device_locations as l on (d.id = l.device_id $last_point)
                 where d.is_deleted = 0 and d.status = 1 $user_condition 
                 order by d.id, l.created_at desc, l.updated_at desc";
+                $locations = DB::select($query, []);
             }
 
         } else {

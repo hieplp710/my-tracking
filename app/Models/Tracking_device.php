@@ -134,7 +134,7 @@ class Tracking_device extends Model
             if (preg_match("/$range_of_ip/", $ip_requested) != 0) {
                 //log to file
                 $current_user = Auth::user()->getAuthIdentifier();
-                Log::info("----------------- The user id $current_user is contact server abnormal -----------------\n");
+                Log::info("----------------- The user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
             }
         }
         if (!$is_roadmap) {

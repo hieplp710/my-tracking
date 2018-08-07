@@ -75,9 +75,6 @@ export class MapComponent implements OnInit {
         });
     }
     ngOnInit(): void {
-        document.addEventListener('visibilitychange', function(){
-            document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
-        });
         this.date_from = new Date();
         this.date_from.setHours(0);
         this.date_from.setMinutes(0);
@@ -102,6 +99,52 @@ export class MapComponent implements OnInit {
         var _this = this;
         setTimeout( function (){
             _this.requestLocation();
+            document.addEventListener('visibilitychange', function(){
+                document.title = document.hidden ? "hidden" : "active"; // change tab text for demo
+                if (document.hidden || _this.isRoadmap || _this.isReportView) {
+                    console.log('lock the request');
+                    clearInterval(_this.internalInterval);
+                    _this.internalInterval = null;
+                    clearInterval(_this.interPlayRoadmap);
+                    _this.canPlayRoadmap = false;
+                    _this.playRoadmapIndex = 0;
+                    if (_this.playRoadmapMarker != null) {
+                        _this.playRoadmapMarker.setMap(null);
+                        _this.playRoadmapMarker = null;
+                    };
+                    _this.isRunningRoadmap = false;
+                    if ($('#play-roadmap-mobile > i')[0] !== undefined
+                        && $('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+                        $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+                    }
+                    //hide the roadmap info
+                    _this.roadmapInfo.hideInfo();
+                    // _this.isRoadmap = false;
+                    // _this.isReportView = false;
+                    _this.totalKmRoadmap = 0;
+                } else {
+                    console.log('unlock the request');
+                    _this.isRoadmap = false;
+                    _this.clearCluster();
+                    _this.requestLocation();
+                    clearInterval(_this.interPlayRoadmap);
+                    _this.canPlayRoadmap = false;
+                    _this.playRoadmapIndex = 0;
+                    if (_this.playRoadmapMarker != null) {
+                        _this.playRoadmapMarker.setMap(null);
+                        _this.playRoadmapMarker = null;
+                    };
+                    _this.isRunningRoadmap = false;
+                    if ($('#play-roadmap-mobile > i')[0] !== undefined
+                        && $('#play-roadmap-mobile > i').attr('class').indexOf('fa-pause') !== -1) {
+                        $('#play-roadmap-mobile > i').removeClass('fa-pause').addClass('fa-play');
+                    }
+                    //hide the roadmap info
+                    _this.roadmapInfo.hideInfo();
+                    _this.isReportView = false;
+                    _this.totalKmRoadmap = 0;
+                }
+            });
         }, 1000);
         $('#btnLogout').on('click', function (e) {
             e.preventDefault();
@@ -183,7 +226,7 @@ export class MapComponent implements OnInit {
                 let marker = _this.allMarkers[keys[i]];
                 _this.handleLocation(marker, _this);
             };
-        }, 5000);
+        }, 10000);
     };
     handleLocation(marker : MyMarker, context) : void {
         /** handle for location */
@@ -305,6 +348,8 @@ export class MapComponent implements OnInit {
             this.isRoadmap = true;
             this.isReportView = false;
         } else if ($target === '#report') {
+            clearInterval(this.internalInterval);
+            this.internalInterval = null;
             clearInterval(this.interPlayRoadmap);
             this.canPlayRoadmap = false;
             this.playRoadmapIndex = 0;

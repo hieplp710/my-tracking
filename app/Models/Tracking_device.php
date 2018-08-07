@@ -96,6 +96,24 @@ class Tracking_device extends Model
     public function displayActivatedAt(){
         return Helper::formatDatetime($this->activated_at);
     }
+    public static function get_client_ip() {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if(isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
+    }
 
     public static function getUserDeviceLocation($user_id = 0, $options = []){
         //check user device
@@ -109,6 +127,16 @@ class Tracking_device extends Model
         $last_point = '';
         $num_of_day = env('NUMBER_DAY_QUERY', 7);
         $locations = [];
+        //check user that contact to server by range of ip
+        $range_of_ip = env('IP_RANGE_TRACKING', '');
+        $ip_requested = self::get_client_ip();
+        if (!empty($range_of_ip)) {
+            if (preg_match("/$range_of_ip/", $ip_requested) != 0) {
+                //log to file
+                $current_user = Auth::user()->getAuthIdentifier();
+                Log::info("----------------- The user id $current_user is contact server abnormal -----------------\n");
+            }
+        }
         if (!$is_roadmap) {
             $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
             $current_user = Auth::user()->getAuthIdentifier();

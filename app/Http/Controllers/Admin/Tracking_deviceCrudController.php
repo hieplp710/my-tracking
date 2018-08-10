@@ -212,7 +212,7 @@ class Tracking_deviceCrudController extends CrudController
             'name' => 'status',
             'label' => 'Status',
             'type' => 'select_from_array',
-            'options' => ['0' => "In-Active", '1' => "Active", '2' => 'Extend expired'],
+            'options' => ['0' => "In-Active", '1' => "Active", '2' => 'Extend expired', "3" => "Unused"],
             'allows_null' => false,
         ]);
         //filters

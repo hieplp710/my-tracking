@@ -25,7 +25,7 @@
             <ul class="treeview-menu">
               <li><a href="{{ url(config('backpack.base.route_prefix', 'admin').'/tracking_device') }}"><i class="fa fa-car"></i> <span>List Device</span></a></li>
               <li><a href="{{ route('delete-location') }}"><i class="fa fa-wrench"></i> <span>Tool</span></a></li>
-              <li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/devicelocation') }}"><i class="fa fa-location-arrow" aria-hidden="true"></i> <span>Device Locations</span></a></li>
+              {{--<li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/devicelocation') }}"><i class="fa fa-location-arrow" aria-hidden="true"></i> <span>Device Locations</span></a></li>--}}
             </ul>
           </li>
           <li><a href="{{ url(config('backpack.base.route_prefix', 'admin').'/setting') }}"><i class="fa fa-cog"></i> <span>Settings</span></a></li>

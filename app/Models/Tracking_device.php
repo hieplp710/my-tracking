@@ -31,6 +31,7 @@ class Tracking_device extends Model
     const STATUS_ACTIVE = 1;
     const STATUS_IN_ACTIVE = 0;
     const STATUS_EXTEND_EXPIRED = 2;
+    const STATUS_UNUSED = 3;
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -81,7 +82,7 @@ class Tracking_device extends Model
     }
 
     public function getStatus(){
-        $values = ["1" => "Active", "0" => "In-Active", "2" => "Extend Expired"];
+        $values = ["1" => "Active", "0" => "In-Active", "2" => "Extend Expired", "3" => "Unused"];
         return isset($values[$this->status]) ? $values[$this->status] : '';
     }
 

@@ -226,7 +226,7 @@ export class MapComponent implements OnInit {
                 let marker = _this.allMarkers[keys[i]];
                 _this.handleLocation(marker, _this);
             };
-        }, 10000);
+        }, 5000);
     };
     handleLocation(marker : MyMarker, context) : void {
         /** handle for location */

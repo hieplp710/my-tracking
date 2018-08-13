@@ -106,7 +106,7 @@ export class MapComponent implements OnInit {
                     clearInterval(_this.internalInterval);
                     _this.internalInterval = null;
                     clearInterval(_this.interPlayRoadmap);
-                    _this.canPlayRoadmap = false;
+                    //_this.canPlayRoadmap = false;
                     _this.playRoadmapIndex = 0;
                     if (_this.playRoadmapMarker != null) {
                         _this.playRoadmapMarker.setMap(null);

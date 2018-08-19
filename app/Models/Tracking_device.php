@@ -483,7 +483,12 @@ class Tracking_device extends Model
                     }
 
                     //remove noise location status = 1 and duplicate time
-                    $time = $is_valid['data']['time'];
+                    if (isset($is_valid['data'])){
+                        $time = $is_valid['data']['time'];
+                    } else {
+                        Log::info("Error data: |" . $item . "|");
+                    }
+
                     $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');
                     $query = "select l.* from device_locations as l where created_at = '$time_format' and l.device_id = '$device_id'";
                     $locations = DB::select($query, []);

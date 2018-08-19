@@ -488,6 +488,7 @@ class Tracking_device extends Model
                         $time = $is_valid['data']['time'];
                     } else {
                         Log::info("Error data: " . self::ERROR_CODE_INVALID_LOCATION. " |" . $item . "|");
+                        $result = ["status" => true, "error" => false];//pass this error
                         continue;
                     }
 
@@ -503,6 +504,7 @@ class Tracking_device extends Model
 
                         if ($diff >= 300){
                             Log::info($item . ' - duplicate');
+                            //return ["status" => true, "error" => false];
                             return ["status" => true, "error" => false];
                         }
                     }

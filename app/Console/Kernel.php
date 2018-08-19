@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         //
         '\App\Console\Commands\DeleteLocation',
         '\App\Console\Commands\SendWarningMail',
+        '\App\Console\Commands\InsertData'
     ];
 
     /**

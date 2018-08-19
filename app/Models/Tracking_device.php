@@ -488,6 +488,7 @@ class Tracking_device extends Model
                         $time = $is_valid['data']['time'];
                     } else {
                         Log::info("Error data: " . self::ERROR_CODE_INVALID_LOCATION. " |" . $item . "|");
+                        continue;
                     }
 
                     $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');

@@ -32,6 +32,7 @@ class Tracking_device extends Model
     const STATUS_IN_ACTIVE = 0;
     const STATUS_EXTEND_EXPIRED = 2;
     const STATUS_UNUSED = 3;
+    const ERROR_CODE_INVALID_LOCATION = '__error_loc_data__';
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -486,7 +487,7 @@ class Tracking_device extends Model
                     if (isset($is_valid['data'])){
                         $time = $is_valid['data']['time'];
                     } else {
-                        Log::info("Error data: |" . $item . "|");
+                        Log::info("Error data: " . self::ERROR_CODE_INVALID_LOCATION. " |" . $item . "|");
                     }
 
                     $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');

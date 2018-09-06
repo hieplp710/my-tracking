@@ -775,12 +775,13 @@ class Tracking_device extends Model
     public static function getWarningDevices() {
         $current_date = Carbon::now('utc');
         //calculate the valid time
+        $status_unused = self::STATUS_UNUSED;
         $valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
                 d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
-            where d.is_deleted = 0 AND d.expired_at <= '$valid_date'
+            where d.is_deleted = 0 AND d.status !=$status_unused AND d.expired_at <= '$valid_date'
             order by d.activated_at asc;";
         $result = DB::select($query, []);
         $resp = [];
@@ -790,9 +791,9 @@ class Tracking_device extends Model
                     "Device Id" => $item->device_id,
                     "Device Number" => $item->device_number,
                     "SIM Info" => $item->sim_infor,
-                    "Activated At" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/y') : '',
-                    "Expired At" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/y') : '',
-                    "Created At" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/y') : '',
+                    "Activated Date" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/y') : '',
+                    "Expired Date" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/y') : '',
+                    "Created Date" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/y') : '',
                     "Username" => $item->username,
                     "Owner" => $item->owner,
                     "Phone" => $item->phone

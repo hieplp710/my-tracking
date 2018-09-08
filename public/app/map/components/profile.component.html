@@ -1,0 +1,57 @@
+<!-- this creates a google map on the page with the given lat/lng from -->
+<!-- the component as the initial center of the map: -->
+<div *ngIf="profile != undefined && profile != null && isShow" id="profile" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" (click)="onClick($event)">&times;</button>
+                <h4 style="color:red;"><span class="glyphicon glyphicon-lock"></span>Thông tin tài khoản</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="username">Username</label>
+                            <span id="username" class="form-control">{{ profile.username }}</span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="name">Họ Tên</label>
+                            <input type="text" [(ngModel)]="profileData.name" class="form-control" id="name" name="name" placeholder="Tên" value="{{ profile.name }}">
+                            <span class="error" *ngIf="error != null && error['name']">{{ error['name'] }}</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="phone">Điện thoại</label>
+                            <input type="text" [(ngModel)]="profileData.phone" class="form-control" id="phone" name="phone" placeholder="Điện thoại" value="{{ profile.phone }}">
+                            <span class="error" *ngIf="error != null && error['phone']">{{ error['phone'] }}</span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email">Email</label>
+                            <input type="text" [(ngModel)]="profileData.email" class="form-control" id="email" name="email" placeholder="Email" value="{{ profile.email }}">
+                            <span class="error" *ngIf="error != null && error['email']">{{ error['email'] }}</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="password">Mật khẩu</label>
+                            <input type="password" [(ngModel)]="profileData.password" class="form-control" id="password" name="password" placeholder="Mật khẩu">
+                            <span class="error" *ngIf="error != null && error['password']">{{ error['password'] }}</span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="confirm-password">Xác nhận mật khẩu</label>
+                            <input type="password" [(ngModel)]="profileData.confirmPassword" class="form-control" id="confirm-password" name="confirm-password" placeholder="Xác nhận mật khẩu">
+                            <span class="error" *ngIf="error != null && error['confirmPassword']">{{ error['confirmPassword'] }}</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                &nbsp;<button id="saveProfile" class="btn btn-default btn-success pull-right" (click)="onSaveProfile($event)"><span class="glyphicon glyphicon-ok"></span> Save</button>&nbsp;
+                <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal" (click)="onClick($event)">
+                    <span class="glyphicon glyphicon-remove"></span> Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -53,7 +53,7 @@
         <report-view [reportData]="reportData" *ngIf="isReportView">loading...</report-view>
     </div>
     <div id="control-section" class="col-md-3 col-sm-3">
-        <nouislider [connect]="true" [min]="0" [max]="10" [step]="1"
+        <nouislider [connect]="false" [min]="0" [max]="10" [step]="1"
                     [(ngModel)]="rangeVel" *ngIf="canPlayRoadmap == true"
                     (ngModelChange)="onChangeReviewSpeed($event)" class="mobile-only slider-mobile"></nouislider>
         <button class="btn btn-primary mobile-only" id="play-roadmap-mobile" (click)="onPlayRoadmap($event)" *ngIf="isRoadmap && canPlayRoadmap == true && !isPlayingRoadmap">

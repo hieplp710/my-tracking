@@ -512,9 +512,10 @@ class Tracking_device extends Model
                     if (!$is_valid['status']){
                         return ["status" => false, "error" => $is_valid['error']];
                     }
-                    if ($device instanceof Tracking_device) {
-                        $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
-                    }
+//                    if ($device instanceof Tracking_device) {
+//                        $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
+//                    }
+                    $is_valid['data']['current_state'] = '';
                     $isSave = $this->addLocation($device, $is_valid['data']);
                     if ($isSave) $result = ["status" => true, "error" => false];
                 } else if ($command == self::REQUEST_TYPE_SIM_INFOR){

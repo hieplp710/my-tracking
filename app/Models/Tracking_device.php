@@ -492,30 +492,29 @@ class Tracking_device extends Model
                         continue;
                     }
 
-                    $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');
-                    $query = "select l.* from device_locations as l where created_at = '$time_format' and l.device_id = '$device_id'";
-                    $locations = DB::select($query, []);
-                    $current_obj = null;
-                    if ($locations && count($locations) > 0) {
-                        //duplicate                        
-                        $utc_now = Carbon::now('UTC');
-                        $location_dup = Carbon::createFromFormat('y-m-d H:i:s',$is_valid['data']['time'], 'UTC');
-                        $diff = $utc_now->diffInSeconds($location_dup);
-
-                        if ($diff >= 300){
-                            Log::info($item . ' - duplicate');
-                            //return ["status" => true, "error" => false];
-                            return ["status" => true, "error" => false];
-                        }
-                    }
+//                    $time_format = Carbon::createFromFormat('y-m-d H:i:s',$time,'UTC')->format('Y-m-d H:i:s');
+//                    $query = "select l.* from device_locations as l where created_at = '$time_format' and l.device_id = '$device_id'";
+//                    $locations = DB::select($query, []);
+//                    $current_obj = null;
+//                    if ($locations && count($locations) > 0) {
+//                        //duplicate
+//                        $utc_now = Carbon::now('UTC');
+//                        $location_dup = Carbon::createFromFormat('y-m-d H:i:s',$is_valid['data']['time'], 'UTC');
+//                        $diff = $utc_now->diffInSeconds($location_dup);
+//
+//                        if ($diff >= 300){
+//                            Log::info($item . ' - duplicate');
+//                            //return ["status" => true, "error" => false];
+//                            return ["status" => true, "error" => false];
+//                        }
+//                    }
 
                     if (!$is_valid['status']){
                         return ["status" => false, "error" => $is_valid['error']];
                     }
-//                    if ($device instanceof Tracking_device) {
-//                        $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
-//                    }
-                    $is_valid['data']['current_state'] = '';
+                    if ($device instanceof Tracking_device) {
+                        $is_valid['data']['current_state'] = $device->updateCurrentState($is_valid['data']);
+                    }
                     $isSave = $this->addLocation($device, $is_valid['data']);
                     if ($isSave) $result = ["status" => true, "error" => false];
                 } else if ($command == self::REQUEST_TYPE_SIM_INFOR){

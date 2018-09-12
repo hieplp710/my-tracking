@@ -156,7 +156,7 @@ class Tracking_device extends Model
             $devices = DB::select($deviceQuery, []);
 
             if ($last_point == '') {
-                Log::info("----------------- First location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
+                //Log::info("----------------- First location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
 //                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.*
 //                    from tracking_devices as d
 //                        left join device_locations as l on d.id = l.device_id
@@ -204,7 +204,7 @@ class Tracking_device extends Model
                     }
                 }
             } else {
-                Log::info("----------------- N times location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
+                //Log::info("----------------- N times location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                   left join tracking_devices as d on u.id = d.user_id
@@ -215,7 +215,7 @@ class Tracking_device extends Model
             }
 
         } else {
-            Log::info("----------------- Roadmap, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
+            //Log::info("----------------- Roadmap, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
             $to_date = $options['dateTo'] ? $options['dateTo'] : '';
             $device_id = $options['deviceId'] ? $options['deviceId'] : '';
@@ -419,6 +419,7 @@ class Tracking_device extends Model
 
     //check the device if lost gsm
     public static function checkLostGSM($device_id) {
+        return false;
         $date_current = new Carbon();
         $date_current->subDay(2);
         $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);

@@ -132,6 +132,7 @@ class Tracking_device extends Model
         //check user that contact to server by range of ip
         $range_of_ip = env('IP_RANGE_TRACKING', '');
         $ip_requested = self::get_client_ip();
+
         if (!empty($range_of_ip)) {
             if (preg_match("/$range_of_ip/", $ip_requested) != 0) {
                 //log to file
@@ -155,6 +156,7 @@ class Tracking_device extends Model
             $devices = DB::select($deviceQuery, []);
 
             if ($last_point == '') {
+                Log::info("----------------- First location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
 //                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.*
 //                    from tracking_devices as d
 //                        left join device_locations as l on d.id = l.device_id
@@ -202,6 +204,7 @@ class Tracking_device extends Model
                     }
                 }
             } else {
+                Log::info("----------------- N times location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 
                   left join tracking_devices as d on u.id = d.user_id
@@ -212,6 +215,7 @@ class Tracking_device extends Model
             }
 
         } else {
+            Log::info("----------------- Roadmap, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
             $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
             $to_date = $options['dateTo'] ? $options['dateTo'] : '';
             $device_id = $options['deviceId'] ? $options['deviceId'] : '';

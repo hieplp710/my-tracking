@@ -472,10 +472,13 @@ class Tracking_device extends Model
             if (count($arrData) == 0) {
                 return ["status" => true, "error" => "Invalid data"];
             }
+            $device = null;
             foreach($arrData as $item) {
                 $data_array = explode(',', trim($item));
                 $device_id = $data_array[1];
-                $device = Tracking_device::find($device_id);
+                if (!$device) {
+                    $device = Tracking_device::find($device_id);
+                }
                 if (!($device instanceof Tracking_device)){
                     $result = ["status" => true, "error" => "Invalid device id"];
                     return $result;

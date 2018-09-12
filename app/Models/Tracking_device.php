@@ -419,7 +419,6 @@ class Tracking_device extends Model
 
     //check the device if lost gsm
     public static function checkLostGSM($device_id) {
-        return false;
         $date_current = new Carbon();
         $date_current->subDay(2);
         $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);

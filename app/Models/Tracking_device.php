@@ -465,14 +465,14 @@ class Tracking_device extends Model
                 Log::info($data);
             }
             if (count($arrData) == 0) {
-                return ["status" => false, "error" => "Invalid data"];
+                return ["status" => true, "error" => "Invalid data"];
             }
             foreach($arrData as $item) {
                 $data_array = explode(',', trim($item));
                 $device_id = $data_array[1];
                 $device = Tracking_device::find($device_id);
                 if (!($device instanceof Tracking_device)){
-                    $result = ["status" => false, "error" => "Invalid device id"];
+                    $result = ["status" => true, "error" => "Invalid device id"];
                     return $result;
                 }
                 $command = $data_array[2];

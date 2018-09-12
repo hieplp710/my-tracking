@@ -119,6 +119,7 @@ class Tracking_device extends Model
 
     public static function getUserDeviceLocation($user_id = 0, $options = []){
         //check user device
+        return ["status" => true, "error" => false, "data" => [], "last_points" => '', "hasMore" => false];
         $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;
         $query = '';
         $roadmapLimit = self::ROADMAP_LIMIT;
@@ -463,7 +464,7 @@ class Tracking_device extends Model
      */
     public function handleLocation($data){
         $result = ["status" => false, "error" => "Empty data!"];
-        return ["status" => true, "error" => false];
+        //return ["status" => true, "error" => false];
         if (!empty($data)){
             $arrData = explode('|', $data);
             if (count($arrData) > 1) {

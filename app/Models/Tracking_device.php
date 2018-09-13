@@ -182,6 +182,7 @@ class Tracking_device extends Model
                         $devices[$i]->id = '';
                         $devId = $devices[$i]->device_id_main;
                         $queryLoc = "select l.* from device_locations as l where l.device_id = '$devId' $retrist_time order by l.created_at desc limit 1";
+                        //current_state_device
                         $dev_loc = DB::select($queryLoc, []);
                         if ($dev_loc && count($dev_loc) > 0) {
                             $dev_loc = $dev_loc[0];
@@ -647,6 +648,7 @@ class Tracking_device extends Model
                 }
                 $this->save();
             } else {
+                return '';
                 //for rollback location
                 //get location that nearest of rollback update
                 $nearest_ago_loc = Devicelocation::where('created_at' , '<', $location_time->format(self::DB_DATETIME_FORMAT))

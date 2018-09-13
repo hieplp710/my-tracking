@@ -141,9 +141,9 @@ class Tracking_device extends Model
                 Log::info("----------------- The user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
             }
         }
+        $current_user = Auth::user()->getAuthIdentifier();
         if (!$is_roadmap) {
             $last_point = isset($options["lastPoint"]) ?  (" AND l.created_at > '" . $options["lastPoint"]['last_point'] . "'") : '';
-            $current_user = Auth::user()->getAuthIdentifier();
             $user_condition = !empty($user_id) ? " and d.user_id = $user_id" : " and d.user_id = $current_user";
             $date_current = new Carbon();
             $date_current->subDay($num_of_day);

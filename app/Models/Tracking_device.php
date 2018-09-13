@@ -119,7 +119,7 @@ class Tracking_device extends Model
 
     public static function getUserDeviceLocation($user_id = 0, $options = []){
         //check user device
-
+        return ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];
         $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;
         $query = '';
         $roadmapLimit = self::ROADMAP_LIMIT;
@@ -204,7 +204,6 @@ class Tracking_device extends Model
                     }
                 }
             } else {
-                return ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];
                 Log::info("----------------- N times location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
                 $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
                 from users as u 

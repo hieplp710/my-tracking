@@ -149,12 +149,6 @@ class Tracking_device extends Model
             $yesterday = $date_current->format(self::DB_DATETIME_FORMAT);
             // and l.created_at >= '$yesterday'
             $retrist_time = "and l.created_at >= '$yesterday'";
-            $deviceQuery = "select d.id as device_id_main,d.current_state as current_state_device, 
-                      d.expired_at, IFNULL(d.device_number,'N/A') as device_number
-                    from tracking_devices as d
-                    where d.is_deleted = 0 and d.status = 1 $user_condition";
-            $devices = DB::select($deviceQuery, []);
-
             if ($last_point == '') {
                 Log::info("----------------- First location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
 //                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.*
@@ -166,6 +160,11 @@ class Tracking_device extends Model
 //                            left join device_locations as l on d1.id = l.device_id
 //                            where d1.id = d.id $retrist_time)
 //                    order by d.id, l.created_at desc, l.updated_at desc";
+                $deviceQuery = "select d.id as device_id_main,d.current_state as current_state_device, 
+                      d.expired_at, IFNULL(d.device_number,'N/A') as device_number
+                    from tracking_devices as d
+                    where d.is_deleted = 0 and d.status = 1 $user_condition";
+                $devices = DB::select($deviceQuery, []);
                 if ($devices) {
                     for($i = 0; $i < count($devices); $i++){
                         $devices[$i]->command = '';

@@ -79,13 +79,11 @@ class UpdateRollbackStatus extends Command
         //chi update point lien ke sau diem hien tai
         print_r("Update device $device_id \n");
         print_r("Location " . $location->created_at ." \n");
-        $location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location->created_at, 'UTC')
-            ->format(self::DB_DATETIME_FORMAT);
-
+        $location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $location->created_at, 'UTC');
+        $str_location_time = $location_time->format(self::DB_DATETIME_FORMAT);
         $query_after = "select l.* from device_locations as l 
-              where l.device_id = '$device_id' AND created_at > '$location_time' ORDER BY l.created_at ASC LIMIT 1";
+              where l.device_id = '$device_id' AND created_at > '$str_location_time' ORDER BY l.created_at ASC LIMIT 1";
         $nearest_later_loc = DB::select($query_after, []);
-
 
         //update status for later loc
         $statusLatterText = '';

@@ -337,53 +337,40 @@ class Tracking_device extends Model
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         //check if status is park
                         //no longer check park
-//                        if ($location_device->status == self::STATUS_DEVICE_PARK && !$is_roadmap){
-//                            $device = Tracking_device::find($location_device->device_id_main);
-//                            $current_state = !empty($device->current_state) && $device->current_state != '{}' ? json_decode($device->current_state) : null;
-//                            $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
-//                                : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
-//                            $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
-//
-//                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
-//                            $different = $current_time_utc->diffInSeconds($last_time_utc);
-//                            //if diff larger than 48h hours => lost gsm
-//                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
-//                                //only check if park time > 2 days
-//                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
-//                                if ($is_lostGSM) {
-//                                    $location_device->status = "Mất GSM";
-//                                }
-//                            }
-//                            $statusText = self::getDifferentTime($different);
-//                            $location_device->current_state = $statusText;
-//                        } else {
-//                            $location_device->created_at_org = $location_device->created_at;
-//                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
-//                            $different = $current_time_utc->diffInSeconds($last_time_utc);
-//                            //if diff larger than 48h hours => lost gsm
-//                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
-//                                //only check if park time > 2 days
-//                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
-//                                if ($is_lostGSM) {
-//                                    $location_device->status = "Mất GSM";
-//                                }
-//                            }
-//                            $location_device->created_at = $date_created->format('d-m-Y H:i:s');
-//                            $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
-//                        }
-                        $location_device->created_at_org = $location_device->created_at;
-                        $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
-                        $different = $current_time_utc->diffInSeconds($last_time_utc);
-                        //if diff larger than 48h hours => lost gsm
-                        if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
-                            //only check if park time > 2 days
-                            $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
-                            if ($is_lostGSM) {
-                                $location_device->status = "Mất GSM";
+                        if ($location_device->status == self::STATUS_DEVICE_PARK && !$is_roadmap){
+                            $device = Tracking_device::find($location_device->device_id_main);
+                            $current_state = !empty($device->current_state) && $device->current_state != '{}' ? json_decode($device->current_state) : null;
+                            $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
+                                : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
+                            $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
+
+                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
+                            $different = $current_time_utc->diffInSeconds($last_time_utc);
+                            //if diff larger than 48h hours => lost gsm
+                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
+                                //only check if park time > 2 days
+                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+                                if ($is_lostGSM) {
+                                    $location_device->status = "Mất GSM";
+                                }
                             }
+                            $statusText = self::getDifferentTime($different);
+                            $location_device->current_state = $statusText;
+                        } else {
+                            $location_device->created_at_org = $location_device->created_at;
+                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
+                            $different = $current_time_utc->diffInSeconds($last_time_utc);
+                            //if diff larger than 48h hours => lost gsm
+                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
+                                //only check if park time > 2 days
+                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+                                if ($is_lostGSM) {
+                                    $location_device->status = "Mất GSM";
+                                }
+                            }
+                            $location_device->created_at = $date_created->format('d-m-Y H:i:s');
+                            $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
                         }
-                        $location_device->created_at = $date_created->format('d-m-Y H:i:s');
-                        $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
                         $location_device->heading = self::getHeadingClass($location_device->heading);
                         $location_device->status = self::getStatusMapping($location_device->status);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;

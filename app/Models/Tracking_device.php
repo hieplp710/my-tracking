@@ -33,6 +33,11 @@ class Tracking_device extends Model
     const STATUS_EXTEND_EXPIRED = 2;
     const STATUS_UNUSED = 3;
     const ERROR_CODE_INVALID_LOCATION = '__error_loc_data__';
+
+    const STATUS_DEVICE_RUN = 'RUN';
+    const STATUS_DEVICE_STOP = 'STOP';
+    const STATUS_DEVICE_PARK = 'PARK';
+    const STATUS_DEVICE_LOST_GSM = 'LOST_GSM';
      /*
     |--------------------------------------------------------------------------
     | GLOBAL VARIABLES
@@ -331,41 +336,56 @@ class Tracking_device extends Model
                         $devID = $location_device->device_id_main;
                         $location_device->status = self::getStatusText(["status" => $location_device->status, 'velocity' => $location_device->velocity]);
                         //check if status is park
-                        if ($location_device->status == "Đỗ" && !$is_roadmap){
-                            $device = Tracking_device::find($location_device->device_id_main);
-                            $current_state = !empty($device->current_state) && $device->current_state != '{}' ? json_decode($device->current_state) : null;
-                            $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
-                                : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
-                            $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
-
-                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
-                            $different = $current_time_utc->diffInSeconds($last_time_utc);
-                            //if diff larger than 48h hours => lost gsm
-                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
-                                //only check if park time > 2 days
-                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
-                                if ($is_lostGSM) {
-                                    $location_device->status = "Mất GSM";
-                                }
+                        //no longer check park
+//                        if ($location_device->status == self::STATUS_DEVICE_PARK && !$is_roadmap){
+//                            $device = Tracking_device::find($location_device->device_id_main);
+//                            $current_state = !empty($device->current_state) && $device->current_state != '{}' ? json_decode($device->current_state) : null;
+//                            $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
+//                                : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
+//                            $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
+//
+//                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
+//                            $different = $current_time_utc->diffInSeconds($last_time_utc);
+//                            //if diff larger than 48h hours => lost gsm
+//                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
+//                                //only check if park time > 2 days
+//                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+//                                if ($is_lostGSM) {
+//                                    $location_device->status = "Mất GSM";
+//                                }
+//                            }
+//                            $statusText = self::getDifferentTime($different);
+//                            $location_device->current_state = $statusText;
+//                        } else {
+//                            $location_device->created_at_org = $location_device->created_at;
+//                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
+//                            $different = $current_time_utc->diffInSeconds($last_time_utc);
+//                            //if diff larger than 48h hours => lost gsm
+//                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
+//                                //only check if park time > 2 days
+//                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+//                                if ($is_lostGSM) {
+//                                    $location_device->status = "Mất GSM";
+//                                }
+//                            }
+//                            $location_device->created_at = $date_created->format('d-m-Y H:i:s');
+//                            $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
+//                        }
+                        $location_device->created_at_org = $location_device->created_at;
+                        $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
+                        $different = $current_time_utc->diffInSeconds($last_time_utc);
+                        //if diff larger than 48h hours => lost gsm
+                        if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
+                            //only check if park time > 2 days
+                            $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
+                            if ($is_lostGSM) {
+                                $location_device->status = "Mất GSM";
                             }
-                            $statusText = self::getDifferentTime($different);
-                            $location_device->current_state = $statusText;
-                        } else {
-                            $location_device->created_at_org = $location_device->created_at;
-                            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
-                            $different = $current_time_utc->diffInSeconds($last_time_utc);
-                            //if diff larger than 48h hours => lost gsm
-                            if ($different > 48 * 3600 && $different_gsm > 48 * 3600 && !$is_roadmap) {
-                                //only check if park time > 2 days
-                                $is_lostGSM = self::checkLostGSM($location_device->device_id_main);
-                                if ($is_lostGSM) {
-                                    $location_device->status = "Mất GSM";
-                                }
-                            }
-                            $location_device->created_at = $date_created->format('d-m-Y H:i:s');
-                            $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
                         }
+                        $location_device->created_at = $date_created->format('d-m-Y H:i:s');
+                        $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
                         $location_device->heading = self::getHeadingClass($location_device->heading);
+                        $location_device->status = self::getStatusMapping($location_device->status);
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
                 } else if (isset($location_devices[$location_device->device_id_main]) && !$is_roadmap) {
@@ -378,7 +398,7 @@ class Tracking_device extends Model
                         $last_gsm_state = Carbon::createFromFormat('y-m-d H:i:s', $device_state->time, 'UTC');
                         $different_gsm = $current_time_utc->diffInSeconds($last_gsm_state);
                     }
-                    if ($options['lastLocation'][$devID]['status'] == 'Đỗ') {
+                    if ($options['lastLocation'][$devID]['status'] == 'Đỗ' || $options['lastLocation'][$devID]['status'] == 'Mất GSM') {
                         $location_device->last_point = $options["lastPoint"]['last_point'];
                         $location_device->velocity = 0;
                         $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
@@ -397,6 +417,7 @@ class Tracking_device extends Model
                         }
                         $location_device->current_state = $statusText;
                         $location_device->heading = $options["lastPoint"]['heading'];
+                        $location_device->status = self::getStatusMapping($location_device->status);
                         if ($options['lastLocation'] && isset($options['lastLocation'][$devID])) {
                             $location_device->lat = $options['lastLocation'][$devID]['lat'];
                             $location_device->lng = $options['lastLocation'][$devID]['lng'];
@@ -691,11 +712,21 @@ class Tracking_device extends Model
     public static function getStatusText($location) {
         $text = '';
         if ($location['status'] == 1 && $location['velocity'] > 0) {
-            $text = 'Đang chạy';
+            $text = self::STATUS_DEVICE_RUN;
         } else if ($location['status'] == 1 && $location['velocity'] <= 0) {
-            $text = 'Dừng';
+            $text = self::STATUS_DEVICE_STOP;
         } else {
-            $text = 'Đỗ';
+            $text = self::STATUS_DEVICE_PARK;
+        }
+        return $text;
+    }
+
+    public static function getStatusMapping($status_code){
+        $text = '';
+        switch ($status_code) {
+            case self::STATUS_DEVICE_PARK: $text = "Đỗ"; break;
+            case self::STATUS_DEVICE_RUN: $text = "Đang chạy"; break;
+            case self::STATUS_DEVICE_STOP: $text = "Dừng"; break;
         }
         return $text;
     }

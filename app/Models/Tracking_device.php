@@ -342,10 +342,14 @@ class Tracking_device extends Model
                             $current_state = !empty($device->current_state) && $device->current_state != '{}' ? json_decode($device->current_state) : null;
                             $location_device->created_at_org = isset($options['lastLocation'][$devID]) ? $options['lastLocation'][$devID]['time']
                                 : (!empty($current_state) ? Carbon::createFromFormat('y-m-d H:i:s', $current_state->time, 'UTC')->format(self::DB_DATETIME_FORMAT) : $location_device->created_at);
-                            $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
-
+                            $created_at_obj = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at, 'UTC');
                             $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->created_at_org, 'UTC');
                             $different = $current_time_utc->diffInSeconds($last_time_utc);
+                            //nếu gửi điểm lúc đổ thì căn cứ vào lastLocation của request trước hoặc created at
+                            if ($created_at_obj < $last_time_utc) {
+                                $different = $current_time_utc->diffInSeconds($created_at_obj);
+                            }
+                            $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
                             //if diff larger than 48h hours => lost gsm
                             if ($different > 48 * 3600 && $different_gsm > 48 * 3600) {
                                 //only check if park time > 2 days

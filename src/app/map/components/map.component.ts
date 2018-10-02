@@ -410,6 +410,9 @@ export class MapComponent implements OnInit {
             //last time where not thing to load
             if (!locationObj.hasMore && context.roadmapMarkers.length !== 0
                 && locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined) {
+                context.roadmapMarkers = context.roadmapMarkers.concat(
+                    locationObj.markers[context.roadmapSelectedMarker.deviceId].locations);
+                console.log(context.roadmapMarkers, 'markers');
                 context.displayRoapmap(context);
             }
             if (locationObj.markers[context.roadmapSelectedMarker.deviceId] === undefined

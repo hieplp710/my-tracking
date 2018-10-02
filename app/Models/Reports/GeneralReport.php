@@ -28,10 +28,6 @@ class GeneralReport {
                     order by d.id, l.created_at, l.status asc, l.updated_at desc";
         //change code
         $locations = DB::select($query, []);
-//        echo '<pre>';
-//        print_r($query);
-//        echo '</pre>';
-//        exit();
         $report_data = self::executeReportData($locations);
         //data for report
         $data_final = [];
@@ -58,7 +54,6 @@ class GeneralReport {
                     //complete old location and start new location
                     $last_loc = null;
                     $last_loc = isset($report_data[$idx - 1]) ? $report_data[$idx - 1] : $report_data[$idx];
-                    $totalDistance += $item['km'];
                     $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
                     $totalSpeed += $item['avg_vel'];
                     if ($item['avg_vel'] != 0)
@@ -73,12 +68,12 @@ class GeneralReport {
                         if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["Ngày"]){
                             $temp["Tg Kết Thúc"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i:s');
                         }
-                        $totalDistance += $item['km'];
                         $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
                         $totalSpeed += $item['avg_vel'];
                         if ($item['avg_vel'] != 0)
                             $idx_date++;
                     }
+                    $totalDistance += $item['km'];
                     $temp["Tổng Km"] = round($totalDistance / 1000, 1). 'km';
                     $temp['VT Tối Đa'] = round($maxSpeed , 1). 'km/h';
                     $temp["VT Trung Bình"] = $idx_date != 0 ? round($totalSpeed / $idx_date, 1) . 'km/h' : "0km/h";
@@ -165,6 +160,7 @@ class GeneralReport {
         $first_loop_location = null;
         $debug_array = array();
         $tem = 0;
+        $totalKmAll = 0;
         foreach($locations as $index => $loc) {
             $date_created = Carbon::createFromFormat('Y-m-d H:i:s', $loc->created_at, 'UTC');
             $date_created->setTimezone('Asia/Ho_Chi_Minh');
@@ -177,6 +173,7 @@ class GeneralReport {
                 $current_status = $loc->status;
                 $first_loop_location = $loc;
             }
+
             if ($loc->status != $current_status || $index == (count($locations) - 1)) {
                 //complete old location and start new location
                 if ($index == (count($locations) - 1)) {
@@ -218,17 +215,16 @@ class GeneralReport {
                 $first_loop_location = $loc;
             }
             if (isset($current_loc['km']) ){
-                if ($loc->status != 0 || $first_loop_location->status != 0) {
-                    $current_loc['km'] += floatval(self::getDistanceLocal($first_loop_location, $loc));
-                    $debug_array[] = ["start_time" => $first_loop_location->created_at, "end_time"=> $loc->created_at,
-                        "start_pos" => ($first_loop_location->lat . ',' . $first_loop_location->lng), "end_pos" => ($loc->lat . ',' . $loc->lng)];
-                }
-                $first_loop_location = $loc;
+                $current_loc['km'] += floatval(self::getDistanceLocal($first_loop_location, $loc));
+                $debug_array[] = ["start_time" => $first_loop_location->created_at, "end_time"=> $loc->created_at,
+                    "start_pos" => ($first_loop_location->lat . ',' . $first_loop_location->lng), "end_pos" => ($loc->lat . ',' . $loc->lng)];
             }
+            $first_loop_location = $loc;
             //count & sum continue
             $vel += floatval($loc->velocity);
             $max_vel = $loc->velocity > $max_vel ? $loc->velocity : $max_vel;
             $count_loc++;
+
         }
         return $report_data;
     }

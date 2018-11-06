@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+Route::post('/login', 'Tracking\DeviceMobileController@login')->name('login');
+Route::group(['middleware' => ['jwt.verify']], function() {
+    Route::get('user', 'UserController@getAuthenticatedUser');
+    Route::get('/get-locations-mobile', 'Tracking\DeviceMobileController@getDeviceLocations')->name('get_location');
 });

@@ -16,6 +16,7 @@ class SettingCrudController extends CrudController
         $this->crud->setModel("Backpack\Settings\app\Models\Setting");
         $this->crud->setEntityNameStrings(trans('backpack::settings.setting_singular'), trans('backpack::settings.setting_plural'));
         $this->crud->setRoute(config('backpack.base.route_prefix', 'admin').'/setting');
+        $this->crud->addClause('where', 'active', 1);
         $this->crud->denyAccess(['create', 'delete']);
         $this->crud->setColumns([
             [
@@ -50,8 +51,6 @@ class SettingCrudController extends CrudController
      */
     public function index()
     {
-        $this->crud->addClause('where', 'active', 1);
-
         return parent::index();
     }
 
@@ -72,7 +71,7 @@ class SettingCrudController extends CrudController
         $this->crud->hasAccessOrFail('update');
 
         $this->data['entry'] = $this->crud->getEntry($id);
-        $this->crud->addField((array) json_decode($this->data['entry']->field)); // <---- this is where it's different
+        $this->crud->addField(json_decode($this->data['entry']->field, true)); // <---- this is where it's different
         $this->data['crud'] = $this->crud;
         $this->data['saveAction'] = $this->getSaveAction();
         $this->data['fields'] = $this->crud->getUpdateFields($id);

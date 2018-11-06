@@ -47,7 +47,7 @@ trait HasRoles
     public function scopeRole($query, $roles)
     {
         if ($roles instanceof Collection) {
-            $roles = $roles->toArray();
+            $roles = $roles->all();
         }
 
         if (! is_array($roles)) {
@@ -209,6 +209,10 @@ trait HasRoles
      */
     public function hasAnyPermission(...$permissions)
     {
+        if (is_array($permissions[0])) {
+            $permissions = $permissions[0];
+        }
+
         foreach ($permissions as $permission) {
             if ($this->hasPermissionTo($permission)) {
                 return true;

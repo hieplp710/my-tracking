@@ -80,6 +80,24 @@ abstract class elFinderVolumeDriver {
 	protected $URL = '';
 	
 	/**
+	 * A file save destination path when a temporary content URL is required
+	 * on a network volume or the like
+	 * If not specified, it tries to use "Connector Path/../files/.tmb".
+	 *
+	 * @var string
+	 */
+	protected $tmpLinkPath = '';
+	
+	/**
+	 * A file save destination URL when a temporary content URL is required
+	 * on a network volume or the like
+	 * If not specified, it tries to use "Connector URL/../files/.tmb".
+	 *
+	 * @var string
+	 */
+	protected $tmpLinkUrl = '';
+	
+	/**
 	 * Thumbnails dir path
 	 *
 	 * @var string
@@ -208,14 +226,16 @@ abstract class elFinderVolumeDriver {
 		// root url, not set to disable sending URL to client (replacement for old "fileURL" option)
 		'URL'             => '',
 		// directory link url to own manager url with folder hash (`true`, `false` or default `'auto'`: URL is empty then `true` else `false`)
-		'dirUrlOwn'     => 'auto',
+		'dirUrlOwn'       => 'auto',
 		// directory separator. required by client to show paths correctly
 		'separator'       => DIRECTORY_SEPARATOR,
+		// Use '/' as directory separator when the path hash encode/decode on the Windows server too
+		'winHashFix'      => false,
 		// Server character encoding (default is '': UTF-8)
 		'encoding'        => '',
 		// for convert character encoding (default is '': Not change locale)
 		'locale'          => '',
-		// URL of volume icon (16x16 pixel image file)
+		// URL of volume icon image
 		'icon'            => '',
 		// CSS Class of volume root in tree
 		'rootCssClass'    => '',
@@ -236,9 +256,11 @@ abstract class elFinderVolumeDriver {
 		// Static extension/MIME of general server side scripts to security issues
 		'staticMineMap'   => array(
 			'php:*'                        => 'text/x-php',
+			'pht:*'                        => 'text/x-php',
 			'php3:*'                       => 'text/x-php',
 			'php4:*'                       => 'text/x-php',
 			'php5:*'                       => 'text/x-php',
+			'php7:*'                       => 'text/x-php',
 			'phtml:*'                      => 'text/x-php',
 			'cgi:*'                        => 'text/x-httpd-cgi',
 			'pl:*'                         => 'text/x-perl',
@@ -254,12 +276,43 @@ abstract class elFinderVolumeDriver {
 			'md:text/plain'                => 'text/x-markdown',
 			'markdown:text/plain'          => 'text/x-markdown',
 			'css:text/x-asm'               => 'text/css',
-			'ico:image/vnd.microsoft.icon' => 'image/x-icon',
+			'css:text/plain'               => 'text/css',
 			'csv:text/plain'               => 'text/csv',
+			'json:text/plain'              => 'application/json',
+			'sql:text/plain'               => 'text/x-sql',
+			'rtf:text/rtf'                 => 'application/rtf',
+			'rtfd:text/rtfd'               => 'application/rtfd',
+			'ico:image/vnd.microsoft.icon' => 'image/x-icon',
+			'svg:text/plain'               => 'image/svg+xml',
+			'pxd:application/octet-stream' => 'image/x-pixlr-data',
+			'dng:image/tiff'               => 'image/x-adobe-dng',
+			'sketch:application/zip'       => 'image/x-sketch',
+			'sketch:application/octet-stream' => 'image/x-sketch',
+			'xcf:application/octet-stream' => 'image/x-xcf',
+			'amr:application/octet-stream' => 'audio/amr',
 			'm4a:video/mp4'                => 'audio/mp4',
 			'oga:application/ogg'          => 'audio/ogg',
 			'ogv:application/ogg'          => 'video/ogg',
-			'zip:application/x-zip'        => 'application/zip'
+			'zip:application/x-zip'        => 'application/zip',
+			'm3u8:text/plain'              => 'application/x-mpegURL',
+			'mpd:text/plain'               => 'application/dash+xml',
+			'mpd:application/xml'          => 'application/dash+xml',
+			'*:application/x-dosexec'      => 'application/x-executable',
+			'doc:application/vnd.ms-office'=> 'application/msword',
+			'xls:application/vnd.ms-office'=> 'application/vnd.ms-excel',
+			'ppt:application/vnd.ms-office'=> 'application/vnd.ms-powerpoint',
+			'yml:text/plain'               => 'text/x-yaml',
+			'ai:application/pdf'           => 'application/postscript',
+			'cgm:text/plain'               => 'image/cgm',
+			'dxf:text/plain'               => 'image/vnd.dxf',
+			'hpgl:text/plain'              => 'application/vnd.hp-hpgl',
+			'igs:text/plain'               => 'model/iges',
+			'iges:text/plain'              => 'model/iges',
+			'plt:application/octet-stream' => 'application/plt',
+			'plt:text/plain'               => 'application/plt',
+			'sat:text/plain'               => 'application/sat',
+			'step:text/plain'              => 'application/step',
+			'stp:text/plain'               => 'application/step'
 		),
 		// An option to add MimeMap to the `mimeMap` option
 		// Array '[ext]:[detected mime type]' => '[normalized mime]'
@@ -267,7 +320,11 @@ abstract class elFinderVolumeDriver {
 		// MIME regex of send HTTP header "Content-Disposition: inline" or allow preview in quicklook
 		// '.' is allow inline of all of MIME types
 		// '$^' is not allow inline of all of MIME types
-		'dispInlineRegex' => '^(?:(?:image|video|audio)|(?:text/plain|application/pdf)$)',
+		'dispInlineRegex' => '^(?:(?:image|video|audio)|application/(?:ogg|x-mpegURL|dash\+xml)|(?:text/plain|application/pdf)$)',
+		// temporary content URL's base path
+		'tmpLinkPath'     => '',
+		// temporary content URL's base URL
+		'tmpLinkUrl'      => '',
 		// directory for thumbnails
 		'tmbPath'         => '.tmb',
 		// mode to create thumbnails dir
@@ -296,6 +353,10 @@ abstract class elFinderVolumeDriver {
 		'resourcePath'    => '',
 		// Jpeg image saveing quality
 		'jpgQuality'      => 100,
+		// Save as progressive JPEG on image editing
+		'jpgProgressive'  => true,
+		// enable to get substitute image with command `dim`
+		'substituteImg'   => true,
 		// on paste file -  if true - old file will be replaced with new one, if false new file get name - original_name-number.ext
 		'copyOverwrite'   => true,
 		// if true - join new and old directories content on paste
@@ -306,12 +367,14 @@ abstract class elFinderVolumeDriver {
 		'uploadAllow'     => array(),
 		// mimetypes not allowed to upload
 		'uploadDeny'      => array(),
-		// order to proccess uploadAllow and uploadDeny options
+		// order to process uploadAllow and uploadDeny options
 		'uploadOrder'     => array('deny', 'allow'),
 		// maximum upload file size. NOTE - this is size for every uploaded files
 		'uploadMaxSize'   => 0,
 		// maximum number of chunked upload connection. `-1` to disable chunked upload
 		'uploadMaxConn'   => 3,
+		// maximum get file size. NOTE - Maximum value is 50% of PHP memory_limit
+		'getMaxSize'      => 0,
 		// files dates format
 		'dateFormat'      => 'j M Y H:i',
 		// files time format
@@ -355,6 +418,8 @@ abstract class elFinderVolumeDriver {
 		'archiveMimes' => array(),
 		// Manual config for archivers. See example below. Leave empty for auto detect
 		'archivers'    => array(),
+		// Use Archive function for remote volume
+		'useRemoteArchive' => false,
 		// plugin settings
 		'plugin'       => array(),
 		// Is support parent directory time stamp update on add|remove|rename item
@@ -381,7 +446,17 @@ abstract class elFinderVolumeDriver {
 		'utf8fix'      => false,
 		 //                           й                 ё              Й               Ё              Ø         Å
 		'utf8patterns' => array("\u0438\u0306", "\u0435\u0308", "\u0418\u0306", "\u0415\u0308", "\u00d8A", "\u030a"),
-		'utf8replace'  => array("\u0439",        "\u0451",       "\u0419",       "\u0401",       "\u00d8", "\u00c5")
+		'utf8replace'  => array("\u0439",        "\u0451",       "\u0419",       "\u0401",       "\u00d8", "\u00c5"),
+		// cache control HTTP headers for commands `file` and  `get`
+		'cacheHeaders' => array(
+			'Cache-Control: max-age=3600',
+			'Expires:',
+			'Pragma:'
+		),
+		// Header to use to accelerate sending local files to clients (e.g. 'X-Sendfile', 'X-Accel-Redirect')
+		'xsendfile'    => '',
+		// Root path to xsendfile target. Probably, this is required for 'X-Accel-Redirect' on Nginx.
+		'xsendfilePath'=> ''
 	);
 
 	/**
@@ -447,6 +522,14 @@ abstract class elFinderVolumeDriver {
 	protected $uploadOverwrite = true;
 	
 	/**
+	 * Maximum allowed get file size.
+	 * Set as number or string with unit - "10M", "500K", "1G"
+	 *
+	 * @var int|string
+	 **/
+	protected $getMaxSize = -1;
+	
+	/**
 	 * Mimetype detect method
 	 *
 	 * @var string
@@ -475,133 +558,52 @@ abstract class elFinderVolumeDriver {
 	protected $disabled = array();
 	
 	/**
-	 * default extensions/mimetypes for mimeDetect == 'internal' 
+	 * overwrite extensions/mimetypes to mime.types
 	 *
 	 * @var array
 	 **/
 	protected static $mimetypes = array(
 		// applications
-		'ai'    => 'application/postscript',
-		'eps'   => 'application/postscript',
 		'exe'   => 'application/x-executable',
-		'doc'   => 'application/msword',
-		'dot'   => 'application/msword',
-		'xls'   => 'application/vnd.ms-excel',
-		'xlt'   => 'application/vnd.ms-excel',
-		'xla'   => 'application/vnd.ms-excel',
-		'ppt'   => 'application/vnd.ms-powerpoint',
-		'pps'   => 'application/vnd.ms-powerpoint',
-		'pdf'   => 'application/pdf',
-		'xml'   => 'application/xml',
-		'swf'   => 'application/x-shockwave-flash',
-		'torrent' => 'application/x-bittorrent',
 		'jar'   => 'application/x-jar',
-		// open office (finfo detect as application/zip)
-		'odt'   => 'application/vnd.oasis.opendocument.text',
-		'ott'   => 'application/vnd.oasis.opendocument.text-template',
-		'oth'   => 'application/vnd.oasis.opendocument.text-web',
-		'odm'   => 'application/vnd.oasis.opendocument.text-master',
-		'odg'   => 'application/vnd.oasis.opendocument.graphics',
-		'otg'   => 'application/vnd.oasis.opendocument.graphics-template',
-		'odp'   => 'application/vnd.oasis.opendocument.presentation',
-		'otp'   => 'application/vnd.oasis.opendocument.presentation-template',
-		'ods'   => 'application/vnd.oasis.opendocument.spreadsheet',
-		'ots'   => 'application/vnd.oasis.opendocument.spreadsheet-template',
-		'odc'   => 'application/vnd.oasis.opendocument.chart',
-		'odf'   => 'application/vnd.oasis.opendocument.formula',
-		'odb'   => 'application/vnd.oasis.opendocument.database',
-		'odi'   => 'application/vnd.oasis.opendocument.image',
-		'oxt'   => 'application/vnd.openofficeorg.extension',
-		// MS office 2007 (finfo detect as application/zip)
-		'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-		'docm'  => 'application/vnd.ms-word.document.macroEnabled.12',
-		'dotx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-		'dotm'  => 'application/vnd.ms-word.template.macroEnabled.12',
-		'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-		'xlsm'  => 'application/vnd.ms-excel.sheet.macroEnabled.12',
-		'xltx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
-		'xltm'  => 'application/vnd.ms-excel.template.macroEnabled.12',
-		'xlsb'  => 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
-		'xlam'  => 'application/vnd.ms-excel.addin.macroEnabled.12',
-		'pptx'  => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		'pptm'  => 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
-		'ppsx'  => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
-		'ppsm'  => 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
-		'potx'  => 'application/vnd.openxmlformats-officedocument.presentationml.template',
-		'potm'  => 'application/vnd.ms-powerpoint.template.macroEnabled.12',
-		'ppam'  => 'application/vnd.ms-powerpoint.addin.macroEnabled.12',
-		'sldx'  => 'application/vnd.openxmlformats-officedocument.presentationml.slide',
-		'sldm'  => 'application/vnd.ms-powerpoint.slide.macroEnabled.12',
 		// archives
 		'gz'    => 'application/x-gzip',
 		'tgz'   => 'application/x-gzip',
-		'bz'    => 'application/x-bzip2',
-		'bz2'   => 'application/x-bzip2',
 		'tbz'   => 'application/x-bzip2',
-		'xz'    => 'application/x-xz',
-		'zip'   => 'application/zip',
 		'rar'   => 'application/x-rar',
-		'tar'   => 'application/x-tar',
-		'7z'    => 'application/x-7z-compressed',
 		// texts
-		'txt'   => 'text/plain',
 		'php'   => 'text/x-php',
-		'html'  => 'text/html',
-		'htm'   => 'text/html',
 		'js'    => 'text/javascript',
-		'css'   => 'text/css',
-		'rtf'   => 'text/rtf',
-		'rtfd'  => 'text/rtfd',
+		'rtfd'  => 'application/rtfd',
 		'py'    => 'text/x-python',
-		'java'  => 'text/x-java-source',
 		'rb'    => 'text/x-ruby',
 		'sh'    => 'text/x-shellscript',
 		'pl'    => 'text/x-perl',
-		//'xml'   => 'text/xml',
-		'sql'   => 'text/x-sql',
+		'xml'   => 'text/xml',
 		'c'     => 'text/x-csrc',
 		'h'     => 'text/x-chdr',
 		'cpp'   => 'text/x-c++src',
 		'hh'    => 'text/x-c++hdr',
-		'log'   => 'text/plain',
-		'csv'   => 'text/csv',
 		'md'    => 'text/x-markdown',
 		'markdown' => 'text/x-markdown',
+		'yml'   => 'text/x-yaml',
 		// images
 		'bmp'   => 'image/x-ms-bmp',
-		'jpg'   => 'image/jpeg',
-		'jpeg'  => 'image/jpeg',
-		'gif'   => 'image/gif',
-		'png'   => 'image/png',
-		'tif'   => 'image/tiff',
-		'tiff'  => 'image/tiff',
 		'tga'   => 'image/x-targa',
-		'psd'   => 'image/vnd.adobe.photoshop',
-		//'ai'    => 'image/vnd.adobe.photoshop',
 		'xbm'   => 'image/xbm',
 		'pxm'   => 'image/pxm',
 		//audio
-		'mp3'   => 'audio/mpeg',
-		'mid'   => 'audio/midi',
-		'ogg'   => 'audio/ogg',
-		'oga'   => 'audio/ogg',
-		'm4a'   => 'audio/mp4',
 		'wav'   => 'audio/wav',
-		'wma'   => 'audio/x-ms-wma',
 		// video
-		'avi'   => 'video/x-msvideo',
 		'dv'    => 'video/x-dv',
-		'mp4'   => 'video/mp4',
-		'mpeg'  => 'video/mpeg',
-		'mpg'   => 'video/mpeg',
-		'mov'   => 'video/quicktime',
 		'wm'    => 'video/x-ms-wmv',
-		'flv'   => 'video/x-flv',
-		'mkv'   => 'video/x-matroska',
-		'webm'  => 'video/webm',
-		'ogv'   => 'video/ogg',
-		'ogm'   => 'video/ogg'
-		);
+		'ogm'   => 'video/ogg',
+		'm2ts'  => 'video/MP2T',
+		'mts'   => 'video/MP2T',
+		'ts'    => 'video/MP2T',
+		'm3u8'  => 'application/x-mpegURL',
+		'mpd'   => 'application/dash+xml'
+	);
 	
 	/**
 	 * Directory separator - required by client
@@ -609,6 +611,13 @@ abstract class elFinderVolumeDriver {
 	 * @var string
 	 **/
 	protected $separator = DIRECTORY_SEPARATOR;
+	
+	/**
+	 * Directory separator for decode/encode hash
+	 *
+	 * @var string
+	 **/
+	protected $separatorForHash = '';
 	
 	/**
 	 * System Root path (Unix like: '/', Windows: '\', 'C:\' or 'D:\'...)
@@ -782,7 +791,7 @@ abstract class elFinderVolumeDriver {
 			if (($convertCmd = $this->session->get($convertCache, false)) !== false) {
 				$this->imgLib = $convertCmd;
 			} else {
-				$this->imgLib = ($this->procExec('convert -version') === 0)? 'convert' : '';
+				$this->imgLib = ($this->procExec(ELFINDER_CONVERT_PATH . ' -version') === 0)? 'convert' : '';
 				$this->session->set($convertCache, $this->imgLib);
 			}
 		}
@@ -802,7 +811,7 @@ abstract class elFinderVolumeDriver {
 		if (! isset($this->imgConverter['video'])) {
 			$videoLibCache = 'videoLib';
 			if (($videoLibCmd = $this->session->get($videoLibCache, false)) === false) {
-				$videoLibCmd = ($this->procExec('ffmpeg -version') === 0)? 'ffmpeg' : '';
+				$videoLibCmd = ($this->procExec(ELFINDER_FFMPEG_PATH . ' -version') === 0)? 'ffmpeg' : '';
 				$this->session->set($videoLibCache, $videoLibCmd);
 			}
 			if ($videoLibCmd) {
@@ -946,7 +955,7 @@ abstract class elFinderVolumeDriver {
 			return $this->setError(elFinder::ERROR_PERM_DENIED, $file['name']);
 		}
 
-		$this->clearcache();
+		$this->clearstatcache();
 		if ($path == $this->root) {
 			$this->rootModified = true;
 		}
@@ -1033,14 +1042,10 @@ abstract class elFinderVolumeDriver {
 		$this->id = $this->driverId.(!empty($this->options['id']) ? $this->options['id'] : elFinder::$volumesCnt++).'_';
 		$this->root = $this->normpathCE($this->options['path']);
 		$this->separator = isset($this->options['separator']) ? $this->options['separator'] : DIRECTORY_SEPARATOR;
-		$this->systemRoot = isset($this->options['systemRoot']) ? $this->options['systemRoot'] : $this->separator;
-		
-		// set server encoding
-		if (!empty($this->options['encoding']) && strtoupper($this->options['encoding']) !== 'UTF-8') {
-			$this->encoding = $this->options['encoding'];
-		} else {
-			$this->encoding = null;
+		if (! empty($this->options['winHashFix'])) {
+			$this->separatorForHash = ($this->separator !== '/') ? '/' : '';
 		}
+		$this->systemRoot = isset($this->options['systemRoot']) ? $this->options['systemRoot'] : $this->separator;
 		
 		// set ARGS
 		$this->ARGS = $_SERVER['REQUEST_METHOD'] === 'POST'? $_POST : $_GET;
@@ -1089,6 +1094,13 @@ abstract class elFinderVolumeDriver {
 			return false;
 		}
 		
+		// set server encoding
+		if (!empty($this->options['encoding']) && strtoupper($this->options['encoding']) !== 'UTF-8') {
+			$this->encoding = $this->options['encoding'];
+		} else {
+			$this->encoding = null;
+		}
+		
 		// check some options is arrays
 		$this->uploadAllow = isset($this->options['uploadAllow']) && is_array($this->options['uploadAllow'])
 			? $this->options['uploadAllow']
@@ -1110,20 +1122,7 @@ abstract class elFinderVolumeDriver {
 		}
 			
 		if (!empty($this->options['uploadMaxSize'])) {
-			$size = ''.$this->options['uploadMaxSize'];
-			$unit = strtolower(substr($size, strlen($size) - 1));
-			$n = 1;
-			switch ($unit) {
-				case 'k':
-					$n = 1024;
-					break;
-				case 'm':
-					$n = 1048576;
-					break;
-				case 'g':
-					$n = 1073741824;
-			}
-			$this->uploadMaxSize = intval($size)*$n;
+			$this->uploadMaxSize = elFinder::getIniBytes('', $this->options['uploadMaxSize']);
 		}
 		// Set maximum to PHP_INT_MAX
 		if (!defined('PHP_INT_MAX')) {
@@ -1131,6 +1130,14 @@ abstract class elFinderVolumeDriver {
 		}
 		if ($this->uploadMaxSize < 1 || $this->uploadMaxSize > PHP_INT_MAX) {
 			$this->uploadMaxSize = PHP_INT_MAX;
+		}
+		
+		// Set to get maximum size to 50% of memory_limit
+		$memLimit = elFinder::getIniBytes('memory_limit') / 2;
+		if ($memLimit > 0) {
+			$this->getMaxSize = empty($this->options['getMaxSize'])? $memLimit : min($memLimit, elFinder::getIniBytes('', $this->options['getMaxSize']));
+		} else {
+			$this->getMaxSize = -1;
 		}
 		
 		$this->disabled = isset($this->options['disabled']) && is_array($this->options['disabled'])
@@ -1167,34 +1174,8 @@ abstract class elFinderVolumeDriver {
 		// load mimes from external file for mimeDetect == 'internal'
 		// based on Alexey Sukhotin idea and patch: http://elrte.org/redmine/issues/163
 		// file must be in file directory or in parent one 
-		if ($this->mimeDetect == 'internal' && !self::$mimetypesLoaded) {
-			self::$mimetypesLoaded = true;
-			$this->mimeDetect = 'internal';
-			$file = false;
-			if (!empty($this->options['mimefile']) && file_exists($this->options['mimefile'])) {
-				$file = $this->options['mimefile'];
-			} elseif (elFinder::$defaultMimefile && file_exists(elFinder::$defaultMimefile)) {
-				$file = elFinder::$defaultMimefile;
-			} elseif (file_exists(dirname(__FILE__).DIRECTORY_SEPARATOR.'mime.types')) {
-				$file = dirname(__FILE__).DIRECTORY_SEPARATOR.'mime.types';
-			} elseif (file_exists(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'mime.types')) {
-				$file = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'mime.types';
-			}
-
-			if ($file && file_exists($file)) {
-				$mimecf = file($file);
-
-				foreach ($mimecf as $line_num => $line) {
-					if (!preg_match('/^\s*#/', $line)) {
-						$mime = preg_split('/\s+/', $line, -1, PREG_SPLIT_NO_EMPTY);
-						for ($i = 1, $size = count($mime); $i < $size ; $i++) {
-							if (!isset(self::$mimetypes[$mime[$i]])) {
-								self::$mimetypes[$mime[$i]] = $mime[0];
-							}
-						}
-					}
-				}
-			}
+		if ($this->mimeDetect === 'internal' && !elFinderVolumeDriver::$mimetypesLoaded) {
+			elFinderVolumeDriver::loadMimeTypes(!empty($this->options['mimefile'])? $this->options['mimefile'] : '');
 		}
 
 		$this->rootName = empty($this->options['alias']) ? $this->basenameCE($this->root) : $this->options['alias'];
@@ -1266,6 +1247,13 @@ abstract class elFinderVolumeDriver {
 			: $this->nameValidator;
 
 		$this->_checkArchivers();
+
+		// enabling archivers['create'] with options['useRemoteArchive']
+		if ($this->options['useRemoteArchive'] && empty($this->archivers['create']) && $this->getTempPath()) {
+			$_archivers = $this->getArchivers();
+			$this->archivers['create'] = $_archivers['create'];
+		}
+
 		// manual control archive types to create
 		if (!empty($this->options['archiveMimes']) && is_array($this->options['archiveMimes'])) {
 			foreach ($this->archivers['create'] as $mime => $v) {
@@ -1315,7 +1303,7 @@ abstract class elFinderVolumeDriver {
 
 		$this->configure();
 		
-		// Normarize disabled (array_merge`for type array of JSON)
+		// Normalize disabled (array_merge`for type array of JSON)
 		$this->disabled = array_values(array_unique($this->disabled));
 		
 		// fix sync interval
@@ -1327,7 +1315,64 @@ abstract class elFinderVolumeDriver {
 		if ($this->options['trashHash'] && empty($this->options['copyJoin'])) {
 			$this->options['trashHash'] = '';
 		}
-
+		
+		// set tmpLinkPath
+		if (elFinder::$tmpLinkPath && !$this->options['tmpLinkPath']) {
+			if (is_writeable(elFinder::$tmpLinkPath)) {
+				$this->options['tmpLinkPath'] = elFinder::$tmpLinkPath;
+			} else {
+				elFinder::$tmpLinkPath = '';
+			}
+		}
+		if ($this->options['tmpLinkPath'] && is_writable($this->options['tmpLinkPath'])) {
+			$this->tmpLinkPath = realpath($this->options['tmpLinkPath']);
+		} else if (! $this->tmpLinkPath && $this->tmbURL && $this->tmbPath) {
+			$this->tmpLinkPath = $this->tmbPath;
+			$this->options['tmpLinkUrl'] = $this->tmbURL;
+ 		} else if (!$this->options['URL'] && is_writable('../files/.tmb')) {
+			$this->tmpLinkPath = realpath('../files/.tmb');
+			$this->options['tmpLinkUrl'] = '';
+			if (! elFinder::$tmpLinkPath) {
+				elFinder::$tmpLinkPath = $this->tmpLinkPath;
+				elFinder::$tmpLinkUrl = '';
+			}
+		}
+		
+		// set tmpLinkUrl
+		if (elFinder::$tmpLinkUrl && !$this->options['tmpLinkUrl']) {
+			$this->options['tmpLinkUrl'] = elFinder::$tmpLinkUrl;
+		}
+		if ($this->options['tmpLinkUrl']) {
+			$this->tmpLinkUrl = $this->options['tmpLinkUrl'];
+		}
+		if ($this->tmpLinkPath && !$this->tmpLinkUrl) {
+			$cur = realpath('./');
+			$i = 0;
+			while($cur !== $this->systemRoot && strpos($this->tmpLinkPath, $cur) !== 0) {
+				$i++;
+				$cur = dirname($cur);
+			}
+			list($req) = explode('?', $_SERVER['REQUEST_URI']);
+			$reqs = explode('/', dirname($req));
+			$uri = join('/', array_slice($reqs, 0, count($reqs) - 1)).substr($this->tmpLinkPath, strlen($cur));
+			$https = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off');
+			$this->tmpLinkUrl = ($https ? 'https://' : 'http://')
+				.$_SERVER['SERVER_NAME'] // host
+				.(((! $https && $_SERVER['SERVER_PORT'] == 80) || ($https && $_SERVER['SERVER_PORT'] == 443)) ? '' : (':' . $_SERVER['SERVER_PORT']))  // port
+				.$uri;
+			if (! elFinder::$tmpLinkUrl) {
+				elFinder::$tmpLinkUrl = $this->tmpLinkUrl;
+			}
+		}
+		
+		// remove last '/'
+		if ($this->tmpLinkPath) {
+			$this->tmpLinkPath = rtrim($this->tmpLinkPath, '/');
+		}
+		if ($this->tmpLinkUrl) {
+			$this->tmpLinkUrl = rtrim($this->tmpLinkUrl, '/');
+		}
+		
 		// to update options cache
 		$this->updateCache($this->root, $root);
 
@@ -1382,7 +1427,9 @@ abstract class elFinderVolumeDriver {
 	 */
 	public function getMimeTable() {
 		// load mime.types
-		! elFinderVolumeDriver::$mimetypesLoaded && elFinderVolumeDriver::mimetypeInternalDetect();
+		if (! elFinderVolumeDriver::$mimetypesLoaded) {
+			elFinderVolumeDriver::loadMimeTypes();
+		}
 		return elFinderVolumeDriver::$mimetypes;
 	}
 	
@@ -1399,9 +1446,9 @@ abstract class elFinderVolumeDriver {
 		
 		if (is_null($extTable)) {
 			$extTable = array_flip(array_unique($this->getMimeTable()));
-			foreach(array_keys($this->options['mimeMap']) as $pair) {
-				list($ext, $_mime) = explode(':', $pair);
-				if ($_mime !== '*' && ! isset($extTable[$_mime])) {
+			foreach($this->options['mimeMap'] as $pair => $_mime) {
+				list($ext) = explode(':', $pair);
+				if ($ext !== '*' && ! isset($extTable[$_mime])) {
 					$extTable[$_mime] = $ext;
 				}
 			}
@@ -1434,6 +1481,16 @@ abstract class elFinderVolumeDriver {
 	 **/
 	public function root() {
 		return $this->encode($this->root);
+	}
+
+	/**
+	 * Return root path
+	 *
+	 * @return string
+	 * @author Naoki Sawada
+	 **/
+	public function getRootPath() {
+		return $this->root;
 	}
 
 	/**
@@ -1515,7 +1572,8 @@ abstract class elFinderVolumeDriver {
 			'syncChkAsTs'     => intval($this->options['syncChkAsTs']),
 			'syncMinMs'       => intval($this->options['syncMinMs']),
 			'i18nFolderName'  => intval($this->options['i18nFolderName']),
-			'tmbCrop'         => intval($this->options['tmbCrop'])
+			'tmbCrop'         => intval($this->options['tmbCrop']),
+			'substituteImg'   => (bool)$this->options['substituteImg']
 		);
 		if (! empty($this->options['trashHash'])) {
 			$opts['trashHash'] = $this->options['trashHash'];
@@ -1656,12 +1714,16 @@ abstract class elFinderVolumeDriver {
 					if ($item['phash'] !== '') {
 						$parent = $this->decode($item['phash']);
 						unset($this->cache[$parent]);
+						if ($this->root === $parent) {
+							$this->sessionCache['rootstat'] = array();
+						}
 						if ($unsetSubdir) {
 							unset($this->sessionCache['subdirs'][$parent]);
 						}
 					}
 				}
 			}
+			$this->removed = array_values($this->removed);
 		}
 		return $this->removed;
 	}
@@ -1860,7 +1922,7 @@ abstract class elFinderVolumeDriver {
 		$tree = array();
 		
 		while ($path && $path != $this->root) {
-			elFinder::extendTimeLimit();
+			elFinder::checkAborted();
 			$path = $this->dirnameCE($path);
 			if (!($stat = $this->stat($path)) || !empty($stat['hidden']) || !$stat['read']) {
 				return false;
@@ -1869,7 +1931,7 @@ abstract class elFinderVolumeDriver {
 			array_unshift($tree, $stat);
 			if (!$lineal) {
 				foreach ($this->gettree($path, 0) as $dir) {
-					elFinder::extendTimeLimit();
+					elFinder::checkAborted();
 					if (!isset($tree[$dir['hash']])) {
 						$tree[$dir['hash']] = $dir;
 					}
@@ -1987,6 +2049,7 @@ abstract class elFinderVolumeDriver {
 		
 		$mkpath = $this->convEncOut($this->_mkdir($this->convEncIn($path), $this->convEncIn($name)));
 		if ($mkpath) {
+			$this->clearstatcache();
 			$this->updateSubdirsCache($path, true);
 			$this->updateSubdirsCache($mkpath, false);
 		}
@@ -2031,7 +2094,12 @@ abstract class elFinderVolumeDriver {
 		}
 		
 		$this->clearcache();
-		return ($path = $this->convEncOut($this->_mkfile($this->convEncIn($path), $this->convEncIn($name)))) ? $this->stat($path) : false;
+		$res = false;
+		if ($path = $this->convEncOut($this->_mkfile($this->convEncIn($path), $this->convEncIn($name)))) {
+			$this->clearstatcache();
+			$res = $this->stat($path);
+		}
+		return $res;
 	}
 	
 	/**
@@ -2062,7 +2130,7 @@ abstract class elFinderVolumeDriver {
 		$isDir = ($file['mime'] === 'directory');
 		
 		if (!$this->nameAccepted($name, $isDir)) {
-			return $this->setError(elFinder::ERROR_INVALID_DIRNAME);
+			return $this->setError($isDir? elFinder::ERROR_INVALID_DIRNAME : elFinder::ERROR_INVALID_NAME);
 		}
 		
 		if (! $isDir) {
@@ -2155,7 +2223,7 @@ abstract class elFinderVolumeDriver {
 		
 		$mimeByName = '';
 		if ($this->mimeDetect === 'internal') {
-			$mime = $this->mimetype($name, true);
+			$mime = $this->mimetype($tmpname, $name);
 		} else {
 			$mime = $this->mimetype($tmpname, $name);
 			$mimeByName = $this->mimetype($name, true);
@@ -2165,7 +2233,7 @@ abstract class elFinderVolumeDriver {
 		}
 
 		if (!$this->allowPutMime($mime) || ($mimeByName && !$this->allowPutMime($mimeByName))) {
-			return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME);
+			return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME, '(' . $mime . ')');
 		}
 
 		$tmpsize = sprintf('%u', filesize($tmpname));
@@ -2280,11 +2348,11 @@ abstract class elFinderVolumeDriver {
 					return $this->setError(elFinder::ERROR_NOT_REPLACE, $this->path($stat['hash']));
 				}
 				// existed file is not writable
-				if (!$stat['write']) {
+				if (empty($stat['write'])) {
 					return $this->setError($err, $errpath, elFinder::ERROR_PERM_DENIED);
 				}
 				if ($this->options['copyJoin']) {
-					if ($stat['locked']) {
+					if (!empty($stat['locked'])) {
 						return $this->setError(elFinder::ERROR_LOCKED, $this->path($stat['hash']));
 					}
 				} else {
@@ -2343,13 +2411,18 @@ abstract class elFinderVolumeDriver {
 				return $this->setError(elFinder::ERROR_COPY, $errpath, elFinder::ERROR_PERM_DENIED);
 			}
 			
+			$this->error = array();
 			if (($path = $this->copyFrom($volume, $src, $destination, $name)) == false) {
 				return false;
 			}
 			
-			if ($rmSrc) {
+			if ($rmSrc && !$this->error()) {
 				if (!$volume->rm($src)) {
-					return $this->setError(elFinder::ERROR_MOVE, $errpath, elFinder::ERROR_RM_SRC);
+					if ($volume->file($src)) {
+						$this->addError(elFinder::ERROR_RM_SRC);
+					} else {
+						$this->removed[] = $file;
+					}
 				}
 			}
 			$res = $this->stat($path);
@@ -2375,18 +2448,21 @@ abstract class elFinderVolumeDriver {
 			return false;
 		}
 		$archivers = $archivers['create'];
+		if (!$archivers) {
+			return false;
+		}
 		foreach(array('zip', 'tgz') as $ext) {
-			$mime = self::$mimetypes[$ext];
+			$mime = $this->mimetype('file.'.$ext, true);
 			if (isset($archivers[$mime])) {
 				$cmd = $archivers[$mime];
 				break;
 			}
 		}
 		if (!$cmd) {
-			$cmd = $archivers[0];
-			$ext = $cmd['ext'];
+			$cmd = array_shift($archivers);
 			$mime = $this->mimetype('file.'.$ext, true);
 		}
+		$ext = $cmd['ext'];
 		$res = false;
 		$mixed = false;
 		$hashes = array_values($hashes);
@@ -2408,14 +2484,8 @@ abstract class elFinderVolumeDriver {
 		if ($dir = $this->getItemsInHand($hashes)) {
 			$tmppre = (substr(PHP_OS, 0, 3) === 'WIN')? 'zdl' : 'elfzdl';
 			$pdir = dirname($dir);
-			// garbage collection
-			$ttl = 7200; // expire 2h
-			$time = time();
-			foreach(glob($pdir.DIRECTORY_SEPARATOR.$tmppre.'*') as $_file) {
-				if (filemtime($_file) + $ttl < $time) {
-					unlink($_file);
-				}
-			}
+			// garbage collection (expire 2h)
+			register_shutdown_function(array('elFinder', 'GlobGC'), $pdir.DIRECTORY_SEPARATOR.$tmppre.'*', 7200);
 			$files = self::localScandir($dir);
 			if ($files && ($arc = tempnam($dir, $tmppre))) {
 				unlink($arc);
@@ -2454,7 +2524,11 @@ abstract class elFinderVolumeDriver {
 			return $this->setError(elFinder::ERROR_PERM_DENIED);
 		}
 		
-		return $this->_getContents($this->convEncIn($this->decode($hash), true));
+		if ($this->getMaxSize > 0 && $file['size'] > $this->getMaxSize) {
+			return $this->setError(elFinder::ERROR_UPLOAD_FILE_SIZE);
+		}
+		
+		return $file['size']? $this->_getContents($this->convEncIn($this->decode($hash), true)) : '';
 	}
 	
 	/**
@@ -2480,12 +2554,21 @@ abstract class elFinderVolumeDriver {
 			return $this->setError(elFinder::ERROR_PERM_DENIED);
 		}
 		
+		// check data cheme
+		if (preg_match('~^\0data:(.+?/.+?);base64,~', $content, $m)) {
+			$dMime =$m[1];
+			if ($file['size'] > 0 && $dMime !== $file['mime']) {
+				return $this->setError(elFinder::ERROR_PERM_DENIED);
+			}
+			$content = base64_decode(substr($content, strlen($m[0])));
+		}
+		
 		// check MIME
 		$name = $this->basenameCE($path);
 		$mime = '';
 		$mimeByName = $this->mimetype($name, true);
 		if ($this->mimeDetect !== 'internal') {
-			if ($tp = tmpfile()) {
+			if ($tp = $this->tmpfile()) {
 				fwrite($tp, $content);
 				$info = stream_get_meta_data($tp);
 				$filepath = $info['uri'];
@@ -2498,7 +2581,12 @@ abstract class elFinderVolumeDriver {
 		}
 		
 		$this->clearcache();
-		return $this->convEncOut($this->_filePutContents($this->convEncIn($path), $content)) ? $this->stat($path) : false;
+		$res = false;
+		if ($this->convEncOut($this->_filePutContents($this->convEncIn($path), $content))) {
+			$this->clearstatcache();
+			$res = $this->stat($path);
+		}
+		return $res;
 	}
 
 	/**
@@ -2576,7 +2664,8 @@ abstract class elFinderVolumeDriver {
 		}
 		
 		$files = array();
-		
+		$useRemoteArchive = !empty($this->options['useRemoteArchive']);
+
 		foreach ($hashes as $hash) {
 			if (($file = $this->file($hash)) == false) {
 				return $this->setError(elFinder::ERROR_FILE_NOT_FOUND, '#'+$hash);
@@ -2593,7 +2682,7 @@ abstract class elFinderVolumeDriver {
 				}
 			}
 			
-			$files[] = $this->basenameCE($path);
+			$files[] = $useRemoteArchive? $hash : $this->basenameCE($path);
 		}
 		
 		if ($name === '') {
@@ -2604,7 +2693,39 @@ abstract class elFinderVolumeDriver {
 		$name .='.' . $archiver['ext'];
 		$name = $this->uniqueName($dir, $name, '');
 		$this->clearcache();
-		return ($path = $this->convEncOut($this->_archive($this->convEncIn($dir), $this->convEncIn($files), $this->convEncIn($name), $archiver))) ? $this->stat($path) : false;
+		if ($useRemoteArchive) {
+			return ($path = $this->remoteArchive($files, $name, $archiver)) ? $this->stat($path) : false;
+		} else {
+			return ($path = $this->convEncOut($this->_archive($this->convEncIn($dir), $this->convEncIn($files), $this->convEncIn($name), $archiver))) ? $this->stat($path) : false;
+		}
+	}
+
+	/**
+	 * Create an archive from remote items 
+	 *
+	 * @param      string   $hashes  files hashes list
+	 * @param      string   $name    archive name
+	 * @param      string   $arc     archiver options
+	 * @return     string|boolean  path of created archive
+	 */
+	protected function remoteArchive($hashes, $name, $arc) {
+		$resPath = false;
+		$file0 = $this->file($hashes[0]);
+		if ($file0 && ($dir = $this->getItemsInHand($hashes))) {
+			$files = self::localScandir($dir);
+			if ($files) {
+				if ($arc = $this->makeArchive($dir, $files, $name, $arc)) {
+					if ($fp = fopen($arc, 'rb')) {
+						$path = $this->decode($file0['phash']);
+						$stat = array();
+						$resPath = $this->saveCE($fp, $path, $name, $stat);
+						fclose($fp);
+					}
+				}
+			}
+			$this->rmdirRecursive($dir);
+		}
+		return $resPath;
 	}
 	
 	/**
@@ -2630,6 +2751,10 @@ abstract class elFinderVolumeDriver {
 			return $this->setError(elFinder::ERROR_PERM_DENIED);
 		}
 		
+		if ($mode === 'rotate' && $degree == 0) {
+			return array('losslessRotate' => ($this->procExec(ELFINDER_EXIFTRAN_PATH . ' -h') === 0 || $this->procExec(ELFINDER_JPEGTRAN_PATH . ' -version') === 0));
+		}
+		
 		if (($file = $this->file($hash)) == false) {
 			return $this->setError(elFinder::ERROR_FILE_NOT_FOUND);
 		}
@@ -2653,6 +2778,10 @@ abstract class elFinderVolumeDriver {
 			if (elFinder::isAnimationGif($work_path)) {
 				return $this->setError(elFinder::ERROR_UNSUPPORT_TYPE);
 			}
+		}
+
+		if (elFinder::isAnimationPng($work_path)) {
+			return $this->setError(elFinder::ERROR_UNSUPPORT_TYPE);
 		}
 
 		switch($mode) {
@@ -2682,18 +2811,17 @@ abstract class elFinderVolumeDriver {
 		if ($result) {
 			$this->rmTmb($file);
 			$this->clearstatcache();
-			$stat = $this->stat($path);
 			$fstat = stat($work_path);
-			$stat['size'] = $fstat['size'];
-			$stat['ts'] = $fstat['mtime'];
-			if ($imgsize = getimagesize($work_path)) {
-				$stat['width'] = $imgsize[0];
-				$stat['height'] = $imgsize[1];
-				$stat['mime'] = $imgsize['mime'];
-			}
+			$imgsize = getimagesize($work_path);
 			if ($path !== $work_path) {
+				$file['size'] = $fstat['size'];
+				$file['ts'] = $fstat['mtime'];
+				if ($imgsize) {
+					$file['width'] = $imgsize[0];
+					$file['height'] = $imgsize[1];
+				}
 				if ($fp = fopen($work_path, 'rb')) {
-					$ret = $this->saveCE($fp, $this->dirnameCE($path), $this->basenameCE($path), $stat);
+					$ret = $this->saveCE($fp, $this->dirnameCE($path), $this->basenameCE($path), $file);
 					fclose($fp);
 				}
 			} else {
@@ -2702,8 +2830,10 @@ abstract class elFinderVolumeDriver {
 			if ($ret) {
 				$this->clearcache();
 				$ret = $this->stat($path);
-				$ret['width'] = $stat['width'];
-				$ret['height'] = $stat['height'];
+				if ($imgsize) {
+					$ret['width'] = $imgsize[0];
+					$ret['height'] = $imgsize[1];
+				}
 			}
 		}
 		if ($path !== $work_path) {
@@ -2736,6 +2866,16 @@ abstract class elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 */
 	public function search($q, $mimes, $hash = null) {
+		$res = array();
+		$matchMethod = null;
+		$args = func_get_args();
+		if (!empty($args[3])) {
+			$matchMethod = 'searchMatch' . $args[3];
+			if (! is_callable(array($this, $matchMethod))) {
+				return array();
+			}
+		}
+
 		$dir = null;
 		if ($hash) {
 			$dir = $this->decode($hash);
@@ -2772,10 +2912,15 @@ abstract class elFinderVolumeDriver {
 			$q = join(' ', $query);
 			$this->doSearchCurrentQuery = array(
 				'q' => $q,
-				'excludes' => $excludes
+				'excludes' => $excludes,
+				'matchMethod' => $matchMethod
 			);
 		}
 		
+		if ($q === '' || $this->commandDisabled('search')) {
+			return $res;
+		}
+
 		// valided regex $this->options['searchExDirReg']
 		if ($this->options['searchExDirReg']) {
 			if (false === preg_match($this->options['searchExDirReg'], '')) {
@@ -2783,24 +2928,36 @@ abstract class elFinderVolumeDriver {
 			}
 		}
 		
-		return ($q === '' || $this->commandDisabled('search'))
-			? array()
-			: $this->doSearch(is_null($dir)? $this->root : $dir, $q, $mimes);
+		// check the leaf root too
+		if (!$mimes && (is_null($dir) || $dir == $this->root)) {
+			$rootStat = $this->stat($this->root);
+			if (!empty($rootStat['phash'])) {
+				if ($this->stripos($rootStat['name'], $q) !== false) {
+					$res = array($rootStat);
+				}
+			}
+		}
+
+		return array_merge($res, $this->doSearch(is_null($dir)? $this->root : $dir, $q, $mimes));
 	}
 	
 	/**
 	 * Return image dimensions
 	 *
 	 * @param  string  $hash  file hash
-	 * @return array
+	 * @return array|string
 	 * @author Dmitry (dio) Levashov
 	 **/
 	public function dimensions($hash) {
 		if (($file = $this->file($hash)) == false) {
 			return false;
 		}
-		
-		return $this->convEncOut($this->_dimensions($this->convEncIn($this->decode($hash)), $file['mime']));
+		if (func_num_args() > 1) {
+			$args = func_get_arg(1);
+		} else {
+			$args = array();
+		}
+		return $this->convEncOut($this->_dimensions($this->convEncIn($this->decode($hash)), $file['mime'], $args));
 	}
 	
 	/**
@@ -2824,22 +2981,110 @@ abstract class elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 */
 	public function getContentUrl($hash, $options = array()) {
-		if (($file = $this->file($hash)) == false || (isset($file['url']) && $file['url'] == 1)) {
+		if (($file = $this->file($hash)) === false) {
 			return false;
 		}
-		if (empty($file['url'])) {
-			if ($this->URL) {
-				$path = str_replace($this->separator, '/', substr($this->decode($hash), strlen($this->root) + 1));
-				if ($this->encoding) {
-					$path = $this->convEncIn($path, true);
-				}
-				$path = str_replace('%2F', '/', rawurlencode($path));
-				return $this->URL . $path;
+		if (empty($file['url']) && $this->URL) {
+			$path = str_replace($this->separator, '/', substr($this->decode($hash), strlen(rtrim($this->root, '/'.$this->separator)) + 1));
+			if ($this->encoding) {
+				$path = $this->convEncIn($path, true);
 			}
-			return false;
+			$path = str_replace('%2F', '/', rawurlencode($path));
+			return $this->URL . $path;
 		} else {
-			return $file['url'];
+			$ret = false;
+			if  ($file['url'] && $file['url'] != 1) {
+				return $file['url'];
+			} else if (!empty($options['temporary']) && ($tempInfo = $this->getTempLinkInfo('temp_' . md5($hash.session_id())))) {
+				if ($source = $this->open($hash)) {
+					if ($dest = fopen($tempInfo['path'], 'wb')) {
+						if (stream_copy_to_stream($source, $dest)) {
+							$ret = $tempInfo['url'] . '?' . rawurlencode($file['name']);
+						}
+						fclose($dest);
+					}
+					$this->close($source, $hash);
+				}
+			}
+			return $ret;
 		}
+	}
+	
+	/**
+	 * Get temporary contents link infomation
+	 * 
+	 * @param string $name
+	 * @return boolean|array
+	 * @author Naoki Sawada
+	 */
+	public function getTempLinkInfo($name = null) {
+		if ($this->tmpLinkPath) {
+			if (! $name) {
+				$name = 'temp_' . md5($_SERVER['REMOTE_ADDR'] . (string)microtime(true));
+			} else if (substr($name, 0, 5) !== 'temp_') {
+				$name = 'temp_' . $name;
+			}
+			register_shutdown_function(array('elFinder', 'GlobGC'), $this->tmpLinkPath . DIRECTORY_SEPARATOR . 'temp_*', elFinder::$tmpLinkLifeTime);
+			return array(
+				'path' => $path = $this->tmpLinkPath . DIRECTORY_SEPARATOR . $name,
+				'url'  => $this->tmpLinkUrl . '/' . $name
+			);
+		}
+		return false;
+	}
+	
+	/**
+	 * Get URL of substitute image by request args `substitute` or 4th argument $maxSize
+	 * 
+	 * @param string   $target  Target hash
+	 * @param array    $srcSize Size info array [width, height]
+	 * @param resource $srcfp   Source file file pointer
+	 * @param integer  $maxSize Maximum pixel of substitute image
+	 * @return boolean
+	 */
+	public function getSubstituteImgLink($target, $srcSize, $srcfp = null, $maxSize = null) {
+		$url = false;
+		if (! $maxSize) {
+			$args = elFinder::$currentArgs;
+			if (! empty($args['substitute'])) {
+				$maxSize = $args['substitute'];
+			}
+		}
+		if ($maxSize && $srcSize[0] && $srcSize[1]) {
+			if ($this->getOption('substituteImg')) {
+				$maxSize = intval($maxSize);
+				$zoom = min(($maxSize/$srcSize[0]),($maxSize/$srcSize[1]));
+				if ($zoom < 1) {
+					$width = round($srcSize[0] * $zoom);
+					$height = round($srcSize[1] * $zoom);
+					$jpgQuality = 50;
+					$preserveExif = false;
+					$unenlarge = true;
+					$checkAnimated = true;
+					if (! $srcfp) {
+						elFinder::checkAborted();
+						$srcfp = $this->open($target);
+					}
+					if ($srcfp && ($tempLink = $this->getTempLinkInfo())) {
+						elFinder::checkAborted();
+						$dest = fopen($tempLink['path'], 'wb');
+						if ($dest && stream_copy_to_stream($srcfp, $dest)) {
+							fclose($dest);
+							if ($this->imageUtil('resize', $tempLink['path'], compact('width', 'height', 'jpgQuality', 'preserveExif', 'unenlarge', 'checkAnimated'))) {
+								$url = $tempLink['url'];
+								// set expire to 1 min left
+								touch($tempLink['path'], time() - elFinder::$tmpLinkLifeTime + 60);
+							} else {
+								unlink($tempLink['path']);
+							}
+						}
+						$this->close($srcfp, $target);
+					}
+				}
+			}
+		}
+		
+		return $url;
 	}
 	
 	/**
@@ -2854,6 +3099,8 @@ abstract class elFinderVolumeDriver {
 			$tempPath = $this->tmpPath;
 		} else if (isset($this->tmp) && $this->tmp && is_writable($this->tmp)) {
 			$tempPath = $this->tmp;
+		} else if (elFinder::getStaticVar('commonTempPath') && is_writable(elFinder::getStaticVar('commonTempPath'))) {
+			$tempPath = elFinder::getStaticVar('commonTempPath');
 		} else if (function_exists('sys_get_temp_dir')) {
 			$tempPath = sys_get_temp_dir();
 		} else if ($this->tmbPathWritable) {
@@ -2943,6 +3190,17 @@ abstract class elFinderVolumeDriver {
 			}
 		}
 		
+		if (! empty($options['checkAnimated'])) {
+			if ($this->imgLib !== 'imagick' && $this->imgLib !== 'convert') {
+				if (elFinder::isAnimationGif($src)) {
+					return false;
+				}
+			}
+			if (elFinder::isAnimationPng($src)) {
+				return false;
+			}
+		}
+		
 		switch($mode) {
 			case 'rotate':
 				if (empty($options['degree'])) {
@@ -2974,29 +3232,54 @@ abstract class elFinderVolumeDriver {
 	 * 
 	 * @param  $file video source file path
 	 * @param  $stat file stat array
+	 * @param  $self volume driver object
+	 * @param  $ss   start seconds
 	 * @return bool
 	 * @author Naoki Sawada
 	 */
-	public function ffmpegToImg($file, $stat) {
+	public function ffmpegToImg($file, $stat, $self, $ss = null) {
 		$name = basename($file);
 		$path = dirname($file);
 		$tmp = $path . DIRECTORY_SEPARATOR . md5($name);
-		$GLOBALS['elFinderTempFiles'][] = $tmp; // regist to remove at the end
+		// register auto delete on shutdown
+		$GLOBALS['elFinderTempFiles'][$tmp] = true;
 		if (rename($file, $tmp)) {
-			// specific start time by file name (xxx^[sec].[extention] - video^3.mp4)
-			if (preg_match('/\^(\d+(?:\.\d+)?)\.[^.]+$/', $stat['name'], $_m)) {
-				$ss = $_m[1];
-			} else {
-				$ss = $this->options['tmbVideoConvSec'];
+			if ($ss === null) {
+				// specific start time by file name (xxx^[sec].[extention] - video^3.mp4)
+				if (preg_match('/\^(\d+(?:\.\d+)?)\.[^.]+$/', $stat['name'], $_m)) {
+					$ss = $_m[1];
+				} else {
+					$ss = $this->options['tmbVideoConvSec'];
+				}
 			}
-			$cmd = sprintf('ffmpeg -i %s -ss 00:00:%.3f -vframes 1 -f image2 %s', escapeshellarg($tmp), $ss, escapeshellarg($file));
-			$r = $this->procExec($cmd);
-			unlink($tmp);
-			return ($r === 0);
+			$cmd = sprintf(ELFINDER_FFMPEG_PATH . ' -i %s -ss 00:00:%.3f -vframes 1 -f image2 %s', escapeshellarg($tmp), $ss, escapeshellarg($file));
+			$r = ($this->procExec($cmd) === 0);
+			clearstatcache();
+			if ($r && $ss > 0 && ! file_exists($file)) {
+				// Retry by half of $ss
+				$ss = max(intval($ss / 2), 0);
+				rename($tmp, $file);
+				$r = $this->ffmpegToImg($file, $stat, $self, $ss);
+			} else {
+				unlink($tmp);
+			}
+			return $r;
 		}
 		return false;
 	}
 
+	/**
+	 * Creates a temporary file and return file pointer
+	 * 
+	 * @return resource|boolean
+	 */
+	public function tmpfile() {
+		if ($tmp = $this->getTempFile()) {
+			return fopen($tmp, 'wb');
+		}
+		return false;
+	}
+	
 	/**
 	 * Save error message
 	 *
@@ -3153,7 +3436,11 @@ abstract class elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 **/
 	protected function saveCE($fp, $dir, $name, $stat) {
-		return (!$this->encoding)? $this->_save($fp, $dir, $name, $stat) : $this->convEncOut($this->_save($fp, $this->convEncIn($dir), $this->convEncIn($name), $this->convEncIn($stat)));
+		$res = (!$this->encoding)? $this->_save($fp, $dir, $name, $stat) : $this->convEncOut($this->_save($fp, $this->convEncIn($dir), $this->convEncIn($name), $this->convEncIn($stat)));
+		if ($res !== false) {
+			$this->clearstatcache();
+		}
+		return $res;
 	}
 	
 	/**
@@ -3217,7 +3504,10 @@ abstract class elFinderVolumeDriver {
 			if ($p === '')	{
 				$p = $this->separator;
 			}
-
+			// change separator
+			if ($this->separatorForHash) {
+				$p = str_replace($this->separator, $this->separatorForHash, $p);
+			}
 			// TODO crypt path and return hash
 			$hash = $this->crypt($p);
 			// hash is used as id in HTML that means it must contain vaild chars
@@ -3246,7 +3536,11 @@ abstract class elFinderVolumeDriver {
 			// replace HTML safe base64 to normal
 			$h = base64_decode(strtr($h, '-_.', '+/='));
 			// TODO uncrypt hash and return path
-			$path = $this->uncrypt($h); 
+			$path = $this->uncrypt($h);
+			// change separator
+			if ($this->separatorForHash) {
+				$path = str_replace($this->separatorForHash, $this->separator, $path);
+			}
 			// append ROOT to path after it was cut in encode
 			return $this->abspathCE($path);//$this->root.($path === $this->separator ? '' : $this->separator.$path); 
 		}
@@ -3323,11 +3617,18 @@ abstract class elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 */
 	public function uniqueName($dir, $name, $suffix = ' copy', $checkNum = true, $start = 1) {
-		$ext  = '';
+		static $lasts = null;
+		
+		if ($lasts === null) {
+			$lasts = array();
+		}
+		
+		$ext = '';
 
-		if (preg_match('/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/i', $name, $m)) {
-			$ext  = '.'.$m[1];
-			$name = substr($name, 0,  strlen($name)-strlen($m[0]));
+		$splits = elFinder::splitFileExtention($name);
+		if ($splits[1]) {
+			$ext  = '.'.$splits[1];
+			$name = $splits[0];
 		} 
 		
 		if ($checkNum && preg_match('/('.preg_quote($suffix, '/').')(\d*)$/i', $name, $m)) {
@@ -3338,12 +3639,17 @@ abstract class elFinderVolumeDriver {
 			$name .= $suffix;
 		}
 		$max = $i+100000;
+		
+		if (isset($lasts[$name])) {
+			$i = max($i, $lasts[$name]);
+		}
 
 		while ($i <= $max) {
 			$n = $name.($i > 0 ? sprintf($this->options['uniqueNumFormat'], $i) : '').$ext;
 
 			if (!$this->isNameExists($this->joinPathCE($dir, $n))) {
 				$this->clearcache();
+				$lasts[$name] = ++$i;
 				return $n;
 			}
 			$i++;
@@ -3418,6 +3724,44 @@ abstract class elFinderVolumeDriver {
 		return $var;
 	}
 	
+	/**
+	 * Normalize MIME-Type by options['mimeMap']
+	 *
+	 * @param      string  $type   MIME-Type
+	 * @param      string  $name   Filename
+	 * @param      string  $ext    File extention without first dot (optional)
+	 *
+	 * @return     string  Normalized MIME-Type
+	 */
+	public function mimeTypeNormalize($type, $name, $ext = '') {
+		if ($ext === '') {
+			$ext = (false === $pos = strrpos($name, '.'))? '' : substr($name, $pos + 1);
+		}
+		$_checkKey = strtolower($ext . ':' . $type);
+		if ($type === '') {
+			$_keylen = strlen($_checkKey);
+			foreach($this->options['mimeMap'] as $_key => $_type) {
+				if (substr($_key, 0, $_keylen) === $_checkKey) {
+					$type = $_type;
+					break;
+				}
+			}
+		} else if (isset($this->options['mimeMap'][$_checkKey])) {
+			$type = $this->options['mimeMap'][$_checkKey];
+		} else {
+			$_checkKey = strtolower($ext.':*');
+			if (isset($this->options['mimeMap'][$_checkKey])) {
+				$type = $this->options['mimeMap'][$_checkKey];
+			} else {
+				$_checkKey = strtolower('*:'.$type);
+				if (isset($this->options['mimeMap'][$_checkKey])) {
+					$type = $this->options['mimeMap'][$_checkKey];
+				}
+			}
+		}
+		return $type;
+	}
+
 	/*********************** util mainly for inheritance class *********************/
 	
 	/**
@@ -3441,14 +3785,12 @@ abstract class elFinderVolumeDriver {
 		}
 		
 		if ($tmpdir = $this->getTempPath()) {
-			if (!$rmfunc) {
-				$rmfunc = create_function('$f', 'is_file($f) && unlink($f);');
-			}
 			$name = tempnam($tmpdir, 'ELF');
 			if ($key) {
 				$cache[$key] = $name;
 			}
-			register_shutdown_function($rmfunc, $name);
+			// register auto delete on shutdown
+			$GLOBALS['elFinderTempFiles'][$name] = true;
 			return $name;
 		}
 		
@@ -3463,15 +3805,15 @@ abstract class elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 */
 	protected function getWorkFile($path) {
-		if ($work = $this->getTempFile()) {
-			if ($wfp = fopen($work, 'wb')) {
-				if ($fp = $this->_fopen($path)) {
-					while(!feof($fp)) {
-						fwrite($wfp, fread($fp, 8192));
-					}
-					$this->_fclose($fp, $path);
-					fclose($wfp);
-					return $work;
+		if ($wfp = $this->tmpfile()) {
+			if ($fp = $this->_fopen($path)) {
+				while(!feof($fp)) {
+					fwrite($wfp, fread($fp, 8192));
+				}
+				$info = stream_get_meta_data($wfp);
+				fclose($wfp);
+				if ($info && ! empty($info['uri'])) {
+					return $info['uri'];
 				}
 			}
 		}
@@ -3491,6 +3833,11 @@ abstract class elFinderVolumeDriver {
 			if ($work = $this->getWorkFile($path)) {
 				if ($size = getimagesize($work)) {
 					$size['dimensions'] = $size[0].'x'.$size[1];
+					$srcfp = fopen($work, 'rb');
+					$cArgs = elFinder::$currentArgs;
+					if (!empty($cArgs['target']) && $subImgLink = $this->getSubstituteImgLink($cArgs['target'], $size, $srcfp)) {
+						$size['url'] = $subImgLink;
+					}
 				}
 			}
 			is_file($work) && unlink($work);
@@ -3507,12 +3854,14 @@ abstract class elFinderVolumeDriver {
 	 */
 	protected function delTree($localpath) {
 		foreach ($this->_scandir($localpath) as $p) {
-			elFinder::extendTimeLimit();
+			elFinder::checkAborted();
 			$stat = $this->stat($this->convEncOut($p));
 			$this->convEncIn();
 			($stat['mime'] === 'directory')? $this->delTree($p) : $this->_unlink($p);
 		}
-		return $this->_rmdir($localpath);
+		$res = $this->_rmdir($localpath);
+		$res && $this->clearstatcache();
+		return $res;
 	}
 	
 	/**
@@ -3540,7 +3889,7 @@ abstract class elFinderVolumeDriver {
 		if (is_null($canLink)) {
 			$canLink = ($this instanceof elFinderVolumeLocalFileSystem);
 		}
-		elFinder::extendTimeLimit();
+		elFinder::checkAborted();
 		$res = true;
 		$files = array();
 		foreach ($hashes as $hash) {
@@ -3614,12 +3963,10 @@ abstract class elFinderVolumeDriver {
 			return false;
 		}
 		
+		$relpath = $this->relpathCE($path);
 		if ($this->separator !== '/') {
-			$relpath = str_replace($this->separator, '/', $this->relpathCE($path));
-		} else {
-			$relpath = $this->relpathCE($path);
+			$relpath = str_replace($this->separator, '/', $relpath);
 		}
-		
 		$relpath = '/' . $relpath;
 		
 		$perm = null;
@@ -3631,11 +3978,10 @@ abstract class elFinderVolumeDriver {
 			}
 		}
 		
-		for ($i = 0, $c = count($this->attributes); $i < $c; $i++) {
-			$attrs = $this->attributes[$i];
-			
+		foreach($this->attributes as $attrs) {
 			if (isset($attrs[$name]) && isset($attrs['pattern']) && preg_match($attrs['pattern'], $relpath)) {
 				$perm = $attrs[$name];
+				break;
 			} 
 		}
 		
@@ -3652,27 +3998,7 @@ abstract class elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 */
 	protected function allowCreate($dir, $name, $isDir = null) {
-		$path = $this->joinPathCE($dir, $name);
-		$perm = null;
-		
-		if ($this->access) {
-			$perm = call_user_func($this->access, 'write', $path, $this->options['accessControlData'], $this, $isDir);			
-			if ($perm !== null) {
-				return !!$perm;
-			}
-		}
-		
-		$testPath = $this->separator.$this->relpathCE($path);
-		
-		for ($i = 0, $c = count($this->attributes); $i < $c; $i++) {
-			$attrs = $this->attributes[$i];
-			
-			if (isset($attrs['write']) && isset($attrs['pattern']) && preg_match($attrs['pattern'], $testPath)) {
-				$perm = $attrs['write'];
-			} 
-		}
-		
-		return $perm === null ? true : $perm;
+		return $this->attr($this->joinPathCE($dir, $name), 'write', true, $isDir);
 	}
 	
 	/**
@@ -3819,22 +4145,18 @@ abstract class elFinderVolumeDriver {
 			$stat['name'] = json_decode(str_replace($this->options['utf8patterns'], $this->options['utf8replace'], $jeName));
 		}
 		
-		
-		if (empty($stat['mime'])) {
-			$stat['mime'] = $this->mimetype($stat['name'], true);
-		}
-		
-		// @todo move dateformat to client
-		// $stat['date'] = isset($stat['ts'])
-		// 	? $this->formatDate($stat['ts'])
-		// 	: 'unknown';
-			
 		if (!isset($stat['size'])) {
 			$stat['size'] = 'unknown';
 		}	
-
-		if ($isDir = ($stat['mime'] === 'directory')) {
+		
+		if ($isDir = (isset($stat['mime']) && $stat['mime'] === 'directory')) {
 			$stat['volumeid'] = $this->id;
+		} else {		
+			if (empty($stat['mime']) || (!$isDir && $stat['size'] == 0)) {
+				$stat['mime'] = $this->mimetype($stat['name'], true, $stat['size']);
+			} else {
+				$stat['mime'] = $this->mimeTypeNormalize($stat['mime'], $stat['name']);
+			}
 		}
 		
 		$stat['read']  = intval($this->attr($path, 'read', isset($stat['read']) ? !!$stat['read'] : null, $isDir));
@@ -3977,10 +4299,11 @@ abstract class elFinderVolumeDriver {
 	 *
 	 * @param  string      $path file path
 	 * @param  string|bool $name
+	 * @param  integer     $size
 	 * @return string
 	 * @author Dmitry (dio) Levashov
 	 */
-	protected function mimetype($path, $name = '') {
+	protected function mimetype($path, $name = '', $size = null) {
 		$type = '';
 		$nameCheck = false;
 		
@@ -3991,51 +4314,82 @@ abstract class elFinderVolumeDriver {
 			$nameCheck = true;
 		}
 		$ext = (false === $pos = strrpos($name, '.')) ? '' : substr($name, $pos + 1);
-		if (! $nameCheck && is_readable($path)) {
-			if ($this->mimeDetect == 'finfo') {
-				if ($type = finfo_file($this->finfo, $path)) {
-					if ($ext && preg_match('~^application/(?:octet-stream|(?:x-)?zip)~', $type)) {
-						if (isset(elFinderVolumeDriver::$mimetypes[$ext])) $type = elFinderVolumeDriver::$mimetypes[$ext];
-					} else if ($ext === 'js' && preg_match('~^text/~', $type)) {
-						$type = 'text/javascript';
-					}
-				} else {
-					$type = 'unknown';
-				}
-			} else if ($this->mimeDetect == 'mime_content_type') {
+		if ($size === null) {
+			$size = file_exists($path)? filesize($path) : -1;
+		}
+		if (! $nameCheck && is_readable($path) && $size > 0) {
+			// detecting by contents
+			if ($this->mimeDetect === 'finfo') {
+				$type = finfo_file($this->finfo, $path);
+			} else if ($this->mimeDetect === 'mime_content_type') {
 				$type = mime_content_type($path);
+			}
+			if ($type) {
+				$type = explode(';', $type);
+				$type = trim($type[0]);
+				if ($ext && preg_match('~^application/(?:octet-stream|(?:x-)?zip|xml)$~', $type)) {
+					// load default MIME table file "mime.types"
+					if (!elFinderVolumeDriver::$mimetypesLoaded) {
+						elFinderVolumeDriver::loadMimeTypes();
+					}
+					if (isset(elFinderVolumeDriver::$mimetypes[$ext])) {
+						$type = elFinderVolumeDriver::$mimetypes[$ext];
+					}
+				} else if ($ext === 'js' && preg_match('~^text/~', $type)) {
+					$type = 'text/javascript';
+				}
 			}
 		}
 		if (! $type) {
-			$type = elFinderVolumeDriver::mimetypeInternalDetect($path);
-		}
-		
-		if ($type === 'unknown' && $this->mimeDetect != 'internal') {
-			$type = elFinderVolumeDriver::mimetypeInternalDetect($path);
-		}
-		
-		$type = explode(';', $type);
-		$type = trim($type[0]);
-		
-		if (in_array($type, array('application/x-empty', 'inode/x-empty'))) {
-			// finfo return this mime for empty files
-			$type = 'text/plain';
+			// detecting by filename
+			$type = elFinderVolumeDriver::mimetypeInternalDetect($name);
+			if ($type === 'unknown') {
+				$type = ($size == 0)? '' : 'text/plain';
+			}
 		}
 		
 		// mime type normalization
-		$_checkKey = strtolower($ext.':'.$type);
-		if (isset($this->options['mimeMap'][$_checkKey])) {
-			$type = $this->options['mimeMap'][$_checkKey];
-		} else {
-			$_checkKey = strtolower($ext.':*');
-			if (isset($this->options['mimeMap'][$_checkKey])) {
-				$type = $this->options['mimeMap'][$_checkKey];
-			}
-		}
+		$type = $this->mimeTypeNormalize($type, $name, $ext);
 		
 		return $type;
 	}
 	
+	/**
+	 * Load file of mime.types
+	 *
+	 * @param string  $mimeTypesFile  The mime types file
+	 */
+	static protected function loadMimeTypes($mimeTypesFile = '') {
+		if (! elFinderVolumeDriver::$mimetypesLoaded) {
+			elFinderVolumeDriver::$mimetypesLoaded = true;
+			$file = false;
+			if (!empty($mimeTypesFile) && file_exists($mimeTypesFile)) {
+				$file = $mimeTypesFile;
+			} elseif (elFinder::$defaultMimefile && file_exists(elFinder::$defaultMimefile)) {
+				$file = elFinder::$defaultMimefile;
+			} elseif (file_exists(dirname(__FILE__).DIRECTORY_SEPARATOR.'mime.types')) {
+				$file = dirname(__FILE__).DIRECTORY_SEPARATOR.'mime.types';
+			} elseif (file_exists(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'mime.types')) {
+				$file = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'mime.types';
+			}
+
+			if ($file && file_exists($file)) {
+				$mimecf = file($file);
+
+				foreach ($mimecf as $line_num => $line) {
+					if (!preg_match('/^\s*#/', $line)) {
+						$mime = preg_split('/\s+/', $line, -1, PREG_SPLIT_NO_EMPTY);
+						for ($i = 1, $size = count($mime); $i < $size ; $i++) {
+							if (!isset(self::$mimetypes[$mime[$i]])) {
+								self::$mimetypes[$mime[$i]] = $mime[0];
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Detect file mimetype using "internal" method or Loading mime.types with $path = ''
 	 *
@@ -4046,24 +4400,7 @@ abstract class elFinderVolumeDriver {
 	static protected function mimetypeInternalDetect($path = '') {
 		// load default MIME table file "mime.types"
 		if (!elFinderVolumeDriver::$mimetypesLoaded) {
-			elFinderVolumeDriver::$mimetypesLoaded = true;
-			$file = elFinder::$defaultMimefile;
-			if ($file === '' || ! is_readable($file)) {
-				$file = dirname(__FILE__).DIRECTORY_SEPARATOR.'mime.types';
-			}
-			if (is_readable($file)) {
-				$mimecf = file($file);
-				foreach ($mimecf as $line_num => $line) {
-					if (!preg_match('/^\s*#/', $line)) {
-						$mime = preg_split('/\s+/', $line, -1, PREG_SPLIT_NO_EMPTY);
-						for ($i = 1, $size = count($mime); $i < $size ; $i++) {
-							if (!isset(elFinderVolumeDriver::$mimetypes[$mime[$i]])) {
-								elFinderVolumeDriver::$mimetypes[$mime[$i]] = $mime[0];
-							}
-						}
-					}
-				}
-			}
+			elFinderVolumeDriver::loadMimeTypes();
 		}
 		$ext = '';
 		if ($path) {
@@ -4082,27 +4419,43 @@ abstract class elFinderVolumeDriver {
 	 **/
 	protected function countSize($path) {
 		
-		elFinder::extendTimeLimit();
+		elFinder::checkAborted();
 		
+		$result = array('size' => 0, 'files' => 0, 'dirs' => 0);
 		$stat = $this->stat($path);
 
 		if (empty($stat) || !$stat['read'] || !empty($stat['hidden'])) {
-			return 'unknown';
+			$result['size'] = 'unknown';
+			return $result;
 		}
 		
-		if ($stat['mime'] != 'directory') {
-			return $stat['size'];
+		if ($stat['mime'] !== 'directory') {
+			$result['size'] = intval($stat['size']);
+			$result['files'] = 1;
+			return $result;
 		}
 		
+		$result['dirs'] = 1;
 		$subdirs = $this->options['checkSubfolders'];
 		$this->options['checkSubfolders'] = true;
-		$result = 0;
 		foreach ($this->getScandir($path) as $stat) {
-			$size = $stat['mime'] == 'directory' && $stat['read'] 
+			if ($isDir = ($stat['mime'] === 'directory' && $stat['read'])) {
+				++$result['dirs'];
+			} else {
+				++$result['files'];
+			}
+			$res = $isDir
 				? $this->countSize($this->decode($stat['hash'])) 
-				: (isset($stat['size']) ? intval($stat['size']) : 0);
-			if ($size > 0) {
-				$result += $size;
+				: (isset($stat['size']) ? array('size' => intval($stat['size'])) : array());
+			if (! empty($res['size']) && is_numeric($res['size'])) {
+				$result['size'] += $res['size'];
+			}
+			if (! empty($res['files']) && is_numeric($res['files'])) {
+				$result['files'] += $res['files'];
+			}
+			if (! empty($res['dirs']) && is_numeric($res['dirs'])) {
+				$result['dirs'] += $res['dirs'];
+				--$result['dirs'];
 			}
 		}
 		$this->options['checkSubfolders'] = $subdirs;
@@ -4278,7 +4631,7 @@ abstract class elFinderVolumeDriver {
 	 **/
 	protected function doSearch($path, $q, $mimes) {
 		$result = array();
-		
+		$matchMethod = empty($this->doSearchCurrentQuery['matchMethod'])? 'searchMatchName' : $this->doSearchCurrentQuery['matchMethod'];
 		$timeout = $this->options['searchTimeout']? $this->searchStart + $this->options['searchTimeout'] : 0;
 		if ($timeout && $timeout < time()) {
 			$this->setError(elFinder::ERROR_SEARCH_TIMEOUT, $this->path($this->encode($path)));
@@ -4314,7 +4667,7 @@ abstract class elFinderVolumeDriver {
 				}
 			}
 
-			if ((!$mimes || $stat['mime'] !== 'directory') && $this->stripos($name, $q) !== false) {
+			if ((!$mimes || $stat['mime'] !== 'directory') && $this->$matchMethod($name, $q, $p) !== false) {
 				$stat['path'] = $this->path($stat['hash']);
 				if ($this->URL && !isset($stat['url'])) {
 					$path = str_replace($this->separator, '/', substr($p, strlen($this->root) + 1));
@@ -4352,7 +4705,7 @@ abstract class elFinderVolumeDriver {
 	 **/
 	protected function copy($src, $dst, $name) {
 		
-		elFinder::extendTimeLimit();
+		elFinder::checkAborted();
 		
 		$srcStat = $this->stat($src);
 		
@@ -4404,7 +4757,7 @@ abstract class elFinderVolumeDriver {
 		}
 		if ($res = $this->convEncOut($this->_copy($this->convEncIn($src), $this->convEncIn($dst), $this->convEncIn($name)))) {
 			$path = is_string($res)? $res : $this->joinPathCE($dst, $name);
-			$this->clearcache();
+			$this->clearstatcache();
 			if ($this->ARGS['cmd'] !== 'duplicate') {
 				$this->added[] = $this->stat($path);
 			}
@@ -4431,6 +4784,7 @@ abstract class elFinderVolumeDriver {
 		$this->clearcache();
 		
 		if ($res = $this->convEncOut($this->_move($this->convEncIn($src), $this->convEncIn($dst), $this->convEncIn($name)))) {
+			$this->clearstatcache();
 			$this->removed[] = $stat;
 			if ($stat['mime'] === 'directory') {
 				$this->updateSubdirsCache($dst, true);
@@ -4454,10 +4808,10 @@ abstract class elFinderVolumeDriver {
 	 **/
 	protected function copyFrom($volume, $src, $destination, $name) {
 		
-		elFinder::extendTimeLimit();
+		elFinder::checkAborted();
 		
 		if (($source = $volume->file($src)) == false) {
-			return $this->setError(elFinder::ERROR_COPY, '#'.$src, $volume->error());
+			return $this->addError(elFinder::ERROR_COPY, '#'.$src, $volume->error());
 		}
 		
 		$srcIsDir = ($source['mime'] === 'directory');
@@ -4465,11 +4819,11 @@ abstract class elFinderVolumeDriver {
 		$errpath = $volume->path($source['hash']);
 		
 		if (!$this->nameAccepted($source['name'], $srcIsDir)) {
-			return $this->setError(elFinder::ERROR_COPY, $errpath, $srcIsDir? elFinder::ERROR_INVALID_DIRNAME : elFinder::ERROR_INVALID_NAME);
+			return $this->addError(elFinder::ERROR_COPY, $errpath, $srcIsDir? elFinder::ERROR_INVALID_DIRNAME : elFinder::ERROR_INVALID_NAME);
 		}
-				
+		
 		if (!$source['read']) {
-			return $this->setError(elFinder::ERROR_COPY, $errpath, elFinder::ERROR_PERM_DENIED);
+			return $this->addError(elFinder::ERROR_COPY, $errpath, elFinder::ERROR_PERM_DENIED);
 		}
 		
 		if ($srcIsDir) {
@@ -4477,17 +4831,14 @@ abstract class elFinderVolumeDriver {
 			$this->clearcache();
 
 			if (($test && $test['mime'] != 'directory') || (! $test && ! $test = $this->mkdir($this->encode($destination), $name))) {
-				return $this->setError(elFinder::ERROR_COPY, $errpath);
+				return $this->addError(elFinder::ERROR_COPY, $errpath);
 			}
 			
 			//$path = $this->joinPathCE($destination, $name);
 			$path = $this->decode($test['hash']);
 			
 			foreach ($volume->scandir($src) as $entr) {
-				if (!$this->copyFrom($volume, $entr['hash'], $path, $entr['name'])) {
-					$this->remove($path, true); // fall back
-					return $this->setError($this->error, elFinder::ERROR_COPY, $errpath);
-				}
+				$this->copyFrom($volume, $entr['hash'], $path, $entr['name']);
 			}
 			
 			$this->added[] = $test;
@@ -4498,19 +4849,24 @@ abstract class elFinderVolumeDriver {
 				$mimeByName = '';
 			}
 			if (!$this->allowPutMime($source['mime']) || ($mimeByName && !$this->allowPutMime($mimeByName))) {
-				return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME, $errpath);
+				return $this->addError(elFinder::ERROR_UPLOAD_FILE_MIME, $errpath);
 			}
 			
-			if (($dim = $volume->dimensions($src))) {
-				$s = explode('x', $dim);
-				$source['width']  = $s[0];
-				$source['height'] = $s[1];
+			if (strpos($source['mime'], 'image') === 0 && ($dim = $volume->dimensions($src))) {
+				if (is_array($dim)) {
+					$dim = isset($dim['dim'])? $dim['dim'] : null;
+				}
+				if ($dim) {
+					$s = explode('x', $dim);
+					$source['width']  = $s[0];
+					$source['height'] = $s[1];
+				}
 			}
 			
 			if (($fp = $volume->open($src)) == false
 			|| ($path = $this->saveCE($fp, $destination, $name, $source)) == false) {
 				$fp && $volume->close($fp, $src);
-				return $this->setError(elFinder::ERROR_COPY, $errpath);
+				return $this->addError(elFinder::ERROR_COPY, $errpath);
 			}
 			$volume->close($fp, $src);
 
@@ -4553,6 +4909,7 @@ abstract class elFinderVolumeDriver {
 			if ($this->convEncOut(!$this->_unlink($this->convEncIn($path)))) {
 				return $this->setError(elFinder::ERROR_RM, $this->path($stat['hash']));
 			}
+			$this->clearstatcache();
 		}
 
 		$this->removed[] = $stat;
@@ -4570,7 +4927,11 @@ abstract class elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function tmbname($stat) {
-		return $stat['hash'].$stat['ts'].'.png';
+		$name = $stat['hash'] . (isset($stat['ts'])? $stat['ts'] : '') . '.png';
+		if (strlen($name) > 255) {
+			$name = $this->id.md5($stat['hash']).$stat['ts'].'.png';
+		}
+		return $name;
 	}
 	
 	/**
@@ -4620,8 +4981,11 @@ abstract class elFinderVolumeDriver {
 				}
 			}
 			return $this->imgLib
-				&& ($type === 'image')
-				&& ($this->imgLib == 'gd' ? in_array($stat['mime'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-ms-bmp')) : true);
+				&& (
+					($type === 'image' && ($this->imgLib === 'gd' ? in_array($stat['mime'], array('image/jpeg', 'image/png', 'image/gif', 'image/x-ms-bmp')) : true))
+					 ||
+					(ELFINDER_IMAGEMAGICK_PS && $this->imgLib !== 'gd' && in_array($stat['mime'], array('application/postscript', 'application/pdf')))
+				);
 		}
 		return false;
 	}
@@ -4706,7 +5070,7 @@ abstract class elFinderVolumeDriver {
 		
 		if ($this->imgLib === 'imagick') {
 			try {
-				$imagickTest = new imagick($tmb);
+				$imagickTest = new imagick($tmb.'[0]');
 				$imagickTest->clear();
 				$imagickTest = true;
 			} catch (Exception $e) {
@@ -4723,7 +5087,10 @@ abstract class elFinderVolumeDriver {
 				try {
 					$imagick = new imagick();
 					$imagick->setBackgroundColor(new ImagickPixel($bgcolor));
-					$imagick->readImage($this->getExtentionByMime($stat['mime'], ':') . $tmb);
+					$imagick->readImage($this->getExtentionByMime($stat['mime'], ':') . $tmb . '[0]');
+					try {
+						$imagick->trimImage(0);
+					} catch (Exception $e) {}
 					$imagick->setImageFormat('png');
 					$imagick->writeImage($tmb);
 					$imagick->clear();
@@ -4731,10 +5098,24 @@ abstract class elFinderVolumeDriver {
 						$result = true;
 					}
 				} catch (Exception $e) {}
+			} else if ($this->imgLib === 'convert') {
+				$convParams = $this->imageMagickConvertPrepare($tmb, 'png', 100, array(), $stat['mime']);
+				$cmd = sprintf('%s -colorspace sRGB -trim %s %s', ELFINDER_CONVERT_PATH, $convParams['quotedPath'], $convParams['quotedDstPath']);
+				$result = false;
+				if ($this->procExec($cmd) === 0) {
+					if (($s = getimagesize($tmb)) !== false) {
+						$result = true;
+					}
+				}
 			}
 			if (! $result) {
-				file_exists($tmb) && unlink($tmb);
-				return false;
+				// fallback imgLib to GD
+				if (function_exists('gd_info') && ($s = getimagesize($tmb))) {
+					$this->imgLib = 'gd';
+				} else {
+					file_exists($tmb) && unlink($tmb);
+					return false;
+				}
 			}
 			$result = false;
 		}
@@ -4877,6 +5258,9 @@ abstract class elFinderVolumeDriver {
 								$img->setImageOrientation($orientation);
 							}
 						}
+						if ($this->options['jpgProgressive']) {
+							$img->setInterlaceScheme(Imagick::INTERLACE_PLANE);
+						}
 					}
 					$img->resizeImage($size_w, $size_h, $filter, true);
 					if ($destformat) {
@@ -4896,8 +5280,7 @@ abstract class elFinderVolumeDriver {
 				extract($this->imageMagickConvertPrepare($path, $destformat, $jpgQuality, $s));
 				$filter = ($destformat === 'png' /* createTmb */)? '-filter Box' : '-filter Lanczos';
 				$strip = (isset($options['preserveExif']) && ! $options['preserveExif'])? ' -strip' : '';
-				//$cmd = sprintf('convert%s%s +repage %s -resize %dx%d +repage%s %s %s', $coalesce, $jpgQuality, $filter, $size_w, $size_h, $deconstruct, $quotedPath, $quotedDstPath);
-				$cmd = sprintf('convert %s%s%s %s -geometry %dx%d! %s %s', $quotedPath, $coalesce, $jpgQuality, $filter, $size_w, $size_h, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s %s%s%s%s%s %s -geometry %dx%d! %s %s', ELFINDER_CONVERT_PATH, $quotedPath, $coalesce, $jpgQuality, $strip, $interlace, $filter, $size_w, $size_h, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -4908,6 +5291,7 @@ abstract class elFinderVolumeDriver {
 				break;
 
 			case 'gd':
+				elFinder::expandMemoryForGD(array($s, array($size_w, $size_h)));
 				$img = $this->gdImageCreate($path,$s['mime']);
 
 				if ($img && false != ($tmp = imagecreatetruecolor($size_w, $size_h))) {
@@ -5007,7 +5391,7 @@ abstract class elFinderVolumeDriver {
 
 			case 'convert':
 				extract($this->imageMagickConvertPrepare($path, $destformat, $jpgQuality, $s));
-				$cmd = sprintf('convert %s%s%s -crop %dx%d+%d+%d%s %s', $quotedPath, $coalesce, $jpgQuality, $width, $height, $x, $y, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s %s%s%s%s -crop %dx%d+%d+%d%s %s', ELFINDER_CONVERT_PATH, $quotedPath, $coalesce, $jpgQuality, $interlace, $width, $height, $x, $y, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5018,6 +5402,7 @@ abstract class elFinderVolumeDriver {
 				break;
 
 			case 'gd':
+				elFinder::expandMemoryForGD(array($s, array($width, $height)));
 				$img = $this->gdImageCreate($path,$s['mime']);
 
 				if ($img && false != ($tmp = imagecreatetruecolor($width, $height))) {
@@ -5144,7 +5529,7 @@ abstract class elFinderVolumeDriver {
 				if ($bgcolor === 'transparent') {
 					$bgcolor = 'rgba(255, 255, 255, 0.0)';
 				}
-				$cmd = sprintf('convert -size %dx%d "xc:%s" png:- | convert%s%s png:-  %s -geometry +%d+%d -compose over -composite%s %s', $width, $height, $bgcolor, $coalesce, $jpgQuality, $quotedPath, $x, $y, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s -size %dx%d "xc:%s" png:- | convert%s%s%s png:-  %s -geometry +%d+%d -compose over -composite%s %s', ELFINDER_CONVERT_PATH, $width, $height, $bgcolor, $coalesce, $jpgQuality, $interlace, $quotedPath, $x, $y, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5155,6 +5540,7 @@ abstract class elFinderVolumeDriver {
 				break;
 
 			case 'gd':
+				elFinder::expandMemoryForGD(array($s, array($width, $height)));
 				$img = $this->gdImageCreate($path,$s['mime']);
 
 				if ($img &&  false != ($tmp = imagecreatetruecolor($width, $height))) {
@@ -5216,11 +5602,11 @@ abstract class elFinderVolumeDriver {
 			);
 			$quotedPath = escapeshellarg($path);
 			$cmds = array();
-			if ($this->procExec('exiftran -h') === 0) {
-				$cmds[] = 'exiftran -i '.$exiftran[$count].' '.$path;
+			if ($this->procExec(ELFINDER_EXIFTRAN_PATH . ' -h') === 0) {
+				$cmds[] = ELFINDER_EXIFTRAN_PATH . ' -i '.$exiftran[$count].' '.$path;
 			}
-			if ($this->procExec('jpegtran -version') === 0) {
-				$cmds[] = 'jpegtran -rotate '.$jpegtran[$count].' -copy all -outfile '.$quotedPath.' '.$quotedPath;
+			if ($this->procExec(ELFINDER_JPEGTRAN_PATH . ' -version') === 0) {
+				$cmds[] = ELFINDER_JPEGTRAN_PATH . ' -rotate '.$jpegtran[$count].' -copy all -outfile '.$quotedPath.' '.$quotedPath;
 			}
 			foreach($cmds as $cmd) {
 				if ($this->procExec($cmd) === 0) {
@@ -5270,7 +5656,7 @@ abstract class elFinderVolumeDriver {
 				if ($s[2] === IMAGETYPE_GIF || $s[2] === IMAGETYPE_PNG) {
 					$bgcolor = 'rgba(255, 255, 255, 0.0)';
 				}
-				$cmd = sprintf('convert %s%s%s -background "%s" -rotate %d%s %s', $quotedPath, $coalesce, $jpgQuality, $bgcolor, $degree, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s %s%s%s%s -background "%s" -rotate %d%s %s', ELFINDER_CONVERT_PATH, $quotedPath, $coalesce, $jpgQuality, $interlace, $bgcolor, $degree, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5281,6 +5667,7 @@ abstract class elFinderVolumeDriver {
 				break;
 
 			case 'gd':
+				elFinder::expandMemoryForGD(array($s, array($w, $h)));
 				$img = $this->gdImageCreate($path,$s['mime']);
 
 				$degree = 360 - $degree;
@@ -5333,13 +5720,13 @@ abstract class elFinderVolumeDriver {
 	 * Execute shell command
 	 *
 	 * @param  string $command command line
-	 * @param  array $output stdout strings
-	 * @param array|int $return_var process exit code
-	 * @param  array $error_output stderr strings
+	 * @param  string $output stdout strings
+	 * @param  int $return_var process exit code
+	 * @param  string $error_output stderr strings
 	 * @return int exit code
 	 * @author Alexey Sukhotin
 	 */
-	protected function procExec($command , array &$output = null, &$return_var = -1, array &$error_output = null) {
+	protected function procExec($command , &$output = '', &$return_var = -1, &$error_output = '') {
 
 		static $allowed = null;
 		
@@ -5371,17 +5758,41 @@ abstract class elFinderVolumeDriver {
 		$process = proc_open($command, $descriptorspec, $pipes, null, null);
 
 		if (is_resource($process)) {
+			stream_set_blocking($pipes[1], 0);
+			stream_set_blocking($pipes[2], 0);
 
 			fclose($pipes[0]);
 
 			$tmpout = '';
 			$tmperr = '';
-
-			$output = stream_get_contents($pipes[1]);
-			$error_output = stream_get_contents($pipes[2]);
+			while (feof($pipes[1]) === false || feof($pipes[2]) === false) {
+				elFinder::extendTimeLimit();
+				$read = array($pipes[1], $pipes[2]);
+				$write = null;
+				$except = null;
+				$ret = stream_select($read, $write, $except, 1);
+				if ($ret === false) {
+					// error
+					break;
+				} else if ($ret === 0) {
+					// timeout
+					continue;
+				} else {
+					foreach ($read as $sock) {
+						if ($sock === $pipes[1]) {
+							$tmpout .= fread($sock, 4096);
+						} else if ($sock === $pipes[2]) {
+							$tmperr .= fread($sock, 4096);
+						}
+					}
+				}
+			}
 
 			fclose($pipes[1]);
 			fclose($pipes[2]);
+
+			$error_output = $tmpout;
+			$output = $tmperr;
 			$return_var = proc_close($process);
 
 		} else {
@@ -5402,16 +5813,18 @@ abstract class elFinderVolumeDriver {
 	 * @author Troex Nevelin
 	 **/
 	protected function rmTmb($stat) {
-		if ($stat['mime'] === 'directory') {
-			foreach ($this->scandirCE($this->decode($stat['hash'])) as $p) {
-				elFinder::extendTimeLimit(30);
-				$name = $this->basenameCE($p);
-				$name != '.' && $name != '..' && $this->rmTmb($this->stat($p));
+		if ($this->tmbPathWritable) {
+			if ($stat['mime'] === 'directory') {
+				foreach ($this->scandirCE($this->decode($stat['hash'])) as $p) {
+					elFinder::extendTimeLimit(30);
+					$name = $this->basenameCE($p);
+					$name != '.' && $name != '..' && $this->rmTmb($this->stat($p));
+				}
+			} else if (!empty($stat['tmb']) && $stat['tmb'] != "1") {
+				$tmb = $this->tmbPath.DIRECTORY_SEPARATOR.rawurldecode($stat['tmb']);
+				file_exists($tmb) && unlink($tmb);
+				clearstatcache();
 			}
-		} else if (!empty($stat['tmb']) && $stat['tmb'] != "1") {
-			$tmb = $this->tmbPath.DIRECTORY_SEPARATOR.$stat['tmb'];
-			file_exists($tmb) && unlink($tmb);
-			clearstatcache();
 		}
 	}
 	
@@ -5481,6 +5894,9 @@ abstract class elFinderVolumeDriver {
 			case 'image/gif':
 				return imagegif($image, $filename);
 			case 'image/jpeg':
+				if ($this->options['jpgProgressive']) {
+					imageinterlace($image, true);
+				}
 				return imagejpeg($image, $filename, $jpgQuality);
 			case 'image/wbmp':
 				return imagewbmp($image, $filename);
@@ -5518,6 +5934,9 @@ abstract class elFinderVolumeDriver {
 			if (strtoupper($img->getImageFormat()) === 'JPEG') {
 				$img->setImageCompression(imagick::COMPRESSION_JPEG);
 				$img->setImageCompressionQuality($jpgQuality);
+				if ($this->options['jpgProgressive']) {
+					$img->setInterlaceScheme(Imagick::INTERLACE_PLANE);
+				}
 				try {
 					$orientation = $img->getImageOrientation();
 				} catch (ImagickException $e) {
@@ -5561,32 +5980,35 @@ abstract class elFinderVolumeDriver {
 	 * @param  string  $destformat
 	 * @param  int     $jpgQuality
 	 * @param  array   $imageSize
+	 * @param  string  $fileExt
 	 * @return array
 	 */
-	protected function imageMagickConvertPrepare($path, $destformat, $jpgQuality, $imageSize = null) {
+	protected function imageMagickConvertPrepare($path, $destformat, $jpgQuality, $imageSize = null, $mime = null) {
 		if (is_null($imageSize)) {
 			$imageSize = getimagesize($path);
 		}
-		if (!$imageSize) {
-			return array();
+		if (is_null($mime)) {
+			$mime = $this->mimetype($path);
 		}
-		$srcType = $this->getExtentionByMime($imageSize['mime'], ':');
+		$srcType = $this->getExtentionByMime($mime, ':');
 		$ani = false;
-		$cmd = 'identify ' . escapeshellarg($srcType . $path);
-		if ($this->procExec($cmd, $o) === 0) {
-			$ani = preg_split('/(?:\r\n|\n|\r)/', trim($o));
-			if (count($ani) < 2) {
-				$ani = false;
+		if (preg_match('/^(?:gif|png|ico)/', $srcType)) {
+			$cmd = ELFINDER_IDENTIFY_PATH . ' ' . escapeshellarg($srcType . $path);
+			if ($this->procExec($cmd, $o) === 0) {
+				$ani = preg_split('/(?:\r\n|\n|\r)/', trim($o));
+				if (count($ani) < 2) {
+					$ani = false;
+				}
 			}
 		}
-		$coalesce = $index = '';
+		$coalesce = $index = $interlace = '';
 		$deconstruct = ' +repage';
+		$index = '[0]';
 		if ($ani) {
 			if (is_null($destformat)) {
 				$coalesce = ' -coalesce -repage 0x0';
 				$deconstruct = ' +repage -deconstruct -layers optimize';
-			} else {
-				$index = '[0]';
+			} else if ($imageSize) {
 				if ($srcType === 'ico:') {
 					foreach($ani as $_i => $_info) {
 						if (preg_match('/ (\d+)x(\d+) /', $_info, $m)) {
@@ -5599,14 +6021,17 @@ abstract class elFinderVolumeDriver {
 				}
 			}
 		}
-		if ($imageSize[2] === IMAGETYPE_JPEG || $imageSize[2] === IMAGETYPE_JPEG2000) {
+		if ($imageSize && ($imageSize[2] === IMAGETYPE_JPEG || $imageSize[2] === IMAGETYPE_JPEG2000)) {
 			$jpgQuality = ' -quality ' . $jpgQuality;
+			if ($this->options['jpgProgressive']) {
+				$interlace = ' -interlace Plane';
+			}
 		} else {
 			$jpgQuality = '';
 		}
 		$quotedPath = escapeshellarg($srcType . $path . $index);
 		$quotedDstPath = escapeshellarg(($destformat? ($destformat . ':') : $srcType) . $path);
-		return compact('ani', 'index', 'coalesce', 'deconstruct', 'jpgQuality', 'quotedPath', 'quotedDstPath');
+		return compact('ani', 'index', 'coalesce', 'deconstruct', 'jpgQuality', 'quotedPath', 'quotedDstPath', 'interlace');
 	}
 
 	/*********************** misc *************************/
@@ -5649,6 +6074,19 @@ abstract class elFinderVolumeDriver {
 	}
 
 	/**
+	 * Default serach match method (name match)
+	 *
+	 * @param  String  $name  Item name
+	 * @param  String  $query Query word
+	 * @param  String  $path  Item path
+	 *
+	 * @return @return bool
+	 */
+	protected function searchMatchName($name , $query , $path) {
+		return $this->stripos($name , $query) !== false;
+	}
+
+	/**
 	 * Get server side available archivers
 	 * 
 	 * @param bool $use_cache
@@ -5668,90 +6106,70 @@ abstract class elFinderVolumeDriver {
 		
 		if ($this->procExec('') === 0) {
 		
-			$this->procExec('tar --version', $o, $ctar);
+			$this->procExec(ELFINDER_TAR_PATH . ' --version', $o, $ctar);
 			
 			if ($ctar == 0) {
-				$arcs['create']['application/x-tar']  = array('cmd' => 'tar', 'argc' => '-cf', 'ext' => 'tar');
-				$arcs['extract']['application/x-tar'] = array('cmd' => 'tar', 'argc' => '-xf', 'ext' => 'tar');
+				$arcs['create']['application/x-tar']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-cf', 'ext' => 'tar');
+				$arcs['extract']['application/x-tar'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xf', 'ext' => 'tar', 'toSpec' => '-C ');
 				unset($o);
-				$test = $this->procExec('gzip --version', $o, $c);
+				$this->procExec(ELFINDER_GZIP_PATH . ' --version', $o, $c);
 				if ($c == 0) {
-					$arcs['create']['application/x-gzip']  = array('cmd' => 'tar', 'argc' => '-czf', 'ext' => 'tgz');
-					$arcs['extract']['application/x-gzip'] = array('cmd' => 'tar', 'argc' => '-xzf', 'ext' => 'tgz');
+					$arcs['create']['application/x-gzip']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-czf', 'ext' => 'tgz');
+					$arcs['extract']['application/x-gzip'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xzf', 'ext' => 'tgz', 'toSpec' => '-C ');
 				}
 				unset($o);
-				$test = $this->procExec('bzip2 --version', $o, $c);
+				$this->procExec(ELFINDER_BZIP2_PATH . ' --version', $o, $c);
 				if ($c == 0) {
-					$arcs['create']['application/x-bzip2']  = array('cmd' => 'tar', 'argc' => '-cjf', 'ext' => 'tbz');
-					$arcs['extract']['application/x-bzip2'] = array('cmd' => 'tar', 'argc' => '-xjf', 'ext' => 'tbz');
+					$arcs['create']['application/x-bzip2']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-cjf', 'ext' => 'tbz');
+					$arcs['extract']['application/x-bzip2'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xjf', 'ext' => 'tbz', 'toSpec' => '-C ');
 				}
 				unset($o);
-				$test = $this->procExec('xz --version', $o, $c);
+				$this->procExec(ELFINDER_XZ_PATH . ' --version', $o, $c);
 				if ($c == 0) {
-					$arcs['create']['application/x-xz']  = array('cmd' => 'tar', 'argc' => '-cJf', 'ext' => 'xz');
-					$arcs['extract']['application/x-xz'] = array('cmd' => 'tar', 'argc' => '-xJf', 'ext' => 'xz');
+					$arcs['create']['application/x-xz']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-cJf', 'ext' => 'xz');
+					$arcs['extract']['application/x-xz'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xJf', 'ext' => 'xz', 'toSpec' => '-C ');
 				}
 			}
 			unset($o);
-			$this->procExec('zip -v', $o, $c);
+			$this->procExec(ELFINDER_ZIP_PATH . ' -h', $o, $c);
 			if ($c == 0) {
-				$arcs['create']['application/zip']  = array('cmd' => 'zip', 'argc' => '-r9', 'ext' => 'zip');
+				$arcs['create']['application/zip']  = array('cmd' => ELFINDER_ZIP_PATH, 'argc' => '-r9 -q', 'ext' => 'zip');
 			}
 			unset($o);
-			$this->procExec('unzip --help', $o, $c);
+			$this->procExec(ELFINDER_UNZIP_PATH . ' --help', $o, $c);
 			if ($c == 0) {
-				$arcs['extract']['application/zip'] = array('cmd' => 'unzip', 'argc' => '',  'ext' => 'zip');
+				$arcs['extract']['application/zip'] = array('cmd' => ELFINDER_UNZIP_PATH, 'argc' => '-q',  'ext' => 'zip', 'toSpec' => '-d ');
 			}
 			unset($o);
-			$this->procExec('rar --version', $o, $c);
+			$this->procExec(ELFINDER_RAR_PATH . ' --version', $o, $c);
 			if ($c == 0 || $c == 7) {
-				$arcs['create']['application/x-rar']  = array('cmd' => 'rar', 'argc' => 'a -inul', 'ext' => 'rar');
-				$arcs['extract']['application/x-rar'] = array('cmd' => 'rar', 'argc' => 'x -y',    'ext' => 'rar');
-			} else {
-				unset($o);
-				$test = $this->procExec('unrar', $o, $c);
-				if ($c==0 || $c == 7) {
-					$arcs['extract']['application/x-rar'] = array('cmd' => 'unrar', 'argc' => 'x -y', 'ext' => 'rar');
-				}
+				$arcs['create']['application/x-rar']  = array('cmd' => ELFINDER_RAR_PATH, 'argc' => 'a -inul', 'ext' => 'rar');
 			}
 			unset($o);
-			$this->procExec('7za --help', $o, $c);
+			$this->procExec(ELFINDER_UNRAR_PATH, $o, $c);
+			if ($c==0 || $c == 7) {
+				$arcs['extract']['application/x-rar'] = array('cmd' => ELFINDER_UNRAR_PATH, 'argc' => 'x -y', 'ext' => 'rar', 'toSpec' => '');
+			}
+			unset($o);
+			$this->procExec(ELFINDER_7Z_PATH, $o, $c);
 			if ($c == 0) {
-				$arcs['create']['application/x-7z-compressed']  = array('cmd' => '7za', 'argc' => 'a', 'ext' => '7z');
-				$arcs['extract']['application/x-7z-compressed'] = array('cmd' => '7za', 'argc' => 'x -y', 'ext' => '7z');
+				$arcs['create']['application/x-7z-compressed']  = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'a', 'ext' => '7z');
+				$arcs['extract']['application/x-7z-compressed'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -y', 'ext' => '7z', 'toSpec' => '-o');
 				
 				if (empty($arcs['create']['application/zip'])) {
-					$arcs['create']['application/zip'] = array('cmd' => '7za', 'argc' => 'a -tzip', 'ext' => 'zip');
+					$arcs['create']['application/zip'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'a -tzip', 'ext' => 'zip');
 				}
 				if (empty($arcs['extract']['application/zip'])) {
-					$arcs['extract']['application/zip'] = array('cmd' => '7za', 'argc' => 'x -tzip -y', 'ext' => 'zip');
+					$arcs['extract']['application/zip'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -tzip -y', 'ext' => 'zip', 'toSpec' => '-o');
 				}
 				if (empty($arcs['create']['application/x-tar'])) {
-					$arcs['create']['application/x-tar'] = array('cmd' => '7za', 'argc' => 'a -ttar', 'ext' => 'tar');
+					$arcs['create']['application/x-tar'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'a -ttar', 'ext' => 'tar');
 				}
 				if (empty($arcs['extract']['application/x-tar'])) {
-					$arcs['extract']['application/x-tar'] = array('cmd' => '7za', 'argc' => 'x -ttar -y', 'ext' => 'tar');
+					$arcs['extract']['application/x-tar'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -ttar -y', 'ext' => 'tar', 'toSpec' => '-o');
 				}
-			} else if (substr(PHP_OS,0,3) === 'WIN') {
-				// check `7z` for Windows server.
-				unset($o);
-				$this->procExec('7z', $o, $c);
-				if ($c == 0) {
-					$arcs['create']['application/x-7z-compressed']  = array('cmd' => '7z', 'argc' => 'a', 'ext' => '7z');
-					$arcs['extract']['application/x-7z-compressed'] = array('cmd' => '7z', 'argc' => 'x -y', 'ext' => '7z');
-					
-					if (empty($arcs['create']['application/zip'])) {
-						$arcs['create']['application/zip'] = array('cmd' => '7z', 'argc' => 'a -tzip', 'ext' => 'zip');
-					}
-					if (empty($arcs['extract']['application/zip'])) {
-						$arcs['extract']['application/zip'] = array('cmd' => '7z', 'argc' => 'x -tzip -y', 'ext' => 'zip');
-					}
-					if (empty($arcs['create']['application/x-tar'])) {
-						$arcs['create']['application/x-tar'] = array('cmd' => '7z', 'argc' => 'a -ttar', 'ext' => 'tar');
-					}
-					if (empty($arcs['extract']['application/x-tar'])) {
-						$arcs['extract']['application/x-tar'] = array('cmd' => '7z', 'argc' => 'x -ttar -y', 'ext' => 'tar');
-					}
+				if (substr(PHP_OS, 0, 3) === 'WIN' && empty($arcs['extract']['application/x-rar'])) {
+					$arcs['extract']['application/x-rar'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -trar -y', 'ext' => 'rar', 'toSpec' => '-o');
 				}
 			}
 		
@@ -5785,6 +6203,9 @@ abstract class elFinderVolumeDriver {
 		if ($base[0] === $separator && strpos($base, 0, strlen($systemroot)) !== $systemroot) {
 			$base = $systemroot . substr($base, 1);
 		}
+		if ($base !== $systemroot) {
+			$base = rtrim($base, $separator);
+		}
 		
 		// 'Here'
 		if ($path === '' || $path === '.' . $separator) return $base;
@@ -5799,7 +6220,10 @@ abstract class elFinderVolumeDriver {
 		while(preg_match($normreg, $path)) {
 			$path = preg_replace($normreg, '$1', $path, 1);
 		}
-		
+		if ($path !== $systemroot) {
+			$path = rtrim($path, $separator);
+		}
+
 		// Absolute path
 		if ($path[0] === $separator || strpos($path, $systemroot) === 0) {
 			return $path;
@@ -5813,7 +6237,7 @@ abstract class elFinderVolumeDriver {
 			if ($arrn[0] !== '.') {
 				array_unshift($arrn, '.');
 			}
-			$arrn[0] = $base;
+			$arrn[0] = rtrim($base, $separator);
 			return join($separator, $arrn);
 		}
 		
@@ -5852,7 +6276,7 @@ abstract class elFinderVolumeDriver {
 			$cwd = getcwd();
 			if (chdir($dir)) {
 				foreach($files as $i => $file) {
-					$files[$i] = '.'.DIRECTORY_SEPARATOR.$file;
+					$files[$i] = '.'.DIRECTORY_SEPARATOR.basename($file);
 				}
 				$files = array_map('escapeshellarg', $files);
 				
@@ -5870,26 +6294,40 @@ abstract class elFinderVolumeDriver {
 	/**
 	 * Unpack archive
 	 *
-	 * @param  string  $path   archive path
-	 * @param  array   $arc    archiver command and arguments (same as in $this->archivers)
-	 * @param  bool    $remove remove archive ( unlink($path) )
+	 * @param  string      $path  archive path
+	 * @param  array       $arc   archiver command and arguments (same as in $this->archivers)
+	 * @param  bool|string $mode  bool: remove archive ( unlink($path) ) | string: extract to directory
 	 * @return void
 	 * @author Dmitry (dio) Levashov
 	 * @author Alexey Sukhotin
 	 * @author Naoki Sawada
 	 **/
-	protected function unpackArchive($path, $arc, $remove = true) {
-		$dir = dirname($path);
+	protected function unpackArchive($path, $arc, $mode = true) {
+		if (is_string($mode)) {
+			$dir = $mode;
+			$chdir = null;
+			$remove = false;
+		} else {
+			$dir = dirname($path);
+			$chdir = $dir;
+			$remove = $mode;
+		}
+		$dir = realpath($dir);
+		$path = realpath($path);
 		if ($arc['cmd'] === 'phpfunction') {
 			if (is_callable($arc['argc'])) {
 				call_user_func_array($arc['argc'], array($path, $dir));
 			}
 		} else {
 			$cwd = getcwd();
-			if (chdir($dir)) {
-				$cmd = $arc['cmd'].' '.$arc['argc'].' '.escapeshellarg(basename($path));
+			if (!$chdir || chdir($dir)) {
+				if ($chdir) {
+					$cmd = $arc['cmd'].' '.$arc['argc'].' '.escapeshellarg(basename($path));
+				} else {
+					$cmd = $arc['cmd'].' '.$arc['argc'].' '.escapeshellarg($path).' '.$arc['toSpec'].escapeshellarg($dir);
+				}
 				$this->procExec($cmd, $o, $c);
-				chdir($cwd);
+				$chdir && chdir($cwd);
 			}
 		}
 		$remove && unlink($path);
@@ -5924,6 +6362,13 @@ abstract class elFinderVolumeDriver {
 		if (is_dir($path)) {
 			foreach (self::localScandir($path) as $name) {
 				$p = $path.DIRECTORY_SEPARATOR.$name;
+				if (!is_readable($p)) {
+					// Perhaps a symbolic link to open_basedir restricted location
+					self::localRmdirRecursive($p);
+					$res['symlinks'][] = $p;
+					$res['rmNames'][] = $name;
+					continue;
+				}
 				if ($chkSymlink && is_link($p)) {
 					self::localRmdirRecursive($p);
 					$res['symlinks'][] = $p;
@@ -5943,7 +6388,7 @@ abstract class elFinderVolumeDriver {
 					$res['rmNames'][] = $name;
 					continue;
 				}
-				if ($chkMime && ($mimeByName = elFinderVolumeDriver::mimetypeInternalDetect($name)) && $mimeByName !== 'unknown' && !$this->allowPutMime($mimeByName)) {
+				if ($chkMime && ($mimeByName = elFinderVolumeDriver::mimetypeInternalDetect($name)) && !$this->allowPutMime($mimeByName)) {
 					self::localRmdirRecursive($p);
 					$res['mimes'][] = $p;
 					$res['rmNames'][] = $name;
@@ -5976,7 +6421,7 @@ abstract class elFinderVolumeDriver {
 				unlink($path);
 				$res['writables'][] = $path;
 				$res['rmNames'][] = $name;
-			} else if ($chkMime && ($mimeByName = elFinderVolumeDriver::mimetypeInternalDetect($name)) && $mimeByName !== 'unknown' && !$this->allowPutMime($mimeByName)) {
+			} else if ($chkMime && ($mimeByName = elFinderVolumeDriver::mimetypeInternalDetect($name)) && !$this->allowPutMime($mimeByName)) {
 				unlink($path);
 				$res['mimes'][] = $path;
 				$res['rmNames'][] = $name;
@@ -6021,6 +6466,22 @@ abstract class elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 */
 	protected static function localRmdirRecursive($dir) {
+		// try system command
+		if (is_callable('exec')) {
+			$o = '';
+			$r = 1;
+			if (substr(PHP_OS, 0, 3) === 'WIN') {
+				exec('rd /S /Q ' . escapeshellarg($dir), $o, $r);
+				if ($r === 0) {
+					exec('del /F /Q ' . escapeshellarg($dir), $o, $r);
+				}
+			} else {
+				exec('rm -rf ' . escapeshellarg($dir), $o, $r);
+			}
+			if ($r === 0) {
+				return true;
+			}
+		}
 		if (!is_link($dir) && is_dir($dir)) {
 			chmod($dir, 0777);
 			if ($handle = opendir($dir)) {
@@ -6040,7 +6501,7 @@ abstract class elFinderVolumeDriver {
 				closedir($handle);
 			}
 			return rmdir($dir);
-		} elseif (is_file($dir) || is_link($dir)) {
+		} else {
 			chmod($dir, 0666);
 			return unlink($dir);
 		}

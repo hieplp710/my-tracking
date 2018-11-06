@@ -16,5 +16,7 @@ class VerifyCsrfToken extends BaseVerifier
         '/tracking/location',
         '/tracking/get-locations',
         '/tracking/update-device-number',
+        '/api/get-locations-mobile',
+        '/api/login',
     ];
 }

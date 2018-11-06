@@ -835,4 +835,28 @@ class Tracking_device extends Model
         }
         return $resp;
     }
+
+    public static function getUserDeviceLocationMobile($user_id = 0, $options = []){
+        $status_active = self::STATUS_ACTIVE;
+        //$valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
+        $query = "select d.*
+            from tracking_devices as d
+            LEFT join users as u on d.user_id = u.id
+            where d.is_deleted = 0 and d.user_id = $user_id AND d.status = $status_active
+            order by d.activated_at asc;";        
+        $result = DB::select($query, []);
+        $resp = [];
+        if ($result) {
+            foreach ($result as $item) {
+                $device = !empty($item->current_state) && $item->current_state != '{}' ? json_decode($item->current_state, true) : [];
+                $device['device_id'] = $item->id;
+                $device['device_number'] = $item->device_number;
+                $device['activated_date'] =  $item->activated_at;
+                $device['sim_infor'] = $item->sim_infor;
+                $device['id'] = $item->id;
+                $resp[] = $device;
+            }
+        }
+        return $resp;
+    }
 }

@@ -19,6 +19,105 @@ All Notable changes to `Backpack Settings` will be documented in this file
 ### Security
 - Nothing
 
+## [2.0.31] - 2018-04-23
+
+## Added
+- German translation;
+
+## Fixed
+- show active settings in AjaxDataTables;
+
+
+## [2.0.30] - 2018-03-15
+
+## Fixed
+- ```Setting``` getter and setter now trigger exception or return false if operation was unsuccessful;
+
+
+## [2.0.29] - 2018-03-13
+
+## Fixed
+- unique added to key column;
+
+
+## [2.0.28] - 2018-03-13
+
+## Added
+- ```Setting``` alias;
+- ```Setting::get()``` method; fixes 
+- ```Setting::set()``` method;
+
+## Fixed
+- json_encode() field instead of casting it to array - merged #44; fixes #33;
+
+
+## [2.0.27] - 2017-12-18
+
+## Fixed
+- routes are setup in the boot() method - merged #65;
+
+## [2.0.26] - 2017-12-02
+
+## Added
+- Italian translation;
+- removed publishing of seeds;
+
+
+## [2.0.25] - 2017-11-22
+
+## Fixed
+- composer.json CRUD requirement - makes Settings package work on Backpack\CRUD 3.3;
+
+
+## [2.0.24] - 2017-11-14
+
+## Fixed
+- proper CRUD routes - makes Settings package work on Backpack\CRUD 3.3;
+
+
+## [2.0.23] - 2017-11-02
+
+## Fixed
+- route uses CRUD facade instead of route, for it to have the search route in CRUD 3.3;
+
+
+## [2.0.22] - 2017-08-30
+
+## Added
+- package autodiscovery;
+
+## Fixed
+= text type columns for values in example migrations;
+
+## [2.0.21] - 2017-08-11
+
+## Added
+- Russian (ru) language files, thanks to [Андрей](https://github.com/parabellumKoval);
+
+
+## [2.0.20] - 2017-08-11
+
+## Added
+- Danish (da_DK) language files, thanks to [Frederik Rabøl](https://github.com/Xayer);
+
+
+## 2.0.19 - 2017-07-06
+
+### Added
+- overwritable routes file;
+
+## 2.0.18 - 2017-07-05
+
+### Fixed
+- Removed HHVM from TravisCI, since Laravel 5.4 no longer supports it;
+
+## 2.0.17 - 2017-07-05
+
+### Added
+- Portugese translation (thanks to [Toni Almeida](https://github.com/promatik));
+- Portugese (Brasilian) translation (thanks to [Guilherme Augusto Henschel](https://github.com/cenoura));
+- command line feedback when seeding the settings table;
+
 
 ## 2.0.16 - 2017-04-21
 

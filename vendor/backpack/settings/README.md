@@ -11,32 +11,25 @@
 An interface for the administrator to easily change application settings. Uses Laravel Backpack. On Laravel 5.2.
 
 > ### Security updates and breaking changes
-> Please **[subscribe to the Backpack Newsletter](http://eepurl.com/bUEGjf)** so you can find out about any security updates, breaking changes or major features. We send an email every 1-2 months.
+> Please **[subscribe to the Backpack Newsletter](http://backpackforlaravel.com/newsletter)** so you can find out about any security updates, breaking changes or major features. We send an email every 1-2 months.
 
 ## Install
 
-1) In your terminal:
+In your terminal:
 
 ``` bash
-$ composer require backpack/settings
-```
+# install the package
+composer require backpack/settings
 
-2) Add the service provider to your config/app.php file:
-```php
-Backpack\Settings\SettingsServiceProvider::class,
-```
+# run the migration
+php artisan vendor:publish --provider="Backpack\Settings\SettingsServiceProvider"
+php artisan migrate
 
-3) Run the migration and add some example settings:
-```bash
-$ php artisan vendor:publish --provider="Backpack\Settings\SettingsServiceProvider"
-$ php artisan migrate
-$ php artisan db:seed --class="Backpack\Settings\database\seeds\SettingsTableSeeder"
-```
+# [optional] add a menu item for it to the sidebar_content file
+php artisan backpack:base:add-sidebar-content "<li><a href='{{ url(config('backpack.base.route_prefix', 'admin') . '/setting') }}'><i class='fa fa-cog'></i> <span>Settings</span></a></li>"
 
-4) [Optional] Add a menu item for it in resources/views/vendor/backpack/base/inc/sidebar.blade.php or menu.blade.php:
-
-```html
-<li><a href="{{ url(config('backpack.base.route_prefix', 'admin') . '/setting') }}"><i class="fa fa-cog"></i> <span>Settings</span></a></li>
+# [optional] insert some example dummy data to the database
+php artisan db:seed --class="Backpack\Settings\database\seeds\SettingsTableSeeder"
 ```
 
 ## Usage
@@ -88,11 +81,18 @@ $ composer test
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
+## Overwriting Functionality
+
+If you need to modify how this works in a project: 
+- create a ```routes/backpack/settings.php``` file; the package will see that, and load _your_ routes file, instead of the one in the package; 
+- create controllers/models that extend the ones in the package, and use those in your new routes file;
+- modify anything you'd like in the new controllers/models;
+
 ## Security
 
 If you discover any security related issues, please email hello@tabacitu.ro instead of using the issue tracker.
 
-Please **[subscribe to the Backpack Newsletter](http://eepurl.com/bUEGjf)** so you can find out about any security updates, breaking changes or major features. We send an email every 1-2 months.
+Please **[subscribe to the Backpack Newsletter](http://backpackforlaravel.com/newsletter)** so you can find out about any security updates, breaking changes or major features. We send an email every 1-2 months.
 
 ## Credits
 
@@ -101,7 +101,7 @@ Please **[subscribe to the Backpack Newsletter](http://eepurl.com/bUEGjf)** so y
 
 ## License
 
-Backpack is free for non-commercial use and $19/project for commercial use. Please see [License File](LICENSE.md) and [backpackforlaravel.com](https://backpackforlaravel.com/#pricing) for more information.
+Backpack is free for non-commercial use and 39 EUR/project for commercial use. Please see [License File](LICENSE.md) and [backpackforlaravel.com](https://backpackforlaravel.com/#pricing) for more information.
 
 [ico-version]: https://img.shields.io/packagist/v/backpack/settings.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square

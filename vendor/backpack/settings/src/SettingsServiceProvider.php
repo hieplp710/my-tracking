@@ -19,12 +19,22 @@ class SettingsServiceProvider extends ServiceProvider
     protected $defer = false;
 
     /**
+     * Where the route file lives, both inside the package and in the app (if overwritten).
+     *
+     * @var string
+     */
+    public $routeFilePath = '/routes/backpack/settings.php';
+
+    /**
      * Perform post-registration booting of services.
      *
      * @return void
      */
     public function boot()
     {
+        // define the routes for the application
+        $this->setupRoutes($this->app->router);
+
         // only use the Settings package if the Settings table is present in the database
         if (!\App::runningInConsole() && count(Schema::getColumnListing('settings'))) {
             // get all settings from the database
@@ -38,7 +48,6 @@ class SettingsServiceProvider extends ServiceProvider
         }
         // publish the migrations and seeds
         $this->publishes([__DIR__.'/database/migrations/' => database_path('migrations')], 'migrations');
-        $this->publishes([__DIR__.'/database/seeds/' => database_path('seeds')], 'seeds');
 
         // publish translation files
         $this->publishes([__DIR__.'/resources/lang' => resource_path('lang/vendor/backpack')], 'lang');
@@ -53,14 +62,15 @@ class SettingsServiceProvider extends ServiceProvider
      */
     public function setupRoutes(Router $router)
     {
-        $router->group(['namespace' => 'Backpack\Settings\app\Http\Controllers'], function ($router) {
-            // Admin Interface Routes
-            Route::group(['prefix'   => config('backpack.base.route_prefix', 'admin'),
-                        'middleware' => ['web', 'admin'], ], function () {
-                            // Settings
-                            Route::resource('setting', 'SettingCrudController');
-                        });
-        });
+        // by default, use the routes file provided in vendor
+        $routeFilePathInUse = __DIR__.$this->routeFilePath;
+
+        // but if there's a file with the same name in routes/backpack, use that one
+        if (file_exists(base_path().$this->routeFilePath)) {
+            $routeFilePathInUse = base_path().$this->routeFilePath;
+        }
+
+        $this->loadRoutesFrom($routeFilePathInUse);
     }
 
     /**
@@ -70,14 +80,12 @@ class SettingsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerSettings();
-        $this->setupRoutes($this->app->router);
-    }
-
-    private function registerSettings()
-    {
         $this->app->bind('settings', function ($app) {
             return new Settings($app);
         });
+
+        // register their aliases
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+        $loader->alias('Setting', \Backpack\Settings\app\Models\Setting::class);
     }
 }

@@ -122,7 +122,7 @@ class Tracking_device extends Model
         return $ipaddress;
     }
 
-    public static function getUserDeviceLocationBak($user_id = 0, $options = []){
+    public static function getUserDeviceLocation($user_id = 0, $options = []){
         //check user device
         //return ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];
         $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;
@@ -638,6 +638,7 @@ class Tracking_device extends Model
             //update new device with first state
             $location['refTime'] = $location['time'];
             $this->current_state = json_encode($location);
+            $this->current_state_mobile = json_encode($location);
             $this->save();
         } else {
             //for update
@@ -662,52 +663,18 @@ class Tracking_device extends Model
                     $new_current_state = array_merge([], $location);
                     $new_current_state['refTime'] = $refTime;
                     $new_current_state['current_state_text'] = $statusText; //show status + diff
-                    $this->current_state = json_encode($new_current_state);
+                    $this->current_state_mobile = json_encode($new_current_state);
+
                 } else {
                     //$statusText = self::getStatusText($location);
                     $location['refTime'] = $location['time'];
                     $status_code = self::getStatusText($location);
                     $new_current_state['current_state_text'] = self::getStatusMapping($status_code);//show status
                     $this->current_state = json_encode($location);
+                    $this->current_state_mobile = json_encode($location);
                 }
                 $this->save();
-            } else {
-                return '';
-                //for rollback location
-                //get location that nearest of rollback update
-                $nearest_ago_loc = Devicelocation::where('created_at' , '<', $location_time->format(self::DB_DATETIME_FORMAT))
-                    ->orderBy('created_at', 'desc')->take(1)->first();
-                $nearest_later_loc = Devicelocation::where('created_at' , '>', $location_time->format(self::DB_DATETIME_FORMAT))
-                    ->orderBy('created_at', 'asc')->take(1)->first();
-                //update status for later loc
-                $statusLatterText = '';
-                if ($nearest_later_loc instanceof Devicelocation) {
-                    if ($location['status'] == $nearest_later_loc->status) {
-                        //expand status time in current status
-                        $later_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_later_loc->created_at);
-                        $different = $location_time->diffInSeconds($later_location_time);
-                        //$statusLatterText = self::getStatusText($nearest_later_loc->toArray()) . ' trong ' . self::getDifferentTime($different);
-                        $statusLatterText = self::getDifferentTime($different);
-                    } else {
-                        //$statusLatterText = self::getStatusText($nearest_later_loc->toArray());
-                    }
-                    $nearest_later_loc->current_state = $statusLatterText;
-                    $nearest_later_loc->save();
-                }
-
-                //update status
-                if ($nearest_ago_loc instanceof Devicelocation) {
-                    if ($location['status'] == $nearest_ago_loc->status) {
-                        //expand status time in current status
-                        $ago_location_time = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $nearest_ago_loc->created_at);
-                        $different = $ago_location_time->diffInSeconds($location_time);
-                        //$statusText = self::getStatusText($location) . ' trong ' . self::getDifferentTime($different);
-                        $statusText = self::getDifferentTime($different);
-                    } else {
-                        //$statusText = self::getStatusText($location);
-                    }
-                }
-            }
+            } 
         }
         return $statusText;
     }
@@ -860,20 +827,23 @@ class Tracking_device extends Model
         $resp = [];
         if ($result) {
             foreach ($result as $item) {
-                $device = !empty($item->current_state) && $item->current_state != '{}' ? json_decode($item->current_state, true) : [];
+                $current_state_obj = !empty($item->current_state_mobile) && $item->current_state_mobile != '{}' ? json_decode($item->current_state_mobile, true) : [];
                 $device['device_id'] = $item->id;
                 $device['device_number'] = $item->device_number;
                 $device['activated_date'] =  $item->activated_at;
                 $device['sim_infor'] = $item->sim_infor;
-                $device['id'] = $item->id;
-                $status = self::getStatusText($device);
-                if (!empty($device)) {
+                $device['id'] = $item->id;                
+                if (!empty($current_state_obj)) {
+                    $status = self::getStatusText($current_state_obj);
                     $device['status'] = $status;
                     $device['statusText'] = self::getStatusMapping($status);
+                    $device['lat'] = $current_state_obj['lat'];
+                    $device['lng'] = $current_state_obj['lng'];
+                    $device['velocity'] = $current_state_obj['velocity'];
                     //time
                     //calculate diffirent time
-                    $refTime = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, (isset($device['refTime']) ? $device['refTime'] : $device['time']));
-                    $currentTime = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $device['time']);
+                    $refTime = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, (isset($current_state_obj['refTime']) ? $current_state_obj['refTime'] : $current_state_obj['time']));
+                    $currentTime = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $current_state_obj['time']);
                     $different = $refTime->diffInSeconds($currentTime);
                     $device['diffTime'] = self::getDifferentTime($different);
                 } else {
@@ -889,7 +859,7 @@ class Tracking_device extends Model
 
 
 
-    public static function getUserDeviceLocation($user_id = 0, $options = []){
+    public static function getUserDeviceLocationNew($user_id = 0, $options = []){
         //check user device
         //return ["status" => true, "error" => false, "data" => [], "last_points" => null, "hasMore" => false];
         $is_roadmap = isset($options['isRoadmap']) ? $options['isRoadmap'] : false;

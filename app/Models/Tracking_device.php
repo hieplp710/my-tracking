@@ -827,7 +827,7 @@ class Tracking_device extends Model
         $resp = [];
         if ($result) {
             foreach ($result as $item) {
-                $current_state_obj = !empty($item->current_state_mobile) && $item->current_state_mobile != '{}' ? json_decode($item->current_state_mobile, true) : [];
+                $current_state_obj = !empty($item->current_state_mobile) && $item->current_state_mobile != '{}' ? json_decode($item->current_state_mobile, true) : json_decode($item->current_state, true);
                 $device['device_id'] = $item->id;
                 $device['device_number'] = $item->device_number;
                 $device['activated_date'] =  $item->activated_at;

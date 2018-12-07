@@ -16,6 +16,7 @@ use Monolog\Logger;
 
 class Tracking_device extends Model
 {
+    //
     use CrudTrait;
     use Helper;
     protected $fillable = ['id','device_number', 'setting', 'sim_infor', 'activated_at', 'user_id', 'status', 'expired_at'];

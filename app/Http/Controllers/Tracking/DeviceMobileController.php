@@ -18,7 +18,8 @@ use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class DeviceMobileController extends BaseController
-{
+{   
+    const ROADMAP_LIMIT_MOBILE = 1000;
     public function __construct()
     {
         //$this->middleware('auth');
@@ -46,6 +47,23 @@ class DeviceMobileController extends BaseController
         }
         
         return response()->json(compact('token'));
+    }
+
+    public function getRoadmap(Request $request){
+        $roadmapLimit = self::ROADMAP_LIMIT_MOBILE;
+        $data = $request->getContent();
+        $options = json_decode($data, true);
+        $result = Tracking_device::getRoadMapMobile($options);
+        return response()->json($result); 
+    }
+
+    public function getUserProfile(Request $request){
+        $user = JWTAuth::parseToken()->authenticate();
+        return response()->json($user);        
+    }
+
+    public function getGeneralReport(Request $request) {
+        
     }
     
 }

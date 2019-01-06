@@ -808,7 +808,8 @@ class Tracking_device extends Model
                     "Created Date" => !empty($item->created_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('m/d/y') : '',
                     "Username" => $item->username,
                     "Owner" => $item->owner,
-                    "Phone" => $item->phone
+                    "Phone" => $item->phone,
+                    "Status" => $item->status
                 ];
                 $resp[] = $temp;
             }
@@ -1174,7 +1175,7 @@ class Tracking_device extends Model
         if (!empty($next_loc)) {
             $condition_next_loc = " AND l.created_at > '$next_loc'";
         }
-        $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
+        $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, d.status,l.* 
             from users as u 
             inner join tracking_devices as d on u.id = d.user_id
             inner join device_locations as l on d.id = l.device_id

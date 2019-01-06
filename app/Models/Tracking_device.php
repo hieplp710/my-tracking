@@ -789,7 +789,7 @@ class Tracking_device extends Model
         $status_unused = self::STATUS_UNUSED;
         $inActive = self::STATUS_IN_ACTIVE;
         $valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
-        $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, 
+        $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, d.status,
                 d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
@@ -1175,7 +1175,7 @@ class Tracking_device extends Model
         if (!empty($next_loc)) {
             $condition_next_loc = " AND l.created_at > '$next_loc'";
         }
-        $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, d.status,l.* 
+        $query = "select d.id as device_id_main,d.current_state as current_state_device, IFNULL(d.device_number,'N/A') as device_number, l.* 
             from users as u 
             inner join tracking_devices as d on u.id = d.user_id
             inner join device_locations as l on d.id = l.device_id

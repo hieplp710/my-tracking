@@ -809,7 +809,7 @@ class Tracking_device extends Model
                     "Username" => $item->username,
                     "Owner" => $item->owner,
                     "Phone" => $item->phone,
-                    "Status" => $item->status
+                    "Status" => self::getDeviceStatusText($item->status) 
                 ];
                 $resp[] = $temp;
             }
@@ -1238,5 +1238,16 @@ class Tracking_device extends Model
         $location_devices = array_values($location_devices);
         $result = ["status" => true, "error" => false, "data" => $location_devices, "last_points" => $last_point_item, "hasMore" => $has_more];
         return $result;
+    }
+
+    public static function getDeviceStatusText($status){
+        $statusText = 'N/A';
+        switch($status){
+            case self::STATUS_ACTIVE: $statusText = 'Active'; break;
+            case self::STATUS_IN_ACTIVE: $statusText = 'In active'; break;
+            case self::STATUS_EXTEND_EXPIRED: $statusText = 'Extend expired'; break;
+            case self::STATUS_UNUSED: $statusText = 'Unused'; break;
+        }
+        return $statusText;
     }
 }

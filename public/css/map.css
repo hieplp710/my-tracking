@@ -244,6 +244,12 @@ table.roadmap-info td, table.roadmap-info th {
     list-style: none;
     padding: 0;
 }
+.modal-footer p.hotline {
+    width: 140px;
+    float: left;
+    text-align: left;
+    font-weight: 600;
+}
 .col-md-12.no-padding {
     padding: 0;
 }

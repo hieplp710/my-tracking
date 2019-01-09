@@ -5,7 +5,7 @@
 /storage/exports
 /.idea
 /.vagrant
-/vendor
+/vendor/*
 Homestead.json
 Homestead.yaml
 npm-debug.log

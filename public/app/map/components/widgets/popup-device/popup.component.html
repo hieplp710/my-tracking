@@ -14,9 +14,10 @@
                         <span class="warning-text" *ngIf="marker.isExpired == 1">Thiết bị {{ marker.deviceNumber }} sẽ hết hạn vào ngày {{ marker.expiredDate}}</span>
                         <span class="warning-text" *ngIf="marker.isExpired == 2">Thiết bị {{ marker.deviceNumber }} sẽ bị khoá vĩnh viễn sau ngày {{ marker.expiredDate}}</span>
                     </li>
-                </ul>
+                </ul>                
             </div>
             <div class="modal-footer">
+                <p class="hotline">Hotline: 0919919512</p>
                 <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal" (click)="onClick($event)">
                     <span class="glyphicon glyphicon-remove"></span> Close</button>
             </div>

@@ -1,1 +1,1 @@
-{"version":3,"sources":["../../src/app/map/models/roadmap_info.ts"],"names":[],"mappings":";;;;;;QAQC,CAAC","file":"roadmap_info.js","sourcesContent":["/**\r\n * Created by hiepl on 4/8/2018.\r\n */\r\nexport interface RoadmapInfo {\r\n    km: any;\r\n    kmph: number;\r\n    time: string;\r\n    totalKm: any;\r\n}"],"sourceRoot":"/src"}
+{"version":3,"sources":["../../src/app/map/models/roadmap_info.ts"],"names":[],"mappings":";;;;;;QAQC,CAAC","file":"roadmap_info.js","sourcesContent":[null],"sourceRoot":"/src"}

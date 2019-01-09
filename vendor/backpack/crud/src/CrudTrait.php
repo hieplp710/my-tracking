@@ -68,14 +68,15 @@ trait CrudTrait
      */
     public function addFakes($columns = ['extras'])
     {
+        
         foreach ($columns as $key => $column) {
             $column_contents = $this->{$column};
-
+            
             if (! is_object($this->{$column})) {
                 $column_contents = json_decode($this->{$column});
             }
 
-            if (count($column_contents)) {
+            if ($column_contents && count($column_contents)) {
                 foreach ($column_contents as $fake_field_name => $fake_field_value) {
                     $this->setAttribute($fake_field_name, $fake_field_value);
                 }

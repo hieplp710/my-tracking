@@ -65,5 +65,11 @@ class DeviceMobileController extends BaseController
     public function getGeneralReport(Request $request) {
         
     }
+
+    public function getDeviceList(Request $request) {
+        $user = JWTAuth::parseToken()->authenticate();        
+        $result = Tracking_device::getDeviceList($user->id);
+        return response()->json($result);
+    }
     
 }

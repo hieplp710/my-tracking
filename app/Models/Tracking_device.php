@@ -794,7 +794,7 @@ class Tracking_device extends Model
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0 AND d.status !=$status_unused AND d.status != $inActive AND d.expired_at <= '$valid_date'
-            order by d.activated_at asc;";
+            order by d.expired_at asc;";
         $result = DB::select($query, []);
         $resp = [];
         if ($result) {
@@ -1249,5 +1249,18 @@ class Tracking_device extends Model
             case self::STATUS_UNUSED: $statusText = 'Unused'; break;
         }
         return $statusText;
+    }
+
+    public static function getDeviceList($user_id){
+        $query = "select d.* 
+                from join tracking_devices as d 
+                where d.is_deleted = 0 and d.status = 1
+                order by d.id";
+        $devices = DB::select($query, []);
+        $user_devices = [];
+        foreach($device as $devices){
+            $user_devices[] = $device;
+        }
+        return $user_devices;
     }
 }

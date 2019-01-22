@@ -494,7 +494,7 @@ class Tracking_device extends Model
                     $device = Tracking_device::find($device_id);
                 }
                 if (!($device instanceof Tracking_device)){
-                    $result = ["status" => true, "error" => "Invalid device id"];
+                    $result = ["status" => false, "error" => "Invalid device id"];
                     return $result;
                 }
                 $command = $data_array[2];
@@ -546,7 +546,7 @@ class Tracking_device extends Model
                     $isSave = $this->updateDeviceInformation($device, $data_array);
                     if ($isSave) $result = ["status" => true, "error" => false];
                 } else {
-                    $result = ["status" => false, "error" => "Unknown command"];
+                    $result = ["status" => true, "error" => "Unknown command"];
                     return $result;
                 }
             }

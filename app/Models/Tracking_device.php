@@ -522,7 +522,7 @@ class Tracking_device extends Model
                     $location_dup = Carbon::createFromFormat('y-m-d H:i:s',$is_valid['data']['time'], 'UTC');
                     $diff = $utc_now->diffInSeconds($location_dup);
                     if ($diff > 300){
-                        Log::info($item . ' - Time in future: current: ' . $utc_now->format('d-m-Y H:i:s') . ' location: '.$location_dup)->format('d-m-Y H:i:s');
+                        Log::info($item . ' - Time in future: current: ' . $utc_now->format('d-m-Y H:i:s') . ' location: '. $location_dup->format('d-m-Y H:i:s'));
                     }
                     if ($locations && count($locations) > 0) {
                         //duplicate                      

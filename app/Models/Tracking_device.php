@@ -1254,6 +1254,15 @@ class Tracking_device extends Model
         return $statusText;
     }
 
+    public static function getStatusDeviceMapping(){
+        return [
+            self::STATUS_ACTIVE => 'Active',
+            self::STATUS_IN_ACTIVE => 'In active',
+            self::STATUS_EXTEND_EXPIRED => 'Extend expired',
+            self::STATUS_UNUSED => 'Unused'
+        ];
+    }
+
     public static function getDeviceList($user_id){
         $query = "select d.* 
                 from join tracking_devices as d 

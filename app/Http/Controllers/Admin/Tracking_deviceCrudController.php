@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Jenssegers\Date\Date;
 use Maatwebsite\Excel\Excel;
+use Illuminate\Support\Facades\DB;
 
 class Tracking_deviceCrudController extends CrudController
 {
@@ -322,6 +323,8 @@ class Tracking_deviceCrudController extends CrudController
         // $this->crud->orderBy();
         // $this->crud->groupBy();
         // $this->crud->limit();
+        $this->crud->resume = $this->getNumberDeviceByStatus();
+        $this->crud->statusMapping = Tracking_device::getStatusDeviceMapping();
     }
 
     public function store(StoreRequest $request)
@@ -365,5 +368,18 @@ class Tracking_deviceCrudController extends CrudController
             $userArray[$user['id']] = $user["username"];
         }
         return $userArray;
+    }
+
+    private function getNumberDeviceByStatus(){
+        $query = "select d.status, COUNT(d.id) as num_device
+        from tracking_devices as d
+        where d.is_deleted = 0
+        group by d.status";
+        $status_devices = DB::select($query, []);
+        $status_num_devices = [];
+        foreach($status_devices as $device) {
+            $status_num_devices[$device->status] = $device->num_device;
+        }
+        return $status_num_devices;
     }
 }

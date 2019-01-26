@@ -27,7 +27,13 @@
 
           <div id="datatable_button_stack" class="pull-right text-right"></div>
         </div>
-
+		<div class="resume-container box-body table-responsive">
+          <ul id="lst-device-list">
+			@foreach ($crud->resume as $key =>  $deviceNumber)
+                <li class="{{ str_replace(' ', '_',strtolower($crud->statusMapping[$key])) }}"><span class="title">{{ $crud->statusMapping[$key] }}:</span> <span class="number">{{ $deviceNumber }}</span></li>
+			@endforeach
+		  </ul>
+        </div>
         <div class="box-body table-responsive">
 
         {{-- Backpack List Filters --}}
@@ -35,7 +41,7 @@
           @include('crud::inc.filters_navbar')
         @endif
         <a href="/device/export" class="btn btn-primary ladda-button" id="exportData">Export Device</a>
-
+        
         <table id="crudTable" class="table table-bordered table-striped display">
             <thead>
               <tr>
@@ -160,6 +166,36 @@
     tr.overdue{
         color: red;
     }
+	ul#lst-device-list {
+		list-style: none;
+		padding: 0;
+	}
+
+	ul#lst-device-list li {
+		float: left;
+		min-width: 120px;
+		font-size: 16px;
+	}
+
+	li.extend_expired {
+		width: 160px;
+		color: red;
+	}
+
+	li.unused {
+		color: #999999;
+	}
+
+	li.in_active {
+		color: #337ab7;
+	}
+
+	li.active {
+		color: #5cb85c;
+	}
+	ul#lst-device-list li span.number{
+		font-weight: 600
+	}
 </style>
   <!-- CRUD LIST CONTENT - crud_list_styles stack -->
   @stack('crud_list_styles')

@@ -50,11 +50,11 @@ class Tracking_deviceCrudController extends CrudController
             'label' => "Device Number", // Table column heading
             'type' => 'Text'
         ]);
-        $this->crud->addColumn([
-            'name' => 'setting', // The db column name
-            'label' => "Settings", // Table column heading
-            'type' => 'Text'
-        ]);
+        // $this->crud->addColumn([
+        //     'name' => 'setting', // The db column name
+        //     'label' => "Settings", // Table column heading
+        //     'type' => 'Text'
+        // ]);
         $this->crud->addColumn([
             'name' => 'sim_infor', // The db column name
             'label' => "Sim Information", // Table column heading
@@ -90,6 +90,13 @@ class Tracking_deviceCrudController extends CrudController
             'label' => "Status", // Table column heading
             'type' => 'model_function',
             'function_name' => 'getStatus',
+        ]);
+
+        $this->crud->addColumn([
+            'name' => 'last_status', // The db column name
+            'label' => "Last status", // Table column heading
+            'type' => 'model_function',
+            'function_name' => 'getLastStatus',
         ]);
 
         //add field

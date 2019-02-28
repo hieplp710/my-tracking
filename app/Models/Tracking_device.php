@@ -103,6 +103,20 @@ class Tracking_device extends Model
     public function displayActivatedAt(){
         return Helper::formatDatetime($this->activated_at);
     }
+
+    public function getLastStatus(){
+        $data = json_decode($this->current_state_mobile, true);
+        if (!$data) {
+            return "";
+        }        
+        $statusText = self::getStatusText($data);
+        $last_status = "Trạng thái: $statusText";
+        if (isset($data['time']) && !empty($data['time'])){
+            $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
+            $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');
+        }
+        return $last_status;        
+    }
     public static function get_client_ip() {
         $ipaddress = '';
         if (isset($_SERVER['HTTP_CLIENT_IP']))
@@ -157,15 +171,7 @@ class Tracking_device extends Model
             $retrist_time = "and l.created_at >= '$yesterday'";
             if ($last_point == '') {
                 Log::info("----------------- First location, the user id $current_user is contact server abnormal at IP  $ip_requested -----------------\n");
-//                $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.*
-//                    from tracking_devices as d
-//                        left join device_locations as l on d.id = l.device_id
-//                    where d.is_deleted = 0 and d.status = 1 $user_condition $retrist_time
-//                        and l.created_at >= (select MAX(l.created_at)
-//                            from tracking_devices as d1
-//                            left join device_locations as l on d1.id = l.device_id
-//                            where d1.id = d.id $retrist_time)
-//                    order by d.id, l.created_at desc, l.updated_at desc";
+
                 $deviceQuery = "select d.id as device_id_main,d.current_state as current_state_device, 
                       d.expired_at, IFNULL(d.device_number,'N/A') as device_number
                     from tracking_devices as d
@@ -252,6 +258,7 @@ class Tracking_device extends Model
             $has_more = count($locations) >= $roadmapLimit ? true : false;
         }
         $last_point_item = isset($options["lastPoint"]) ? $options["lastPoint"] : '';
+        
         if ($locations){
             if (!$is_roadmap){
                 $locations = array_reverse($locations);
@@ -280,7 +287,7 @@ class Tracking_device extends Model
                         $last_time = intval($tempTime);
                     }
                 }
-
+                
                 if (!isset($location_devices[$location_device->device_id_main])){
                     $location_devices[$location_device->device_id_main] = [
                         "device_id" => $location_device->device_id_main,
@@ -700,6 +707,7 @@ class Tracking_device extends Model
             case self::STATUS_DEVICE_PARK: $text = "Đỗ"; break;
             case self::STATUS_DEVICE_RUN: $text = "Đang chạy"; break;
             case self::STATUS_DEVICE_STOP: $text = "Dừng"; break;
+            default: $text = $status_code; break;
         }
         return $text;
     }

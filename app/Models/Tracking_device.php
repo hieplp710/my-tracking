@@ -113,7 +113,7 @@ class Tracking_device extends Model
         $last_status = "Trạng thái: $statusText";
         if (isset($data['time']) && !empty($data['time'])){            
             $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
-            $date->setTimezone('Asia/Ho_Chi_Minh');
+            $last_time->setTimezone('Asia/Ho_Chi_Minh');
             $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');                       
         }
         return $last_status;        

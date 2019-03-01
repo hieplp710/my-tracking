@@ -111,16 +111,9 @@ class Tracking_device extends Model
         }        
         $statusText = self::getStatusMapping(self::getStatusText($data));
         $last_status = "Trạng thái: $statusText";
-        if (isset($data['time']) && !empty($data['time'])){
-            $current_time_utc = Carbon::now('UTC');
-            $last_time_utc = Carbon::createFromFormat('Y-m-d H:i:s', $data['time'], 'UTC');
-            $different_gsm = $current_time_utc->diffInSeconds($last_time_utc);
-            if ($different_gsm > 48 * 3600) {
-                $last_status = "Trạng thái: Mất GSM";
-            } else {
-                $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
-                $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');
-            }            
+        if (isset($data['time']) && !empty($data['time'])){            
+            $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
+            $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');                       
         }
         return $last_status;        
     }

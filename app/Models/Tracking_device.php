@@ -114,10 +114,10 @@ class Tracking_device extends Model
         if (isset($data['time']) && !empty($data['time'])){            
             $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
             $last_time->setTimezone('Asia/Ho_Chi_Minh');
-            $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');                       
+            $last_status .= ", lúc " . $last_time->format('d-m-Y H:i:s');                       
         }
         $velocity = (round(floatval($data['velocity']) * self::VELOCITY_RATIO, 1)) . "km/h";
-        $last_status .= "\n Tốc độ: $velocity";
+        $last_status .= ", tốc độ: $velocity";
         return $last_status;        
     }
     public static function get_client_ip() {

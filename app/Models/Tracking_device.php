@@ -110,14 +110,14 @@ class Tracking_device extends Model
             return "";
         }        
         $statusText = self::getStatusMapping(self::getStatusText($data));
-        $last_status = "Trạng thái: $statusText";
+        $last_status = "Trạng thái: $statusText <br/>";
         if (isset($data['time']) && !empty($data['time'])){            
             $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
             $last_time->setTimezone('Asia/Ho_Chi_Minh');
-            $last_status .= ", lúc " . $last_time->format('d-m-Y H:i:s');                       
+            $last_status .= "Thời gian: " . $last_time->format('d-m-Y H:i:s') . "<br/>";                       
         }
         $velocity = (round(floatval($data['velocity']) * self::VELOCITY_RATIO, 1)) . "km/h";
-        $last_status .= ", tốc độ: $velocity";
+        $last_status .= "Tốc độ: $velocity";
         return $last_status;        
     }
     public static function get_client_ip() {

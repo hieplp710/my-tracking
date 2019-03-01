@@ -116,6 +116,8 @@ class Tracking_device extends Model
             $last_time->setTimezone('Asia/Ho_Chi_Minh');
             $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');                       
         }
+        $velocity = (round(floatval($data['velocity']) * self::VELOCITY_RATIO, 1)) . "km/h";
+        $last_status = "\n Tốc độ: ";
         return $last_status;        
     }
     public static function get_client_ip() {

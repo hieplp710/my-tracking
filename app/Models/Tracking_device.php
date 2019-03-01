@@ -117,7 +117,7 @@ class Tracking_device extends Model
             $last_status .= " lúc " . $last_time->format('d-m-Y H:i:s');                       
         }
         $velocity = (round(floatval($data['velocity']) * self::VELOCITY_RATIO, 1)) . "km/h";
-        $last_status = "\n Tốc độ: ";
+        $last_status .= "\n Tốc độ: $velocity";
         return $last_status;        
     }
     public static function get_client_ip() {

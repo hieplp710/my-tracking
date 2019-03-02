@@ -104,22 +104,28 @@ class Tracking_device extends Model
         return Helper::formatDatetime($this->activated_at);
     }
 
-    public function getLastStatus(){
-        $data = json_decode($this->current_state_mobile, true);
+    public function getLastStatus(){ 
+        return self::getMixedStatus($this->current_state_mobile);
+    }
+
+    public static function getMixedStatus($location_json) {
+        $data = json_decode($location_json, true);
         if (!$data) {
             return "";
         }        
         $statusText = self::getStatusMapping(self::getStatusText($data));
-        $last_status = "Trạng thái: $statusText <br/>";
+        $last_status = "";
         if (isset($data['time']) && !empty($data['time'])){            
             $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
             $last_time->setTimezone('Asia/Ho_Chi_Minh');
-            $last_status .= "Thời gian: " . $last_time->format('d-m-Y H:i:s') . "<br/>";                       
+            $last_status = $last_time->format('d-m-Y H:i:s') . ", ";                       
         }
+        $last_status .= "$statusText, ";
         $velocity = (round(floatval($data['velocity']) * self::VELOCITY_RATIO, 1)) . "km/h";
-        $last_status .= "Tốc độ: $velocity";
-        return $last_status;        
+        $last_status .= "$velocity";
+        return $last_status; 
     }
+
     public static function get_client_ip() {
         $ipaddress = '';
         if (isset($_SERVER['HTTP_CLIENT_IP']))
@@ -804,7 +810,8 @@ class Tracking_device extends Model
         $inActive = self::STATUS_IN_ACTIVE;
         $valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, d.status,
-                d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone
+                d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone,
+                d.current_state_mobile
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0 AND d.status !=$status_unused AND d.status != $inActive AND d.expired_at <= '$valid_date'
@@ -823,7 +830,7 @@ class Tracking_device extends Model
                     "Username" => $item->username,
                     "Owner" => $item->owner,
                     "Phone" => $item->phone,
-                    "Status" => self::getDeviceStatusText($item->status) 
+                    "Status" => self::getMixedStatus($item->current_state_mobile),
                 ];
                 $resp[] = $temp;
             }

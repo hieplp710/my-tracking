@@ -822,7 +822,7 @@ class Tracking_device extends Model
             foreach ($result as $item) {
                 $temp = [
                     "Device Id" => $item->device_id,
-                    "Device Number" => $item->device_number,
+                    "Device name" => $item->device_number,
                     "SIM Info" => $item->sim_infor,
                     "Activated Date" => !empty($item->activated_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->activated_at)->format('m/d/y') : '',
                     "Expired Date" => !empty($item->expired_at) ? Date::createFromFormat('Y-m-d H:i:s', $item->expired_at)->format('m/d/y') : '',

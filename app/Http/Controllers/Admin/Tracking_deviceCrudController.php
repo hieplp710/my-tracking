@@ -47,7 +47,7 @@ class Tracking_deviceCrudController extends CrudController
 
         $this->crud->addColumn([
             'name' => 'device_number', // The db column name
-            'label' => "Device Number", // Table column heading
+            'label' => "Device name", // Table column heading
             'type' => 'Text'
         ]);
         // $this->crud->addColumn([

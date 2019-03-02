@@ -830,7 +830,8 @@ class Tracking_device extends Model
                     "Username" => $item->username,
                     "Owner" => $item->owner,
                     "Phone" => $item->phone,
-                    "Status" => self::getMixedStatus($item->current_state_mobile),
+                    "Status" => self::getDeviceStatusText($item->status),
+                    "Last Status" => self::getMixedStatus($item->current_state_mobile),
                 ];
                 $resp[] = $temp;
             }

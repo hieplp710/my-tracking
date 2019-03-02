@@ -53,7 +53,7 @@ class SendWarningMail extends Command
             $excel->setCreator('Flock.vn')
                 ->setCompany('Flock.vn');
             $excel->sheet('Sheetname', function($sheet) {
-                $sheet->mergeCells('A1:J1');
+                $sheet->mergeCells('A1:K1');
                 $sheet->cell('A1', function($cell) {
                     // manipulate the cell
                     $cell->setValue('DANH SÁCH THIẾT BỊ SẮP HOẶC ĐÃ HẾT HẠN');
@@ -67,7 +67,7 @@ class SendWarningMail extends Command
                 $data = Tracking_device::getWarningDevices();
                 if (count($data) > 0) {
                     $len = count($data) + 2;
-                    $sheet->cells("A2:J$len", function($cells) {
+                    $sheet->cells("A2:K$len", function($cells) {
                         // manipulate the range of cells
                         // Set all borders (top, right, bottom, left)
                         // Set borders with array
@@ -77,10 +77,10 @@ class SendWarningMail extends Command
                             ),
                         ));
                     });
-                    $sheet->setBorder("A2:J$len", 'solid');
+                    $sheet->setBorder("A2:K$len", 'solid');
                     $sheet->fromArray($data, null, 'A2', true);
                 } else {
-                    $sheet->mergeCells('A2:J2');
+                    $sheet->mergeCells('A2:K2');
                     $sheet->cell('A2', function($cell) {
                         // manipulate the cell
                         $cell->setValue('Không có thiết bị sắp hết hạn hoặc đã hết hạn');

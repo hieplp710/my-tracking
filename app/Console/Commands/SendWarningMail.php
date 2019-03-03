@@ -43,8 +43,7 @@ class SendWarningMail extends Command
     {
         //
         $excelHandler = App::make('excel');
-        $filename = "Flock_DataAdmin_" . Carbon::now()->format('Ymd');
-
+        $filename = "Flock_Expired_" . Carbon::now()->format('Ymd');
         $excelHandler->create($filename, function($excel) {
             // Call writer methods here
             // Set the title

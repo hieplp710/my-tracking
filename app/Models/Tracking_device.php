@@ -714,7 +714,7 @@ class Tracking_device extends Model
         $text = '';
         switch ($status_code) {
             case self::STATUS_DEVICE_PARK: $text = "Đỗ"; break;
-            case self::STATUS_DEVICE_RUN: $text = "Đang chạy"; break;
+            case self::STATUS_DEVICE_RUN: $text = "Chạy"; break;
             case self::STATUS_DEVICE_STOP: $text = "Dừng"; break;
             default: $text = $status_code; break;
         }

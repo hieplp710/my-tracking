@@ -113,7 +113,7 @@ class Tracking_device extends Model
         if (!$data) {
             return "";
         }        
-        $statusText = self::getStatusMapping(self::getStatusText($data));
+        $statusText = self::getStatusMappingShort(self::getStatusText($data));
         $last_status = "";
         if (isset($data['time']) && !empty($data['time'])){            
             $last_time = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $data['time']);
@@ -711,6 +711,17 @@ class Tracking_device extends Model
     }
 
     public static function getStatusMapping($status_code){
+        $text = '';
+        switch ($status_code) {
+            case self::STATUS_DEVICE_PARK: $text = "Đỗ"; break;
+            case self::STATUS_DEVICE_RUN: $text = "Đang chạy"; break;
+            case self::STATUS_DEVICE_STOP: $text = "Dừng"; break;
+            default: $text = $status_code; break;
+        }
+        return $text;
+    }
+
+    public static function getStatusMappingShort($status_code){
         $text = '';
         switch ($status_code) {
             case self::STATUS_DEVICE_PARK: $text = "Đỗ"; break;

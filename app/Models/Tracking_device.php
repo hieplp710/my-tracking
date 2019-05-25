@@ -25,6 +25,7 @@ class Tracking_device extends Model
     const REQUEST_TYPE_SIM_INFOR = 3;
     const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
     const DEVICE_DATETIME_FORMAT = 'y-m-d H:i:s';
+    const MOBILE_DATETIME_FORMAT = 'd-m-Y H:i';
     const ROADMAP_LIMIT = 1000;
     const ROADMAP_LIMIT_MOBILE = 1000;
     const VELOCITY_RATIO = 1.85;
@@ -716,6 +717,7 @@ class Tracking_device extends Model
             case self::STATUS_DEVICE_PARK: $text = "Đỗ"; break;
             case self::STATUS_DEVICE_RUN: $text = "Đang chạy"; break;
             case self::STATUS_DEVICE_STOP: $text = "Dừng"; break;
+            case self::STATUS_DEVICE_LOST_GSM: $text = "Mất GSM"; break;
             default: $text = $status_code; break;
         }
         return $text;
@@ -881,9 +883,25 @@ class Tracking_device extends Model
                     $currentTime = Carbon::createFromFormat(self::DEVICE_DATETIME_FORMAT, $current_state_obj['time']);
                     $different = $refTime->diffInSeconds($currentTime);
                     $device['diffTime'] = self::getDifferentTime($different);
+                    $current_time_utc = Carbon::now('UTC');
+                    $differentFromCurrent = $current_time_utc->diffInSeconds($currentTime);
+                    $different_gsm = 0;
+                    if (!empty($current_state_obj) && !empty($current_state_obj['time'])){
+                        $last_gsm_state = Carbon::createFromFormat('y-m-d H:i:s', $current_state_obj['time'], 'UTC');
+                        $different_gsm = $current_time_utc->diffInSeconds($last_gsm_state);
+                    }
+                    //if diff larger than 48h hours => lost gsm
+                    if ($differentFromCurrent > 48 * 3600 && $different_gsm > 48 * 3600) {
+                        //only check if park time > 2 days
+                        $is_lostGSM = self::checkLostGSM($item->id);
+                        if ($is_lostGSM) {
+                            $device['status'] = self::STATUS_DEVICE_LOST_GSM;
+                            $device['statusText'] = self::getStatusMapping(self::STATUS_DEVICE_LOST_GSM);
+                        }
+                    }
                 } else {
                     $device['status'] = self::STATUS_DEVICE_PARK;
-                    $device['statusText'] = $device['statusText'] = self::getStatusMapping(self::STATUS_DEVICE_PARK);
+                    $device['statusText']  = self::getStatusMapping(self::STATUS_DEVICE_PARK);
                     $device['diffTime'] = '';
                 }
                 $resp[] = $device;
@@ -1193,13 +1211,13 @@ class Tracking_device extends Model
 
     public static function getRoadMapMobile($options) {
         $roadmapLimit = self::ROADMAP_LIMIT;
-        $from_date = $options['dateFrom'] ? $options['dateFrom'] : '';
-        $to_date = $options['dateTo'] ? $options['dateTo'] : '';
+        $from_date = $options['startDate'] ? $options['startDate'] : '';
+        $to_date = $options['endDate'] ? $options['endDate'] : '';
         $device_id = $options['deviceId'] ? $options['deviceId'] : '';
         $next_loc = (isset($options['nextLoc']) && !empty($options['nextLoc'])) ? $options['nextLoc'] : '';
-        $from_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $from_date, 'Asia/Ho_Chi_Minh');
+        $from_date_obj = Carbon::createFromFormat(self::MOBILE_DATETIME_FORMAT, $from_date, 'Asia/Ho_Chi_Minh');
         $from_date_obj->setTimezone('UTC');
-        $to_date_obj = Carbon::createFromFormat(self::DB_DATETIME_FORMAT, $to_date, 'Asia/Ho_Chi_Minh');
+        $to_date_obj = Carbon::createFromFormat(self::MOBILE_DATETIME_FORMAT, $to_date, 'Asia/Ho_Chi_Minh');
         $to_date_obj->setTimezone('UTC');
         $from_date = $from_date_obj->format(self::DB_DATETIME_FORMAT);
         $to_date = $to_date_obj->format(self::DB_DATETIME_FORMAT);
@@ -1213,7 +1231,8 @@ class Tracking_device extends Model
             inner join tracking_devices as d on u.id = d.user_id
             inner join device_locations as l on d.id = l.device_id
             where d.is_deleted = 0 and d.status = 1 and l.created_at >= '$from_date' and l.created_at <= '$to_date' and l.device_id='$device_id' $condition_next_loc
-            order by d.id, l.created_at, l.status limit $roadmapLimit";
+            order by d.id, l.created_at, l.status";
+        
         $locations = DB::select($query, []);
         $has_more = count($locations) >= $roadmapLimit ? true : false;
         $location_devices = [];
@@ -1262,7 +1281,7 @@ class Tracking_device extends Model
                     $location_device->created_at = $date_created->format('d-m-Y H:i:s');
                     $location_device->current_state = (!empty($location_device->current_state) && $location_device->current_state != '{}') ? $location_device->current_state : '';
                     $location_device->heading = self::getHeadingClass($location_device->heading);
-                    $location_device->status = self::getStatusMapping($location_device->status);
+                    $location_device->statusText = self::getStatusMapping($location_device->status);
                     $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                 }
             } 
@@ -1295,13 +1314,42 @@ class Tracking_device extends Model
 
     public static function getDeviceList($user_id){
         $query = "select d.* 
-                from join tracking_devices as d 
-                where d.is_deleted = 0 and d.status = 1
+                from tracking_devices as d 
+                where d.is_deleted = 0 and d.status = 1 and d.user_id = $user_id
                 order by d.id";
         $devices = DB::select($query, []);
         $user_devices = [];
-        foreach($device as $devices){
+        foreach($devices as $device){
+            if (isset($device->expired_at)) {
+                //nếu ngày hến hạn lớn hơn không quá 3 tháng so với ngày hiện tại
+                //thông báo cho user biết
+                $current_date = Carbon::now('utc');
+                $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', $device->expired_at);
+                if ($current_date->diffInMonths($expired_date, false) < -3 && $current_date->diffInDays($expired_date, false) < -7) {
+                    //update date as invalid device as set null for user_id
+                    $device = Tracking_device::find($device->id);
+                    if ($device instanceof Tracking_device) {
+                        $device->status = self::STATUS_EXTEND_EXPIRED;
+                        $device->save();
+                    }
+                    //remove device on array
+                    continue; //end execute and loop to another device
+                }
+                if ($current_date->diffInMonths($expired_date, false) <= 0 && $current_date->diffInDays($expired_date, false) < 0) {
+                    //extend expired date
+                    $new_expired = $expired_date->addDay(7);
+                    $device->is_expired = 2;
+                    $device->ext_expired_date = $new_expired->format('d-m-Y');
+                } else if ($current_date->diffInMonths($expired_date, false) <= 0){
+                    $device->is_expired = 1;
+                    $device->ext_expired_date = '';
+                } else {
+                    $device->is_expired = 0;
+                    $device->ext_expired_date = '';
+                }
+            }
             $user_devices[] = $device;
+
         }
         return $user_devices;
     }

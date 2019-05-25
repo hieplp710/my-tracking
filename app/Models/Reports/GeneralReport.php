@@ -143,6 +143,103 @@ class GeneralReport {
         return $data_by_date;
     }
 
+    public static function getGeneralReportMobileData($device_id, $start_data, $end_date, $option = []) {
+        if (empty($start_data) || empty($end_date)) {
+            return ["status" => false, "error" => "Empty input data"];
+        }
+        $start_date_str = Carbon::createFromFormat('Y-m-d H:i:s', $start_data)->format('Y-m-d H:i:s');
+        $end_date_str = Carbon::createFromFormat('Y-m-d H:i:s', $end_date)->format('Y-m-d H:i:s');
+        $query = "select d.id as device_id_main,d.current_state as current_state_device, d.expired_at, IFNULL(d.device_number,'N/A') as device_number, l.* 
+                    from tracking_devices as d
+                        left join device_locations as l on d.id = l.device_id
+                    where d.is_deleted = 0 and d.status = 1 and d.id = '$device_id'
+                        and l.created_at >= '$start_date_str' and l.created_at <= '$end_date_str'
+                    order by d.id, l.created_at, l.status asc, l.updated_at desc";
+        //change code
+        $locations = DB::select($query, []);
+        $report_data = self::executeReportData($locations);
+        //data for report
+        $data_final = [];
+        $report_date = '';
+        $maxSpeed = 0;
+        $totalSpeed = 0;
+        $totalDistance = 0;
+        $data_by_date = [];
+        $idx_date = 0;
+        if ($report_data) {
+            foreach($report_data as $idx => $item) {
+                //compose data
+                //group by date
+                $item_date = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('d/m/Y');
+                if ($idx == 0){
+                    $temp = array();
+                    $temp["no"] = (count($data_by_date) + 1);
+                    $temp["date"] = $item_date;
+                    $temp["start_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i');
+                    $report_date = $item_date;
+                }
+                if ($item_date != $report_date || $idx == count($report_data) - 1) {
+                    //normal, finish the before block and init the new block
+                    //complete old location and start new location
+                    $last_loc = null;
+                    $last_loc = isset($report_data[$idx - 1]) ? $report_data[$idx - 1] : $report_data[$idx];
+                    $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
+                    $totalSpeed += $item['avg_vel'];
+                    if ($item['avg_vel'] != 0)
+                        $idx_date++;
+                    $temp["end_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('H:i');
+                    if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["date"]){
+                        $temp["end_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['start_time'])->format('H:i');
+                    }
+                    if ($idx == count($report_data) - 1 && $item_date == $report_date) {
+                        //nếu location thay đổi tại element cuối cùng, tính toán và thêm vào element cuối
+                        $temp["end_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['end_time'])->format('H:i');
+                        if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["date"]){
+                            $temp["end_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i');
+                        }
+                        $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
+                        $totalSpeed += $item['avg_vel'];
+                        if ($item['avg_vel'] != 0)
+                            $idx_date++;
+                    }
+                    $totalDistance += $item['km'];
+                    $temp["total_distance"] = round($totalDistance / 1000, 1);
+                    $temp['max_speed'] = round($maxSpeed , 1);
+                    $temp["agv_speed"] = $idx_date != 0 ? round($totalSpeed / $idx_date, 1)  : "0";
+                    $data_by_date[] = array_merge([], $temp);
+                    //init new block
+                    $temp = array();
+                    $temp["no"] = (count($data_by_date) + 1);
+                    $temp["date"] = $item_date;
+                    $temp["start_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i');
+                    $totalDistance = 0;
+                    $maxSpeed = 0;
+                    $totalSpeed = 0;
+                    $idx_date = 0;
+                    if ($idx == count($report_data) - 1 && $item_date != $report_date) {
+                        //nếu location thay đổi tại element cuối cùng, tính toán và thêm vào element cuối
+                        $temp["end_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['end_time'])->format('H:i');
+                        if (Carbon::createFromFormat('Y-m-d H:i:s', $last_loc['end_time'])->format('d/m/Y') != $temp["date"]){
+                            $temp["end_time"] = Carbon::createFromFormat('Y-m-d H:i:s', $item['start_time'])->format('H:i');
+                        }
+                        $temp["total_distance"] = round($item['km'] / 1000, 1);
+                        $temp['max_speed'] = round($item['max_vel'], 1);
+                        $temp["agv_speed"] = $item['avg_vel'];
+                        $data_by_date[] = array_merge([], $temp);
+                    }
+                    $report_date = $item_date;
+                }
+                //sum * count
+                $totalDistance += $item['km'];
+                $maxSpeed = ($maxSpeed < $item['max_vel'] ? $item['max_vel'] : $maxSpeed);
+                $totalSpeed += $item['avg_vel'];
+                if ($item['avg_vel'] != 0)
+                    $idx_date++;
+            }
+        }
+        return $data_by_date;
+    }
+
     private static function executeReportData($locations = []) {
         $totalKm = 0;
         $km = 0;

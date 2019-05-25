@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Models\Reports\GeneralReport;
 
 class DeviceMobileController extends BaseController
 {   
@@ -63,7 +64,25 @@ class DeviceMobileController extends BaseController
     }
 
     public function getGeneralReport(Request $request) {
-        
+        $data = $request->getContent();
+        $device_data = json_decode($data, true);        
+        $device = Tracking_device::find($device_data['deviceId']);
+        if (!$device) {
+            return response()->json(["status" => false, "error" => "Thiết bị không tồn tại"]);
+        }
+        $start_date = $device_data['startDate'];
+        $end_date = $device_data['endDate'];
+        $device_id = $device_data['deviceId'];
+        $from_date_obj = Carbon::createFromFormat(Tracking_device::MOBILE_DATETIME_FORMAT, $start_date, 'Asia/Ho_Chi_Minh');
+        $from_date_obj->setTimezone('UTC');
+        $to_date_obj = Carbon::createFromFormat(Tracking_device::MOBILE_DATETIME_FORMAT, $end_date, 'Asia/Ho_Chi_Minh');
+        $to_date_obj->setTimezone('UTC');
+        $from_date = $from_date_obj->format(Tracking_device::DB_DATETIME_FORMAT);
+        $to_date = $to_date_obj->format(Tracking_device::DB_DATETIME_FORMAT);
+        $device_id = !empty($device_id) ? $device_id : '0';
+        $filename = "Flock_Bao_Cao_Tong_Hop_" . \Date::now()->format('Ymd');
+        $data = GeneralReport::getGeneralReportMobileData($device_id, $from_date, $to_date);
+        return response()->json(["status" => true, "data" => $data]);
     }
 
     public function getDeviceList(Request $request) {
@@ -71,5 +90,39 @@ class DeviceMobileController extends BaseController
         $result = Tracking_device::getDeviceList($user->id);
         return response()->json($result);
     }
+
+    public function changeDeviceName(Request $request){        
+        $data = $request->getContent();
+        $device_data = json_decode($data, true);
+        $device = Tracking_device::find($device_data['deviceId']);
+        if (!empty($device)) {
+            $device->device_number = $device_data['deviceName'];
+            $device->save();
+            return response()->json(["status"=>true]);
+        }
+        return response()->json(["status"=>false, "error" => "Mã thiết bị không tồn tại"]); 
+    }
     
+    public function updatePassword(Request $request){        
+        $dataRaw = $request->getContent();
+        $data = json_decode($dataRaw, true);
+        $user = JWTAuth::parseToken()->authenticate();
+        if (isset($data['password']) && !empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
+            $user->save();
+            return response()->json(["status"=>true]); 
+        }        
+        return response()->json(["status"=>false, "error" => "Cập nhật mật khẩu không thành công"]); 
+    }
+
+    public function updateProfile(Request $request) {
+        $user = JWTAuth::parseToken()->authenticate();
+        $dataRaw = $request->getContent();
+        $data = json_decode($dataRaw, true);
+        $user->phone = isset($data['phone']) ? $data['phone'] : $user->phone;
+        $user->email = isset($data['email']) ? $data['email'] : $user->email;
+        $user->name = isset($data['name']) ? $data['name'] : $user->name;
+        $user->save();
+        return ["status" => true, "data" => $user->toArray()];
+    }
 }

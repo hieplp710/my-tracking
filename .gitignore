@@ -5,9 +5,9 @@
 /storage/exports
 /.idea
 /.vagrant
-/vendor/*
 /node_modules/
 Homestead.json
 Homestead.yaml
 npm-debug.log
 .env
+/vendor/

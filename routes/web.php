@@ -42,5 +42,6 @@ Route::get('/user/profile', 'HomeController@getUserProfile')->name('get-profile'
 Route::get('/device/export', 'Tracking\DeviceController@exportExport')->name('export-device');
 Route::get('/admin/delete-location', 'Admin\ToolController@deleteLocation')->name('delete-location');
 Route::post('/admin/handle-delete-location', 'Admin\ToolController@doDeleteLocation')->name('handle-delete-location');
+Route::get('/admin/bulk-edit-status-device', 'Admin\BulkEditStatusController@bulkEditStatusDevice')->name('bulk-edit-status');
 //handle report
 Route::get('/report/general-report', 'Tracking\ReportController@generalReport')->name('general-report');

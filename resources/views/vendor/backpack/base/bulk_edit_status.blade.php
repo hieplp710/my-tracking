@@ -29,7 +29,26 @@
 
     <!-- BackPack Base CSS -->
     <link rel="stylesheet" href="{{ asset('vendor/backpack/backpack.base.css') }}">
+    <style>
+        th.a-center.sorting_asc {
+            text-align: center;
+        }
 
+        #tblDevice tr td:first-child {
+            text-align:center
+        
+        }
+
+        select#status_master {
+            float: right;
+        }
+
+        #tblDevice tr td:last-child {
+            text-align:right;
+            padding-right: 20px;
+        }
+
+    </style>
     @yield('after_styles')
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -81,8 +100,8 @@
                 <div class="row">
                     <div class="col-lg-3">
                         <div class="form-group">
-                            <label>Time</label>
-                            <div class="input-group date" data-provide="datepicker">
+                            <label>Thời gian bắt đầu</label>
+                            <div class="input-group date begin-time" data-provide="datepicker">
                                 <input type="text" class="form-control">
                                 <div class="input-group-addon">
                                     <span class="glyphicon glyphicon-th"></span>
@@ -91,8 +110,49 @@
                         </div>
                     </div>
                     <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Thời gian kết thúc</label>
+                            <div class="input-group date end-time" data-provide="datepicker">
+                                <input type="text" class="form-control">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
                         <label>&nbsp;</label>
-                        <button id="btnDelete" class="btn btn-primary form-control">Delete</button>
+                        <button id="btnSearch" class="btn btn-primary form-control">Tìm</button>                        
+                    </div>
+                    <div class="col-lg-1">                        
+                        <label>&nbsp;</label>
+                        <button id="btnUpdate" class="btn btn-primary form-control" disabled="disabled">Cập nhật</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12" id="datatable-wrapper">
+                        <table id="tblDevice" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="a-center"><input type="checkbox" class="device-check" id="check-master"/></th>
+                                    <th>ID</th>
+                                    <th>Số xe</th>
+                                    <th>Username</th>
+                                    <th>Ngày hết hạn</th>
+                                    <th>
+                                        <label>Trạng thái</label>
+                                        <select class="status-select" id="status_master">
+                                            <option value="0">Un-active</option>
+                                            <option value="1" selected="">Active</option>
+                                            <option value="2">Extend expired</option>
+                                            <option value="3">Unused</option>
+                                        </select>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -115,6 +175,7 @@
 
     @yield('before_scripts')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
     <!-- jQuery 2.2.0 -->
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
     <script>window.jQuery || document.write('<script src="{{ asset('vendor/adminlte') }}/plugins/jQuery/jQuery-2.2.0.min.js"><\/script>')</script>
@@ -126,17 +187,13 @@
     <script src="{{ asset('vendor/adminlte') }}/dist/js/app.min.js"></script>
     <script src="/js/device.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
-    <!-- page script -->
-    <style>
-        #btnDelete{
-            width: 100px;
-            margin-top: 25px;
-        }
-    </style>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    
+    <!-- page script -->    
     <script type="text/javascript">
         // To make Pace works on Ajax calls
         $(document).ajaxStart(function() { Pace.restart(); });
-
+        var url = '{{ route('handle-delete-location') }}';
         // Ajax calls should always have the CSRF token attached to them, otherwise they won't work
         $.ajaxSetup({
                 headers: {
@@ -157,33 +214,9 @@
         activeTab && activeTab.tab('show');
         $('.nav-tabs a').on('shown.bs.tab', function (e) {
             location.hash = e.target.hash.replace("#tab_", "#");
-        });
-        $(document).ready(function(){
-            $('.input-group.date').datepicker({
-                format: 'dd/mm/yyyy',
-                endDate: '-2m'
-            });
-            $('#btnDelete').on('click', function(e) {
-                e.preventDefault();
-                $(this).button('loading');
-                var $this = $(this);
-                var url = '{{ route('handle-delete-location') }}';
-                if ($('.input-group.date input').val() == '') {
-                    alert('Vui lòng chọn ngày!');
-                    $this.button('reset');
-                    return false;
-                }
-                $.post(url, {"time": $('.input-group.date input').val()}, function (resp) {
-                    console.log(resp);
-                    if (!resp.status) {
-                        alert(resp.error);
-                    }
-                    $this.button('reset');
-                });
-            })
-        });
+        });        
     </script>
-
+    <script src="{{ asset('admin/bulk_edit_status.js') }}"></script>
     @include('backpack::inc.alerts')
 
     @yield('after_scripts')

@@ -162,7 +162,10 @@ class Tracking_device extends Model
         //check user that contact to server by range of ip
         $range_of_ip = env('IP_RANGE_TRACKING', '');
         $ip_requested = self::get_client_ip();
-
+        //test
+        $current_date = Carbon::now('utc');
+        $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', '2019-07-01 00:00:00');
+        //-------------------------------------------------------
         if (!empty($range_of_ip)) {
             if (preg_match("/$range_of_ip/", $ip_requested) != 0) {
                 //log to file
@@ -313,7 +316,7 @@ class Tracking_device extends Model
                         //thông báo cho user biết
                         $current_date = Carbon::now('utc');
                         $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', $location_device->expired_at);
-                        if ($current_date->diffInMonths($expired_date, false) < -3 && $current_date->diffInDays($expired_date, false) < -7) {
+                        if ($current_date->diffInMonths($expired_date, false) < -3) {
                             //update date as invalid device as set null for user_id
                             $device = Tracking_device::find($location_device->device_id_main);
                             if ($device instanceof Tracking_device) {
@@ -326,7 +329,8 @@ class Tracking_device extends Model
                         }
 
 
-                        if ($current_date->diffInMonths($expired_date, false) <= 0 && $current_date->diffInDays($expired_date, false) < 0) {
+                        if ($current_date->diffInMonths($expired_date, false) <= 0 
+                            && $current_date->diffInDays($expired_date, false) < -30) {
                             //extend expired date
                             $new_expired = $expired_date->addDay(7);
                             $location_devices[$location_device->device_id_main]['is_expired'] = 2;
@@ -824,7 +828,7 @@ class Tracking_device extends Model
         $valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, d.status,
                 d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone,
-                d.current_state_mobile
+                d.current_state_mobile, 
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0 AND d.status !=$status_unused AND d.status != $inActive AND d.expired_at <= '$valid_date'
@@ -844,7 +848,7 @@ class Tracking_device extends Model
                     "Owner" => $item->owner,
                     "Phone" => $item->phone,
                     "Status" => self::getDeviceStatusText($item->status),
-                    "Last Status" => self::getMixedStatus($item->current_state_mobile),
+                    "Last Status" => !empty($item->current_state_mobile) ? self::getMixedStatus($item->current_state_mobile) : self::getMixedStatus($item->current_state),
                 ];
                 $resp[] = $temp;
             }
@@ -1352,5 +1356,46 @@ class Tracking_device extends Model
 
         }
         return $user_devices;
+    }
+
+    public static function getExpiredDevices($filter_date = []) {
+        $condition = "";
+        $current_date = date('Y-m-d 23:59:59');
+        $inActive      = self::STATUS_IN_ACTIVE;            
+        $status_unused = self::STATUS_UNUSED;
+        if (isset($filter_date['begin_date']) && isset($filter_date['end_date'])) {
+            $begin_date_str = $filter_date['begin_date']->format('Y-m-d 00:00:00');
+            $end_date_str = $filter_date['end_date']->format('Y-m-d 23:59:00');
+            $condition .= " AND d.expired_at >= '$begin_date_str' AND d.expired_at <= '$end_date_str'";
+        }
+        $query = "select d.*, u.username 
+                from tracking_devices as d
+                left join users as u on (d.user_id = u.id) 
+                where d.is_deleted = 0 AND d.is_deleted = 0 AND d.device_number IS NOT NULL
+                      AND (d.status = " . self::STATUS_EXTEND_EXPIRED . " OR d.expired_at < '$current_date') $condition
+                order by d.expired_at;"; 
+        $devices = DB::select($query, []);        
+        return $devices;
+    }
+
+    public static function bulkUpdateStatus($raw_data) {
+        $data = json_decode($raw_data, true);
+        if (empty($data) || !is_array($data)) {
+            return ["error" => "empty data"];
+        }
+        try {
+            foreach($data as $device_data) {
+                $device = Tracking_device::find($device_data['id']);
+                if ($device instanceof Tracking_device) {
+                    $device->status = $device_data['status'];
+                    $device->save();
+                }
+            }
+    
+        }
+        catch(Exception $ex) {
+            return ["error" => "Cannot update: " . $ex->getMessage()];
+        }
+        return ["status" => true];
     }
 }

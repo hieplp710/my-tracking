@@ -43,5 +43,7 @@ Route::get('/device/export', 'Tracking\DeviceController@exportExport')->name('ex
 Route::get('/admin/delete-location', 'Admin\ToolController@deleteLocation')->name('delete-location');
 Route::post('/admin/handle-delete-location', 'Admin\ToolController@doDeleteLocation')->name('handle-delete-location');
 Route::get('/admin/bulk-edit-status-device', 'Admin\BulkEditStatusController@bulkEditStatusDevice')->name('bulk-edit-status');
+Route::post('/admin/get-expired-devices', 'Admin\BulkEditStatusController@getExpiredDevices')->name('get-expired-devices');
+Route::post('/admin/update-device-status', 'Admin\BulkEditStatusController@updateDeviceStatus')->name('update-device-status');
 //handle report
 Route::get('/report/general-report', 'Tracking\ReportController@generalReport')->name('general-report');

@@ -159,12 +159,14 @@ $(document).ready(function(){
             "type": "POST",
             "success": function(resp) {
                 if (resp.status) {
-                    alert('Cập nhật thành công!')
+                    alert('Cập nhật thành công!');
+
                     _dataTable.ajax.reload();
                 } else {
                     alert("Cập nhật thất bại: " + resp.error);
                 }
                 $('#btnUpdate').button('reset');
+                $('#btnUpdate').prop('disabled', true);
                 return false;
             },
             "error": function() {

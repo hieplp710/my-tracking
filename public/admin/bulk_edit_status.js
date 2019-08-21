@@ -107,7 +107,6 @@ $(document).ready(function(){
             var isRowChecked = $(this).is(":checked");
             if (isRowChecked == true) {
                 canUpdate = true;
-                console.log(canUpdate, 'canUpdate');
                 return false;
             }            
         });
@@ -118,6 +117,7 @@ $(document).ready(function(){
         e.preventDefault();
         e.stopPropagation();
         var isChecked = true;
+        console.log('change the checkbox');
         canUpdate = false;        
         $('td > input.device-check').each(function() {
             var isRowChecked = $(this).is(":checked");            
@@ -151,6 +151,7 @@ $(document).ready(function(){
         });
         if (data.length == 0) {
             alert('Vui lòng chọn xe để cập nhật trạng thái!');
+            $('#btnUpdate').button('reset');
             return false;
         }
         $.ajax({
@@ -159,14 +160,16 @@ $(document).ready(function(){
             "type": "POST",
             "success": function(resp) {
                 if (resp.status) {
-                    alert('Cập nhật thành công!');
-
+                    alert('Cập nhật thành công!');                                      
                     _dataTable.ajax.reload();
                 } else {
                     alert("Cập nhật thất bại: " + resp.error);
                 }
                 $('#btnUpdate').button('reset');
-                $('#btnUpdate').prop('disabled', true);
+                setTimeout(function(){
+                    $('#btnUpdate').prop('disabled', 'disabled');
+                    $('#check-master').prop('checked', false);  
+                },500)                
                 return false;
             },
             "error": function() {

@@ -30,7 +30,7 @@
     <!-- BackPack Base CSS -->
     <link rel="stylesheet" href="{{ asset('vendor/backpack/backpack.base.css') }}">
     <style>
-        th.a-center.sorting_asc {
+        th.a-center {
             text-align: center;
         }
 

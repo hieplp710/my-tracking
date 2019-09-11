@@ -216,7 +216,7 @@
             location.hash = e.target.hash.replace("#tab_", "#");
         });        
     </script>
-    <script src="{{ asset('admin/bulk_edit_status.js') }}"></script>
+    <script src="{{ asset('admin-script/bulk_edit_status.js') }}"></script>
     @include('backpack::inc.alerts')
 
     @yield('after_scripts')

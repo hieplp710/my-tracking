@@ -828,7 +828,7 @@ class Tracking_device extends Model
         $valid_date = $current_date->addMonth(1)->format('Y-m-d H:i:s');
         $query = "select d.id as device_id, d.device_number, d.sim_infor, d.activated_at, d.status,
                 d.expired_at, d.created_at, IFNULL(u.username, '') as username, IFNULL(u.name,'') as owner, IFNULL(u.phone, '') as phone,
-                d.current_state_mobile, 
+                d.current_state_mobile
             from tracking_devices as d
                 LEFT join users as u on d.user_id = u.id
             where d.is_deleted = 0 AND d.status !=$status_unused AND d.status != $inActive AND d.expired_at <= '$valid_date'

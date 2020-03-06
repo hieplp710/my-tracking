@@ -205,7 +205,7 @@ class Tracking_device extends Model
                         $devices[$i]->checksum = '';
                         $devices[$i]->id = '';
                         $devId = $devices[$i]->device_id_main;
-                        $queryLoc = "select l.* from device_locations as l where l.device_id = '$devId' $retrist_time order by l.created_at desc limit 1";
+                        $queryLoc = "select l.* from device_locations as l where l.device_id = '$devId' order by l.created_at desc limit 1";
                         //current_state_device
                         $dev_loc = DB::select($queryLoc, []);
                         if ($dev_loc && count($dev_loc) > 0) {

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Models\Reports\GeneralReport;
+use App\User;
 
 class DeviceMobileController extends BaseController
 {   
@@ -41,7 +42,7 @@ class DeviceMobileController extends BaseController
         $credentials = ['username' => $user_data['username'], 'password' => $user_data['password']];        
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'invalid_credentials'], 400);
+                return response()->json(['error' => 'Sai mật khẩu hoặc tên đăng nhập'], 400);
             }
         } catch (JWTException $e) {
             return response()->json(['error' => 'could_not_create_token'], 500);
@@ -124,5 +125,50 @@ class DeviceMobileController extends BaseController
         $user->name = isset($data['name']) ? $data['name'] : $user->name;
         $user->save();
         return ["status" => true, "data" => $user->toArray()];
+    }
+
+    public function registerUser(Request $request) {
+        $dataRaw = $request->getContent();        
+        $data = json_decode($dataRaw, true); 
+        $device_id = isset($data['device_id']) ? trim($data['device_id']) : '';
+        $device = Tracking_device::find($device_id);
+        if (empty($device) || $device->is_deleted == 1) {            
+            return response()->json(["status"=>false, "error" => "Thiết bị không tồn tại!"]);
+        }  else if ($device->status != 0 || $device->user_id != 0) {
+            return response()->json(["status"=>false, "error" => "Thiết bị đã được kích hoạt!"]);
+        }
+        $userExisted = User::where("username", '=', $data['username'])->take(1)->get();
+        if (count($userExisted) > 0) {
+            return response()->json(["status"=>false, "error" => "Tên đăng nhập đã được đăng ký, vui lòng sử dụng tên khác!"]);
+        }
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => isset($data['email']) ? $data['email'] : null,
+            'username' => $data['username'],
+            'phone' => $data['phone'],
+            'password' => bcrypt($data['password']),
+        ]);
+        if ($user instanceof User) {
+            //update device to user
+            $device = Tracking_device::where('id', '=', $data['device_id'])
+                ->where('is_deleted', '=', 0)
+                ->where(function ($query) {
+                    $query->orWhere('user_id', '=', 0)
+                        ->orWhereNull('user_id');
+                })
+                ->take(1)
+                ->get();
+            if ($device[0] instanceof Tracking_device) {
+                $device[0]->user_id = $user->id;
+                $device[0]->device_number = $data['device_name'] ? $data['device_name'] : $data['device_id'];
+                //set activated at and expired at
+                $now = Carbon::now('UTC');
+                $nextYear = Carbon::now('UTC')->addYears(1);
+                $device[0]->activated_at = $now->format(Tracking_device::DB_DATETIME_FORMAT);
+                $device[0]->expired_at = $nextYear->format(Tracking_device::DB_DATETIME_FORMAT);
+                $device[0]->save();
+            }
+        }
+        return response()->json(["status"=>true, "data" => $data]);
     }
 }

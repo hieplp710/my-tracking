@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 //     return $request->user();
 // });
 Route::post('/login', 'Tracking\DeviceMobileController@login')->name('login');
+Route::post('/register', 'Tracking\DeviceMobileController@registerUser')->name('register');
 Route::post('/get-report', 'Tracking\DeviceMobileController@getGeneralReport')->name('get_report');
 Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('user', 'UserController@getAuthenticatedUser');

@@ -21,7 +21,7 @@ Route::post('/register', 'Tracking\DeviceMobileController@registerUser')->name('
 Route::post('/get-report', 'Tracking\DeviceMobileController@getGeneralReport')->name('get_report');
 Route::group(['middleware' => ['jwt.verify']], function() {
     Route::get('user', 'UserController@getAuthenticatedUser');
-    Route::get('/get-locations-mobile', 'Tracking\DeviceMobileController@getDeviceLocations')->name('get_location');
+    Route::post('/get-locations-mobile', 'Tracking\DeviceMobileController@getDeviceLocations')->name('get_location');
     Route::get('/get-user', 'Tracking\DeviceMobileController@getUserProfile')->name('get_user');
     Route::post('/get-roadmap', 'Tracking\DeviceMobileController@getRoadmap')->name('get_roadmap');
     Route::post('/get-device-list', 'Tracking\DeviceMobileController@getDeviceList')->name('get_device_list');

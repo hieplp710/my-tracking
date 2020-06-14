@@ -29,8 +29,9 @@ class DeviceMobileController extends BaseController
     }
 
     public function getDeviceLocations(Request $request){
-        //$this->middleware('auth');
-        $options = Input::get('options');
+        //$this->middleware('auth');        
+        $data = $request->getContent();
+        $options = json_decode($data, true);
         $user = JWTAuth::parseToken()->authenticate();        
         $result = Tracking_device::getUserDeviceLocationMobile($user->id, $options);
         return response()->json($result);

@@ -1604,7 +1604,7 @@ class Tracking_device extends Model
                         }
                     }
                 }
-
+                
                 if (isset($location_devices[$location_device->device_id_main]) && !empty($location_device->id)) {
                     $device_state = json_decode($location_device->current_state_device);
                     $current_time_utc = Carbon::now('UTC');
@@ -1673,7 +1673,7 @@ class Tracking_device extends Model
                         $location_device->heading = self::getHeadingClass($location_device->heading);                                             
                         $location_devices[$location_device->device_id_main]['locations'][] = $location_device;
                     }
-                } else if (isset($location_devices[$location_device->device_id_main])) {
+                } else if (isset($location_devices[$location_device->device_id_main])) {                   
                     //get latest position of device
                     $device_state = json_decode($location_device->current_state_device);
                     $current_time_utc = Carbon::now('UTC');
@@ -1683,7 +1683,10 @@ class Tracking_device extends Model
                         $last_gsm_state = Carbon::createFromFormat('y-m-d H:i:s', $device_state->time, 'UTC');
                         $different_gsm = $current_time_utc->diffInSeconds($last_gsm_state);
                     }
-                    if ($options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_PARK || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_LOST_GSM) {
+                    
+                    if ($options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_PARK 
+                        || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_LOST_GSM
+                        || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_RUN) {
                         $location_device->last_point = $options["lastPoint"]['last_point'];
                         $location_device->velocity = 0;
                         $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');
@@ -1716,9 +1719,10 @@ class Tracking_device extends Model
                     }
                 }
             }
+            
             //$last_point_item = $locations[count($locations) - 1];//wrong here
             $location_devices = array_values($location_devices);
-            $resultData = [];                                  
+            $resultData = [];                                
             foreach ($location_devices as $loc) {                
                 $locDetail = $loc["locations"][0];                
                 $locItem = [

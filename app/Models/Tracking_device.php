@@ -1686,7 +1686,8 @@ class Tracking_device extends Model
                     
                     if ($options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_PARK 
                         || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_LOST_GSM
-                        || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_RUN) {
+                        || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_RUN
+                        || $options['lastLocation'][$devID]['status'] == self::STATUS_DEVICE_STOP) {
                         $location_device->last_point = $options["lastPoint"]['last_point'];
                         $location_device->velocity = 0;
                         $location_device->created_at = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh')->format('d-m-Y H:i:s');

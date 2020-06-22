@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 Route::post('/login', 'Tracking\DeviceMobileController@login')->name('login');
 Route::post('/register', 'Tracking\DeviceMobileController@registerUser')->name('register');
 Route::post('/get-report', 'Tracking\DeviceMobileController@getGeneralReport')->name('get_report');

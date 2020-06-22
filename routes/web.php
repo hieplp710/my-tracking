@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+//test route
 Route::get('/', function () {
     if (\Illuminate\Support\Facades\Auth::check()) {
         $site_url = config('app.url');

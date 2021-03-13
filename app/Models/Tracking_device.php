@@ -1750,4 +1750,63 @@ class Tracking_device extends Model
         }
         return $result;
     }
+
+    public static function getUserDeviceForAdmin($user_id){
+        $query = "select d.* 
+                from tracking_devices as d 
+                where d.is_deleted = 0 and d.user_id = $user_id
+                order by d.id";
+        $devices = DB::select($query, []);
+        $user_devices = [];
+        foreach ($devices as $device) {
+            if (isset($device->expired_at)) {
+                //nếu ngày hến hạn lớn hơn không quá 3 tháng so với ngày hiện tại
+                //thông báo cho user biết
+                $current_date = Carbon::now('utc');
+                $expired_date = Carbon::createFromFormat('Y-m-d H:i:s', $device->expired_at);
+                if ($current_date->diffInMonths($expired_date, false) < -3 && $current_date->diffInDays($expired_date, false) < -7) {                    
+                    $device->status = self::STATUS_EXTEND_EXPIRED;                    
+                }                 
+            }
+            $statusCode = self::getStatusText($device->status);
+            $device->status = self::getStatusMapping($statusCode);
+            $user_devices[] = $device;
+        }
+        return $user_devices;
+    }
+
+    public static function updateUserDevices($raw_data) {
+        $data = json_decode($raw_data, true);        
+        if (empty($data) || !is_array($data)) {
+            return ["error" => "empty data"];
+        }
+        try {
+            foreach ($data["devices"] as $device_data) {
+                $device = Tracking_device::find($device_data['id']);                                
+                if (!$device || (isset($device[0]) && $device[0]->is_deleted)) {
+                    throw new \Exception("Thiết bị không có thật hoặc đã bị xóa");
+                }
+                if (!empty($device[0]) && $data["action"] == 'add' && !empty($device[0]->user_id)) {
+                    throw new \Exception("Thiết bị " . $device[0]->id . " đang dùng bởi user " . $device[0]->user_id);
+                }
+            }
+            if ($data["action"] == 'delete') {
+                foreach ($data["devices"] as $device_data) {
+                    $device = Tracking_device::find($device_data['id']);
+                    $device->user_id = null;
+                    $device->save();
+                }
+            } else if ($data["action"] == 'add'){
+                foreach ($data["devices"] as $device_data) {
+                    $device = Tracking_device::find($device_data['id']);
+                    $device->user_id = $device_data['user_id'];
+                    $device->save();
+                }
+            }
+            
+        } catch (\Exception $ex) {
+            return ["error" => "Không thể cập nhật " . $ex->getMessage()];
+        }
+        return ["status" => true];
+    }
 }

@@ -145,4 +145,19 @@ class DeviceController extends BaseController
 
         })->export('xlsx');
     }
+
+    public function getUserDeviceListForAdmin($userId = 0){
+        $this->middleware('auth');        
+        $result = Tracking_device::getUserDeviceForAdmin($userId);
+        return response()->json($result);
+    }
+
+    public function bulkUpdateUserDevices(Request $request){
+        $this->middleware('auth'); 
+        if ($request->isMethod('post')){
+            $data = $request->getContent();                              
+            $result = Tracking_device::updateUserDevices($data);
+        }
+        return response()->json($result);
+    }
 }

@@ -51,21 +51,18 @@
 		      	@include('crud::form_content', ['fields' => $fields, 'action' => 'edit'])
 			  @endif
 			<?php if ((new \ReflectionClass($crud->model))->getShortName() == 'User') { ?>  
-			<div class="form-group col-md-12 checklist_dependency" data-entity="user_role_permission">
+			<div class="form-group col-md-12 checklist_dependency">
 				<div class="row">
 					<div class="col-xs-12">
 						<label>Device list</label>
-					</div>
-					<div class="hidden_fields_primary" data-name="roles">
-						<input type="hidden" class="primary_hidden" name="roles[]" value="1">
-					</div>
+					</div>					
 					<div class="col-sm-6">
 						<div class="table-device">
 							<table id="user-devices">
 								<thead>
 								<th><input type="checkbox" id="chkAll"/></th>
-								<th>Device Id</th>
-								<th>Status</th>
+								<th>Id</th>
+								<th>Trạng thái</th>
 								</thead>
 								<tbody>
 									<tr id="new-row">

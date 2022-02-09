@@ -86,7 +86,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
     /**
      * @throws InvalidArgumentException If a locale contains invalid characters
      */
-    public function __construct(?string $locale, MessageFormatterInterface $formatter = null, string $cacheDir = null, bool $debug = false)
+    public function __construct($locale, $formatter = null, $cacheDir = null, $debug = false)
     {
         $this->setLocale($locale);
 
@@ -100,7 +100,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
         $this->hasIntlFormatter = $formatter instanceof IntlFormatterInterface;
     }
 
-    public function setConfigCacheFactory(ConfigCacheFactoryInterface $configCacheFactory)
+    public function setConfigCacheFactory($configCacheFactory)
     {
         $this->configCacheFactory = $configCacheFactory;
     }
@@ -111,7 +111,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
      * @param string          $format The name of the loader (@see addResource())
      * @param LoaderInterface $loader A LoaderInterface instance
      */
-    public function addLoader($format, LoaderInterface $loader)
+    public function addLoader($format, $loader)
     {
         $this->loaders[$format] = $loader;
     }
@@ -167,7 +167,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
      *
      * @throws InvalidArgumentException If a locale contains invalid characters
      */
-    public function setFallbackLocales(array $locales)
+    public function setFallbackLocales($locales)
     {
         // needed as the fallback locales are linked to the already loaded catalogues
         $this->catalogues = array();
@@ -194,7 +194,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = array(), $domain = null, $locale = null)
+    public function trans($id, $parameters = array(), $domain = null, $locale = null)
     {
         if (null === $domain) {
             $domain = 'messages';
@@ -224,7 +224,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
      *
      * @deprecated since Symfony 4.2, use the trans() method instead with a %count% parameter
      */
-    public function transChoice($id, $number, array $parameters = array(), $domain = null, $locale = null)
+    public function transChoice($id, $number, $parameters = array(), $domain = null, $locale = null)
     {
         @trigger_error(sprintf('The "%s()" method is deprecated since Symfony 4.2, use the trans() one instead with a "%%count%%" parameter.', __METHOD__), E_USER_DEPRECATED);
 
@@ -312,7 +312,7 @@ class Translator implements LegacyTranslatorInterface, TranslatorInterface, Tran
         $this->loadFallbackCatalogues($locale);
     }
 
-    private function initializeCacheCatalogue(string $locale): void
+    private function initializeCacheCatalogue($locale): void
     {
         if (isset($this->catalogues[$locale])) {
             /* Catalogue already initialized. */
